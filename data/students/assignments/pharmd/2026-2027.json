@@ -1,0 +1,45 @@
+{
+  "programId": "pharmd",
+  "academicYearId": "2026-2027",
+  "rules": [
+    {
+      "id": "pharmd-2026-2027-group-1",
+      "practicalGroup": 1,
+      "from": "2415001",
+      "to": "2415076",
+      "subdivisions": [
+        {
+          "id": "pharmd-2026-2027-group-1-a",
+          "name": "A",
+          "from": "2415001",
+          "to": "2415038"
+        },
+        {
+          "id": "pharmd-2026-2027-group-1-b",
+          "name": "B",
+          "from": "2415039",
+          "to": "2415076"
+        }
+      ]
+    },
+    {
+      "id": "pharmd-2026-2027-group-2",
+      "practicalGroup": 2,
+      "from": "2415077",
+      "to": "2415148"
+    },
+    {
+      "id": "pharmd-2026-2027-group-3",
+      "practicalGroup": 3,
+      "from": "2415149",
+      "to": null
+    }
+  ],
+  "overrides": [],
+  "sourceReview": [
+    {
+      "code": "ASSIGNMENT_UNCONFIRMED",
+      "detail": "Replace with verified official student ID ranges and subdivision boundaries."
+    }
+  ]
+}
