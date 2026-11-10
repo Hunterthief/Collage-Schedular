@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "1.0.0",
+  "dataVersion": "2026-11-11T00:00:00Z",
+  "timezone": "Africa/Cairo",
+  "paths": {
+    "programs": "data/programs/programs.json",
+    "settings": "data/institution/settings.json",
+    "locations": "data/institution/locations.json",
+    "institutionEvents": "data/institution/events.json",
+    "changelog": "data/changelog.json"
+  },
+  "assignments": [
+    {
+      "programId": "pharmd",
+      "academicYearId": "2026-2027",
+      "path": "data/students/assignments/pharmd/2026-2027.json"
+    }
+  ],
+  "calendarFeeds": {
+    "baseUrl": "calendar/feeds",
+    "pathTemplate": "{programId}/{academicYearId}/group-{group}.ics"
+  }
+}
