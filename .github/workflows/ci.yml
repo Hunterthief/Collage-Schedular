@@ -1,0 +1,34 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate data
+        run: python tools/validate-data.py
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Run tests
+        run: node --test tests/
+
+      - name: Generate calendar feeds
+        run: node tools/generate-calendars.mjs
+
+      - name: Upload generated feeds
+        uses: actions/upload-artifact@v4
+        with:
+          name: calendar-feeds
+          path: calendar/feeds
