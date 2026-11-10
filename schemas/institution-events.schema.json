@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schemas/institution-events.schema.json",
+  "type": "object",
+  "required": ["events"],
+  "properties": {
+    "events": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "title", "status"],
+        "properties": {
+          "id": { "type": "string" },
+          "title": {
+            "type": ["object", "string"]
+          },
+          "description": {
+            "type": ["object", "string", "null"]
+          },
+          "type": {
+            "type": "string",
+            "default": "college-event"
+          },
+          "date": { "type": ["string", "null"] },
+          "day": { "type": ["string", "null"] },
+          "start": { "type": ["string", "null"] },
+          "end": { "type": ["string", "null"] },
+          "validFrom": { "type": ["string", "null"] },
+          "validUntil": { "type": ["string", "null"] },
+          "location": {
+            "type": ["object", "null"],
+            "properties": {
+              "building": { "type": ["string", "null"] },
+              "floor": { "type": ["integer", "null"] },
+              "room": { "type": ["string", "null"] }
+            }
+          },
+          "audience": {
+            "type": "object",
+            "required": ["scope"],
+            "properties": {
+              "scope": {
+                "enum": ["all", "program", "academic-year", "semester", "group", "custom"]
+              }
+            }
+          },
+          "status": {
+            "enum": ["draft", "published", "cancelled", "completed"]
+          }
+        }
+      }
+    }
+  }
+}
