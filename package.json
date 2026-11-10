@@ -1,0 +1,11 @@
+{
+  "name": "college-schedule",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/",
+    "validate": "python tools/validate-data.py",
+    "generate-calendars": "node tools/generate-calendars.mjs",
+    "preview": "python -m http.server 8080"
+  }
+}
