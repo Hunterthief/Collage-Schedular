@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schemas/assignments.schema.json",
+  "type": "object",
+  "required": ["programId", "academicYearId", "rules"],
+  "properties": {
+    "programId": { "type": "string" },
+    "academicYearId": { "type": "string" },
+    "rules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["practicalGroup"],
+        "properties": {
+          "id": { "type": "string" },
+          "practicalGroup": { "type": "integer" },
+          "from": { "type": ["string", "null"] },
+          "to": { "type": ["string", "null"] },
+          "students": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "subdivisions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["name"],
+              "properties": {
+                "id": { "type": "string" },
+                "name": { "type": "string" },
+                "from": { "type": ["string", "null"] },
+                "to": { "type": ["string", "null"] },
+                "students": {
+                  "type": "array",
+                  "items": { "type": "string" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "overrides": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["studentId"],
+        "properties": {
+          "studentId": { "type": "string" },
+          "practicalGroup": { "type": ["integer", "null"] },
+          "subdivision": { "type": ["string", "null"] },
+          "reason": { "type": "string" }
+        }
+      }
+    }
+  }
+}
