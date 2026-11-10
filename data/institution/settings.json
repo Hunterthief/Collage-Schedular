@@ -1,0 +1,17 @@
+{
+  "institutionId": "college",
+  "calendarName": {
+    "en": "College Schedule",
+    "ar": "جدول الكلية"
+  },
+  "timezone": "Africa/Cairo",
+  "weekStartDay": "Saturday",
+  "defaultLocale": "en",
+  "locales": ["en", "ar"],
+  "privacy": {
+    "notice": {
+      "en": "Your student ID is used only to locate your schedule. It is not a password. Schedules are public.",
+      "ar": "يُستخدم رقمك الجامعي فقط لتحديد جدولك. فهو ليس كلمة مرور. الجداول公开."
+    }
+  }
+}
