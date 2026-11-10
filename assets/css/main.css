@@ -1,0 +1,33 @@
+:root {
+  --bg: #f7f7fb;
+  --fg: #111827;
+  --muted: #6b7280;
+  --card: #ffffff;
+  --border: #e5e7eb;
+  --lecture: #2563eb;
+  --practical: #059669;
+  --exam: #dc2626;
+  --college: #7c3aed;
+  --warning: #b45309;
+  --error: #b91c1c;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+}
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.privacy-notice {
+  color: var(--muted);
+  font-size: 0.95rem;
+}
