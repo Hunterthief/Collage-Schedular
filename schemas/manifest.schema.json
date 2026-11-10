@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schemas/manifest.schema.json",
+  "type": "object",
+  "required": ["schemaVersion", "dataVersion", "timezone", "paths", "assignments", "calendarFeeds"],
+  "properties": {
+    "schemaVersion": { "type": "string" },
+    "dataVersion": { "type": "string" },
+    "timezone": { "const": "Africa/Cairo" },
+    "paths": {
+      "type": "object",
+      "required": ["programs", "settings", "locations", "institutionEvents"],
+      "properties": {
+        "programs": { "type": "string" },
+        "settings": { "type": "string" },
+        "locations": { "type": "string" },
+        "institutionEvents": { "type": "string" },
+        "changelog": { "type": "string" }
+      }
+    },
+    "assignments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["programId", "academicYearId", "path"],
+        "properties": {
+          "programId": { "type": "string" },
+          "academicYearId": { "type": "string" },
+          "path": { "type": "string" }
+        }
+      }
+    },
+    "calendarFeeds": {
+      "type": "object",
+      "required": ["baseUrl"],
+      "properties": {
+        "baseUrl": { "type": "string" },
+        "pathTemplate": { "type": "string" }
+      }
+    }
+  }
+}
