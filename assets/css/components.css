@@ -1,0 +1,34 @@
+.lookup form {
+  display: grid;
+  gap: 0.5rem;
+  max-width: 420px;
+}
+
+.button,
+button[type="submit"],
+#download-ics {
+  appearance: none;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--fg);
+  padding: 0.6rem 0.9rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+.tabs button.active {
+  background: #111827;
+  color: white;
+}
+
+.status.info { color: var(--muted); }
+.status.error { color: var(--error); }
+.warning { color: var(--warning); }
