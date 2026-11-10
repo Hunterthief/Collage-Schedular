@@ -1,0 +1,71 @@
+import { CONFIG } from "../config.js";
+
+export class DataLoader {
+  constructor({ fetchImpl = fetch, baseUrl = "" } = {}) {
+    this.fetchImpl = fetchImpl;
+    this.baseUrl = baseUrl;
+    this.cache = new Map();
+    this.manifest = null;
+  }
+
+  resolve(path) {
+    if (!this.baseUrl) return path;
+    return new URL(path, this.baseUrl).href;
+  }
+
+  async loadJson(path, options = {}) {
+    const url = this.resolve(path);
+    const cacheKey = url;
+    const noCache = options.cache === "no-store";
+
+    if (!noCache && this.cache.has(cacheKey)) {
+      return this.cache.get(cacheKey);
+    }
+
+    const res = await this.fetchImpl(url, {
+      cache: options.cache ?? "default"
+    });
+
+    if (!res.ok) {
+      throw new Error(`Failed to load ${path}: ${res.status} ${res.statusText}`);
+    }
+
+    const json = await res.json();
+    if (!noCache) this.cache.set(cacheKey, json);
+    return json;
+  }
+
+  async loadManifest() {
+    this.manifest = await this.loadJson(CONFIG.manifestPath, {
+      cache: CONFIG.request.manifest.cache
+    });
+    return this.manifest;
+  }
+
+  async loadPrograms(manifest = this.manifest) {
+    return this.loadJson(manifest.paths.programs);
+  }
+
+  async loadInstitutionData(manifest = this.manifest) {
+    const [settings, locations, events] = await Promise.all([
+      this.loadJson(manifest.paths.settings),
+      this.loadJson(manifest.paths.locations),
+      this.loadJson(manifest.paths.institutionEvents)
+    ]);
+
+    return { settings, locations, events };
+  }
+
+  async loadSemesterDatasets(semester, manifest = this.manifest) {
+    const paths = semester.datasets;
+
+    const [courses, lectures, practicals, exceptions] = await Promise.all([
+      this.loadJson(paths.courses),
+      this.loadJson(paths.lectures),
+      this.loadJson(paths.practicals),
+      this.loadJson(paths.exceptions)
+    ]);
+
+    return { courses, lectures, practicals, exceptions };
+  }
+}
