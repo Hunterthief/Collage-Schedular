@@ -1,0 +1,41 @@
+.day {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.event {
+  border-left: 6px solid var(--muted);
+  padding: 0.75rem;
+  margin: 0.75rem 0;
+  background: #fafafa;
+  border-radius: 0.5rem;
+}
+
+.event.lecture { border-left-color: var(--lecture); }
+.event.practical { border-left-color: var(--practical); }
+.event.examination { border-left-color: var(--exam); }
+.event.college-event { border-left-color: var(--college); }
+
+.event.cancelled {
+  opacity: 0.6;
+  text-decoration: line-through;
+}
+
+.event.unverified::after {
+  content: " ⚠ unverified";
+  color: var(--warning);
+  font-size: 0.85rem;
+}
+
+.event-title {
+  font-weight: 600;
+}
+
+.event-meta,
+.event-type {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
