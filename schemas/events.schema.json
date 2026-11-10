@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schemas/events.schema.json",
+  "type": "object",
+  "required": ["id", "type"],
+  "properties": {
+    "id": { "type": "string" },
+    "courseId": { "type": ["string", "null"] },
+    "type": {
+      "enum": ["lecture", "practical", "examination"]
+    },
+    "day": {
+      "enum": [
+        "Sunday",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday"
+      ]
+    },
+    "date": { "type": ["string", "null"] },
+    "start": { "type": ["string", "null"] },
+    "end": { "type": ["string", "null"] },
+    "groups": {
+      "type": ["array", "null"],
+      "items": { "type": "integer" }
+    },
+    "sessions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["group", "start", "end"],
+        "properties": {
+          "group": { "type": "integer" },
+          "start": { "type": "string" },
+          "end": { "type": "string" }
+        }
+      }
+    },
+    "location": {
+      "type": ["object", "null"],
+      "properties": {
+        "building": { "type": ["string", "null"] },
+        "floor": { "type": ["integer", "null"] },
+        "room": { "type": ["string", "null"] }
+      }
+    },
+    "displayCode": { "type": ["string", "null"] },
+    "shorthand": { "type": ["string", "null"] },
+    "validFrom": { "type": ["string", "null"] },
+    "validUntil": { "type": ["string", "null"] },
+    "sourceReview": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["code"],
+        "properties": {
+          "code": { "type": "string" },
+          "detail": { "type": "string" }
+        }
+      }
+    }
+  }
+}
