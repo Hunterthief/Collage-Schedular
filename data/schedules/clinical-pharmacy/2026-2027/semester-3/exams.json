@@ -1,0 +1,9 @@
+{
+  "events": [],
+  "sourceReview": [
+    {
+      "code": "EXAM_TIMETABLE_NOT_YET_PUBLISHED",
+      "detail": "No Clinical Pharmacy Semester 3 exam timetable was supplied. Add examination events here when the department publishes one; the college-wide mid-term blackout (2026-10-31 to 2026-11-05) already blocks lectures and practicals that week."
+    }
+  ]
+}
