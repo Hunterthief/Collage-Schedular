@@ -21,8 +21,23 @@ jobs:
         with:
           node-version: "22"
 
+      - name: Show discovered test files
+        run: |
+          find . -path ./node_modules -prune -o \
+            \( -name '*.test.js' -o -name '*.test.mjs' -o -name '*.test.cjs' \) -print \
+            | sort
+
       - name: Run tests
-        run: node --test tests/
+        run: |
+          count=$(find . -path ./node_modules -prune -o \
+            \( -name '*.test.js' -o -name '*.test.mjs' -o -name '*.test.cjs' \) -print \
+            | wc -l)
+          echo "Found $count test file(s)"
+          if [ "$count" -eq 0 ]; then
+            echo "::error::No *.test.js / *.test.mjs / *.test.cjs files found. Commit your tests folder (the files must be named like foo.test.mjs)."
+            exit 1
+          fi
+          node --test
 
       - name: Generate calendar feeds
         run: node tools/generate-calendars.mjs
