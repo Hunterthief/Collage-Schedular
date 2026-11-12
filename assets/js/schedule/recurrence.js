@@ -28,18 +28,25 @@ export function addDays(date, days) {
 }
 
 export function weekdayName(dateOrString) {
-  const date = typeof dateOrString === "string" ? parseDate(dateOrString) : dateOrString;
+  const date =
+    typeof dateOrString === "string" ? parseDate(dateOrString) : dateOrString;
   return REVERSE_WEEKDAYS[date.getUTCDay()];
 }
 
-export function expandWeekly(start, end, weekday, validFrom = null, validUntil = null) {
+export function expandWeekly(
+  start,
+  end,
+  weekday,
+  validFrom = null,
+  validUntil = null
+) {
   if (!start || !end || !weekday) return [];
 
   const dayNum = WEEKDAYS[weekday];
   if (dayNum == null) return [];
 
   let cursor = parseDate(start);
-  const endDate = parseDate(end);
+  let endDate = parseDate(end);
 
   if (validFrom) {
     const vf = parseDate(validFrom);
@@ -63,7 +70,11 @@ export function expandWeekly(start, end, weekday, validFrom = null, validUntil =
   return dates;
 }
 
-export function dateInSameWeek(originalDateStr, targetWeekday, weekStartDay = "Saturday") {
+export function dateInSameWeek(
+  originalDateStr,
+  targetWeekday,
+  weekStartDay = "Saturday"
+) {
   const original = parseDate(originalDateStr);
   const originalDay = original.getUTCDay();
   const weekStartNum = WEEKDAYS[weekStartDay];
@@ -99,4 +110,22 @@ export function todayInTimeZone(timeZone) {
     month: "2-digit",
     day: "2-digit"
   }).format(new Date());
+}
+
+export function occursOnDay(event, dayStr) {
+  if (event.allDay) {
+    const end = event.endDate ?? event.date;
+    return event.date <= dayStr && dayStr <= end;
+  }
+
+  return event.date === dayStr;
+}
+
+export function occursInRange(event, startStr, endStr) {
+  if (event.allDay) {
+    const evEnd = event.endDate ?? event.date;
+    return event.date <= endStr && evEnd >= startStr;
+  }
+
+  return event.date >= startStr && event.date <= endStr;
 }
