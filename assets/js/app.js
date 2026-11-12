@@ -2,6 +2,7 @@ import { CONFIG } from "./config.js";
 import { DataLoader } from "./data/loader.js";
 import { findProgram, findAcademicYear } from "./data/programs.js";
 import { loadAssignmentDocuments } from "./student/assignments.js";
+import { buildLookupOptions } from "./data/options.js";
 import {
   resolveStudentId,
   StudentNotFoundError,
@@ -19,8 +20,10 @@ import {
   formatDate,
   addDays,
   occursOnDay,
-  occursInRange
+  occursInRange,
+  weekdayName
 } from "./schedule/recurrence.js";
+import { timeToMinutes } from "./schedule/sorting.js";
 import {
   buildFeedUrl,
   googleCalendarSubscribeUrl
@@ -31,117 +34,377 @@ import { localize } from "./i18n.js";
 const loader = new DataLoader();
 
 const els = {
-  form: document.getElementById("lookup-form"),
-  input: document.getElementById("student-id"),
+  modeButtons: document.querySelectorAll(".segment"),
+  idForm: document.getElementById("id-form"),
+  manualForm: document.getElementById("manual-form"),
+  studentId: document.getElementById("student-id"),
+  programSelect: document.getElementById("program-select"),
+  yearSelect: document.getElementById("year-select"),
+  groupSelect: document.getElementById("group-select"),
   status: document.getElementById("status"),
   result: document.getElementById("result"),
   assignmentSummary: document.getElementById("assignment-summary"),
   timetable: document.getElementById("timetable"),
   calendarLinks: document.getElementById("calendar-links"),
-  tabs: document.querySelectorAll(".tabs button")
+  tabs: document.querySelectorAll(".tab"),
+  siteTitle: document.getElementById("site-title"),
+  siteSubtitle: document.getElementById("site-subtitle"),
+  privacyNotice: document.getElementById("privacy-notice")
 };
 
 let currentState = null;
+let lookupOptions = null;
 
-els.form.addEventListener("submit", async (e) => {
-  e.preventDefault();
-  await lookup(els.input.value);
-});
+init();
 
-els.tabs.forEach((btn) => {
-  btn.addEventListener("click", () => {
-    els.tabs.forEach((b) => b.classList.remove("active"));
-    btn.classList.add("active");
-    if (currentState) renderView(currentState, btn.dataset.view);
-  });
-});
+async function init() {
+  bindEvents();
 
-function setStatus(message, kind = "info") {
-  els.status.textContent = message;
-  els.status.className = `status ${kind}`;
+  try {
+    await ensureOptions();
+  } catch (err) {
+    setStatus(`Could not load lookup options: ${err.message}`, "error");
+  }
 }
 
-async function lookup(rawId) {
-  try {
-    setStatus("Loading schedule…");
+function bindEvents() {
+  els.modeButtons.forEach((btn) => {
+    btn.addEventListener("click", () => setMode(btn.dataset.mode));
+  });
 
+  els.idForm.addEventListener("submit", onIdSubmit);
+  els.manualForm.addEventListener("submit", onManualSubmit);
+
+  els.programSelect.addEventListener("change", () => {
+    populateYears();
+    populateGroups();
+  });
+
+  els.yearSelect.addEventListener("change", () => {
+    populateGroups();
+  });
+
+  els.tabs.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      if (currentState) renderView(currentState, btn.dataset.view);
+    });
+  });
+}
+
+function setMode(mode) {
+  els.modeButtons.forEach((btn) => {
+    const active = btn.dataset.mode === mode;
+    btn.classList.toggle("active", active);
+    btn.setAttribute("aria-selected", String(active));
+  });
+
+  els.idForm.hidden = mode !== "id";
+  els.manualForm.hidden = mode !== "manual";
+
+  if (mode === "manual") {
+    ensureOptions().catch((err) => {
+      setStatus(`Could not load year/group options: ${err.message}`, "error");
+    });
+  }
+}
+
+async function ensureOptions() {
+  if (lookupOptions) return lookupOptions;
+
+  const manifest = await loader.loadManifest();
+  const [options, settings] = await Promise.all([
+    buildLookupOptions(loader, manifest),
+    loader.loadJson(manifest.paths.settings)
+  ]);
+
+  lookupOptions = {
+    ...options,
+    settings,
+    manifest
+  };
+
+  applyBranding(settings);
+  populatePrograms(options.programs);
+
+  return lookupOptions;
+}
+
+function applyBranding(settings) {
+  const locale = settings.defaultLocale ?? CONFIG.ui.defaultLocale ?? "en";
+
+  const title = localize(settings.calendarName, locale) || "College Schedule";
+  const privacy = localize(settings.privacy?.notice, locale);
+
+  if (els.siteTitle) els.siteTitle.textContent = title;
+  if (document.title) document.title = title;
+
+  if (privacy && els.privacyNotice) {
+    els.privacyNotice.textContent = privacy;
+  }
+}
+
+function populatePrograms(programs) {
+  els.programSelect.innerHTML = "";
+
+  if (!programs.length) {
+    clearSelect(els.programSelect, "No programs available");
+    clearSelect(els.yearSelect, "No academic years");
+    clearSelect(els.groupSelect, "No groups available");
+    return;
+  }
+
+  for (const program of programs) {
+    addOption(els.programSelect, program.id, program.name);
+  }
+
+  els.programSelect.value = programs[0].id;
+  populateYears();
+}
+
+function populateYears() {
+  const program = lookupOptions?.programs.find(
+    (p) => p.id === els.programSelect.value
+  );
+
+  clearSelect(
+    els.yearSelect,
+    program?.years?.length ? "Select academic year" : "No academic years"
+  );
+
+  if (!program) return;
+
+  for (const year of program.years) {
+    addOption(els.yearSelect, year.id, year.name);
+  }
+
+  if (program.years.length === 1) {
+    els.yearSelect.value = program.years[0].id;
+  }
+
+  populateGroups();
+}
+
+function populateGroups() {
+  const program = lookupOptions?.programs.find(
+    (p) => p.id === els.programSelect.value
+  );
+
+  const year = program?.years.find(
+    (y) => y.id === els.yearSelect.value
+  );
+
+  clearSelect(
+    els.groupSelect,
+    year?.groups?.length ? "Select practical group" : "No groups available"
+  );
+
+  if (!year) return;
+
+  for (const group of year.groups) {
+    addOption(els.groupSelect, String(group), `Group ${group}`);
+  }
+
+  if (year.groups.length === 1) {
+    els.groupSelect.value = String(year.groups[0]);
+  }
+}
+
+function clearSelect(select, placeholder) {
+  select.innerHTML = "";
+
+  const option = document.createElement("option");
+  option.value = "";
+  option.textContent = placeholder;
+  option.disabled = true;
+  option.selected = true;
+
+  select.appendChild(option);
+}
+
+function addOption(select, value, label) {
+  const option = document.createElement("option");
+  option.value = value;
+  option.textContent = label;
+  select.appendChild(option);
+}
+
+async function onIdSubmit(event) {
+  event.preventDefault();
+  setStatus("Loading schedule…");
+
+  try {
     const manifest = await loader.loadManifest();
     checkForUpdate(manifest.dataVersion);
 
-    const programs = await loader.loadPrograms(manifest);
     const assignmentDocs = await loadAssignmentDocuments(loader, manifest);
+    const assignment = resolveStudentId(els.studentId.value, assignmentDocs);
 
-    const assignment = resolveStudentId(rawId, assignmentDocs);
+    assignment.lookupMethod = "Student ID";
+    assignment.displayId = maskStudentId(assignment.studentId);
 
-    const program = findProgram(programs, assignment.programId);
-    if (!program)
-      throw new DataIntegrityError(`Unknown program: ${assignment.programId}`);
-
-    const year = findAcademicYear(program, assignment.academicYearId);
-    if (!year)
-      throw new DataIntegrityError(
-        `Unknown academic year: ${assignment.academicYearId}`
-      );
-
-    const institution = await loader.loadInstitutionData(manifest);
-    const today = todayInTimeZone(manifest.timezone);
-
-    const semester = selectActiveSemester(year, today, manifest.timezone);
-    if (!semester) {
-      throw new Error(
-        "No active or upcoming published semester found for this academic year."
-      );
-    }
-
-    const datasets = await loader.loadSemesterDatasets(semester, manifest);
-
-    const schedule = composeSchedule({
-      institutionId: institution.settings.institutionId,
-      timezone: manifest.timezone,
-      settings: institution.settings,
-      locations: institution.locations,
-      semester,
-      courses: datasets.courses,
-      lectures: datasets.lectures,
-      practicals: datasets.practicals,
-      exams: datasets.exams,
-      exceptions: datasets.exceptions,
-      institutionEvents: institution.events,
-      context: {
-        ...assignment,
-        semesterId: semester.id,
-        today
-      },
-      locale:
-        institution.settings.defaultLocale ?? CONFIG.ui.defaultLocale
-    });
-
-    currentState = {
-      manifest,
-      institution,
-      assignment,
-      semester,
-      schedule,
-      today,
-      view: "weekly"
-    };
-
-    renderAll(currentState);
-    setStatus("");
+    await loadAndRenderSchedule(assignment, manifest);
   } catch (err) {
     renderError(err);
   }
 }
 
-function checkForUpdate(dataVersion) {
-  const key = "college-schedule-data-version";
-  const previous = localStorage.getItem(key);
+async function onManualSubmit(event) {
+  event.preventDefault();
+  setStatus("Loading schedule…");
 
-  if (previous && previous !== dataVersion) {
-    setStatus("The published schedule has been updated.", "info");
+  try {
+    const programId = els.programSelect.value;
+    const academicYearId = els.yearSelect.value;
+    const groupValue = els.groupSelect.value;
+
+    if (!programId || !academicYearId || !groupValue) {
+      setStatus("Select a program, academic year, and practical group.", "error");
+      return;
+    }
+
+    const assignment = {
+      studentId: null,
+      displayId: null,
+      programId,
+      academicYearId,
+      practicalGroup: Number(groupValue),
+      subdivision: null,
+      subdivisionStatus: "not-applicable",
+      source: "manual",
+      lookupMethod: "Year & Group",
+      warnings: []
+    };
+
+    const manifest = await loader.loadManifest();
+    checkForUpdate(manifest.dataVersion);
+
+    await loadAndRenderSchedule(assignment, manifest);
+  } catch (err) {
+    renderError(err);
+  }
+}
+
+function maskStudentId(id) {
+  if (!id) return "";
+  if (id.length <= 4) return id;
+  return "•".repeat(id.length - 4) + id.slice(-4);
+}
+
+async function loadAndRenderSchedule(assignment, manifest) {
+  const programs = await loader.loadPrograms(manifest);
+
+  const program = findProgram(programs, assignment.programId);
+  if (!program) {
+    throw new DataIntegrityError(`Unknown program: ${assignment.programId}`);
   }
 
-  localStorage.setItem(key, dataVersion);
+  const year = findAcademicYear(program, assignment.academicYearId);
+  if (!year) {
+    throw new DataIntegrityError(
+      `Unknown academic year: ${assignment.academicYearId}`
+    );
+  }
+
+  const institution = await loader.loadInstitutionData(manifest);
+  const locale =
+    institution.settings.defaultLocale ?? CONFIG.ui.defaultLocale ?? "en";
+
+  const today = todayInTimeZone(manifest.timezone);
+
+  const semester = selectActiveSemester(year, today, manifest.timezone);
+  if (!semester) {
+    throw new Error(
+      "No active or upcoming published semester is available for this academic year."
+    );
+  }
+
+  const datasets = await loader.loadSemesterDatasets(semester, manifest);
+
+  const schedule = composeSchedule({
+    institutionId: institution.settings.institutionId,
+    timezone: manifest.timezone,
+    settings: institution.settings,
+    locations: institution.locations,
+    semester,
+    courses: datasets.courses,
+    lectures: datasets.lectures,
+    practicals: datasets.practicals,
+    exams: datasets.exams,
+    exceptions: datasets.exceptions,
+    institutionEvents: institution.events,
+    context: {
+      ...assignment,
+      semesterId: semester.id,
+      today
+    },
+    locale
+  });
+
+  const issues = [
+    ...schedule.diagnostics.errors.map((message) => ({
+      level: "error",
+      message
+    })),
+    ...schedule.diagnostics.warnings.map((message) => ({
+      level: "warning",
+      message
+    }))
+  ];
+
+  currentState = {
+    manifest,
+    institution,
+    program,
+    year,
+    semester,
+    assignment,
+    schedule,
+    today,
+    locale,
+    issues,
+    view: "weekly"
+  };
+
+  renderAll(currentState);
+
+  const hasErrors = issues.some((issue) => issue.level === "error");
+  setStatus(
+    hasErrors
+      ? "Schedule loaded, but data issues were detected."
+      : "Schedule loaded.",
+    hasErrors ? "error" : "success"
+  );
+}
+
+function checkForUpdate(dataVersion) {
+  const key = "college-schedule-data-version";
+
+  let previous = null;
+  try {
+    previous = localStorage.getItem(key);
+  } catch {
+    previous = null;
+  }
+
+  if (previous && previous !== dataVersion) {
+    loader.cache?.clear();
+    lookupOptions = null;
+    setStatus(
+      "Published data has changed. Cached files were cleared. Please reload if behavior seems stale.",
+      "info"
+    );
+  }
+
+  try {
+    localStorage.setItem(key, dataVersion);
+  } catch {
+    // Ignore storage failures in private browsing modes.
+  }
+}
+
+function setStatus(message, kind = "info") {
+  els.status.textContent = message;
+  els.status.className = `status ${kind}`;
 }
 
 function renderAll(state) {
@@ -153,20 +416,81 @@ function renderAll(state) {
 
 function renderAssignmentSummary(state) {
   const a = state.assignment;
-  const warnings = (a.warnings ?? []).join(", ");
+  const locale = state.locale;
 
-  els.assignmentSummary.innerHTML = `
-    <p><strong>Program:</strong> ${a.programId}</p>
-    <p><strong>Academic year:</strong> ${a.academicYearId}</p>
-    <p><strong>Semester:</strong> ${state.semester.id}</p>
-    <p><strong>Practical group:</strong> ${a.practicalGroup ?? "unresolved"}</p>
-    <p><strong>Subdivision:</strong> ${a.subdivision ?? a.subdivisionStatus}</p>
-    ${warnings ? `<p class="warning">Warnings: ${warnings}</p>` : ""}
-  `;
+  const items = [];
+
+  if (a.displayId) {
+    items.push(["Student ID", a.displayId]);
+  }
+
+  items.push(["Lookup", a.lookupMethod ?? "Student ID"]);
+  items.push([
+    "Program",
+    localize(state.program.name, locale) || state.program.id
+  ]);
+  items.push([
+    "Academic year",
+    localize(state.year.name, locale) || state.year.id
+  ]);
+  items.push([
+    "Semester",
+    localize(state.semester.name, locale) || state.semester.id
+  ]);
+  items.push([
+    "Practical group",
+    a.practicalGroup ?? "Unresolved"
+  ]);
+  items.push([
+    "Subdivision",
+    a.subdivision ??
+      (a.subdivisionStatus === "unresolved"
+        ? "Unresolved"
+        : "Not applicable")
+  ]);
+
+  let html = `<div class="summary-grid">`;
+
+  for (const [label, value] of items) {
+    html += `
+      <div class="summary-item">
+        <span>${escapeHtml(label)}</span>
+        <strong>${escapeHtml(String(value))}</strong>
+      </div>
+    `;
+  }
+
+  html += `</div>`;
+
+  const notes = [
+    ...(a.warnings ?? []),
+    ...(state.issues ?? []).map((issue) => issue.message)
+  ].filter(Boolean);
+
+  if (notes.length) {
+    const visible = notes.slice(0, 5).join(" · ");
+    const extra = notes.length > 5 ? " …" : "";
+
+    html += `
+      <div class="warning-box">
+        <strong>Data notes:</strong>
+        ${escapeHtml(visible + extra)}
+      </div>
+    `;
+  }
+
+  els.assignmentSummary.innerHTML = html;
 }
 
 function renderView(state, view) {
   state.view = view;
+
+  els.tabs.forEach((btn) => {
+    const active = btn.dataset.view === view;
+    btn.classList.toggle("active", active);
+    btn.setAttribute("aria-selected", String(active));
+  });
+
   const events = state.schedule.events;
 
   if (view === "weekly") {
@@ -176,15 +500,14 @@ function renderView(state, view) {
     );
     const weekEnd = endOfWeek(weekStart);
 
-    const filtered = events.filter((e) =>
-      occursInRange(e, weekStart, weekEnd)
-    );
+    const filtered = events.filter((e) => occursInRange(e, weekStart, weekEnd));
 
     renderAgenda(
       expandEventsForRange(filtered, weekStart, weekEnd, "repeat"),
       state,
       `Week of ${weekStart}`
     );
+
     return;
   }
 
@@ -196,6 +519,7 @@ function renderView(state, view) {
       state,
       `Today (${state.today})`
     );
+
     return;
   }
 
@@ -203,9 +527,7 @@ function renderView(state, view) {
     addDays(parseDate(state.today), CONFIG.ui.upcomingDays)
   );
 
-  const filtered = events.filter((e) =>
-    occursInRange(e, state.today, limit)
-  );
+  const filtered = events.filter((e) => occursInRange(e, state.today, limit));
 
   renderAgenda(
     expandEventsForRange(filtered, state.today, limit, "once"),
@@ -273,7 +595,7 @@ function expandEventsForRange(events, rangeStart, rangeEnd, mode) {
 }
 
 function renderAgenda(displayEvents, state, heading) {
-  const locale = state.institution.settings.defaultLocale ?? "en";
+  const locale = state.locale;
   const buildings = state.institution.locations.buildings;
 
   const grouped = new Map();
@@ -285,10 +607,12 @@ function renderAgenda(displayEvents, state, heading) {
     grouped.get(day).push(event);
   }
 
-  let html = `<h2>${heading}</h2>`;
+  let html = `<h2 class="sr-only">${escapeHtml(heading)}</h2>`;
 
   if (displayEvents.length === 0) {
-    html += `<p>No events found.</p>`;
+    html += `<div class="empty-state">No events found for this view.</div>`;
+    els.timetable.innerHTML = html;
+    return;
   }
 
   const sortedDays = Array.from(grouped.entries()).sort((a, b) =>
@@ -296,13 +620,31 @@ function renderAgenda(displayEvents, state, heading) {
   );
 
   for (const [date, dayEvents] of sortedDays) {
-    html += `<section class="day"><h3>${date}</h3>`;
+    dayEvents.sort((a, b) => {
+      if (!!a.allDay !== !!b.allDay) return a.allDay ? -1 : 1;
+
+      const aStart = timeToMinutes(a.start);
+      const bStart = timeToMinutes(b.start);
+
+      if (aStart !== bStart) return aStart - bStart;
+
+      return localize(a.title, locale).localeCompare(localize(b.title, locale));
+    });
+
+    html += `
+      <section class="day">
+        <div class="day-header">
+          <h3>${escapeHtml(formatDayHeading(date))}</h3>
+          <span class="day-count">${dayEvents.length} event${dayEvents.length === 1 ? "" : "s"}</span>
+        </div>
+    `;
 
     for (const event of dayEvents) {
       const classes = [
         "event",
         event.type,
         event.status,
+        event.allDay ? "all-day" : "",
         (event.sourceReview ?? []).length ? "unverified" : ""
       ]
         .filter(Boolean)
@@ -314,14 +656,36 @@ function renderAgenda(displayEvents, state, heading) {
           ? "All day"
           : `${event.start ?? ""}–${event.end ?? ""} · ${event.day}`);
 
+      const location = formatLocation(event.location, buildings, locale);
+      const title = localize(event.title, locale);
+      const typeLabel = event.type.replace(/-/g, " ");
+
       html += `
         <article class="${classes}">
-          <div class="event-title">${localize(event.title, locale)}</div>
-          <div class="event-meta">
-            ${when}
-            · ${formatLocation(event.location, buildings, locale)}
+          <div class="event-main">
+            <div class="event-title">${escapeHtml(title)}</div>
+            <div class="event-meta">
+              <span class="time">${escapeHtml(when)}</span>
+              ${location ? `<span>${escapeHtml(location)}</span>` : ""}
+              ${event.courseId ? `<span>${escapeHtml(event.courseId)}</span>` : ""}
+            </div>
           </div>
-          <div class="event-type">${event.type}</div>
+
+          <div class="event-side">
+            <span class="badge ${escapeHtml(event.type)}">${escapeHtml(typeLabel)}</span>
+
+            ${
+              event.status === "cancelled"
+                ? `<span class="badge cancelled">Cancelled</span>`
+                : ""
+            }
+
+            ${
+              (event.sourceReview ?? []).length
+                ? `<span class="badge unverified">Needs review</span>`
+                : ""
+            }
+          </div>
         </article>
       `;
     }
@@ -332,14 +696,22 @@ function renderAgenda(displayEvents, state, heading) {
   els.timetable.innerHTML = html;
 }
 
+function formatDayHeading(date) {
+  try {
+    return `${weekdayName(parseDate(date))} · ${date}`;
+  } catch {
+    return date;
+  }
+}
+
 function renderCalendar(state) {
   const feedUrl = buildFeedUrl(state.assignment, state.manifest);
 
   if (!feedUrl) {
     els.calendarLinks.innerHTML = `
-      <p class="warning">
+      <div class="warning-box">
         Calendar subscription is unavailable because your practical group could not be resolved.
-      </p>
+      </div>
     `;
     return;
   }
@@ -347,22 +719,43 @@ function renderCalendar(state) {
   const googleUrl = googleCalendarSubscribeUrl(feedUrl, window.location.origin);
 
   els.calendarLinks.innerHTML = `
-    <p><strong>Feed URL:</strong> <code>${feedUrl}</code></p>
-    <p>
-      <a class="button" href="${googleUrl}" target="_blank" rel="noopener">
-        Subscribe in Google Calendar
-      </a>
+    <ol class="steps">
+      <li>Open the Google Calendar link below.</li>
+      <li>If prompted, choose <strong>Add other calendar</strong> → <strong>From URL</strong>.</li>
+      <li>Paste the stable feed URL and subscribe.</li>
+    </ol>
+
+    <div class="feed-box">
+      <div>
+        <span class="label">Stable feed URL</span>
+        <code>${escapeHtml(feedUrl)}</code>
+      </div>
+
+      <div class="feed-actions">
+        <a
+          class="btn primary"
+          href="${escapeHtml(googleUrl)}"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Subscribe in Google Calendar
+        </a>
+
+        <button class="btn secondary" type="button" id="download-ics">
+          Download .ics preview
+        </button>
+      </div>
+    </div>
+
+    <p class="hint">
+      Google controls refresh frequency. The feed URL remains stable when repository data is updated.
     </p>
-    <p>
-      Google controls refresh frequency. After repository updates, the same feed URL remains stable.
-    </p>
-    <button id="download-ics">Download .ics preview</button>
   `;
 
   document.getElementById("download-ics").addEventListener("click", () => {
     const ics = eventsToIcs(state.schedule.events, {
       calendarName: state.institution.settings.calendarName,
-      locale: state.institution.settings.defaultLocale ?? "en",
+      locale: state.locale,
       timezone: state.manifest.timezone,
       institutionId: state.institution.settings.institutionId,
       locations: state.institution.locations,
@@ -401,4 +794,16 @@ function renderError(err) {
   }
 
   setStatus(`Unexpected error: ${err.message}`, "error");
+}
+
+function escapeHtml(value) {
+  return String(value ?? "").replace(/[&<>"']/g, (char) => {
+    return {
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;"
+    }[char];
+  });
 }
