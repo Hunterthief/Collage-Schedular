@@ -224,13 +224,15 @@ function makeOccurrence({
   group,
   subdivision,
   batch,
+  allDay,
   institutionId
 }) {
   const sub = normalizeSubdivision(subdivision);
+  const isAllDay = !!allDay;
 
   const uid =
     `${institutionId}:${def.id}:${date}:` +
-    `${group ?? "all"}:${sub ?? "none"}:${start ?? "allday"}`;
+    `${group ?? "all"}:${sub ?? "none"}:${isAllDay ? "allday" : start ?? "allday"}`;
 
   return {
     uid,
@@ -239,11 +241,14 @@ function makeOccurrence({
     courseId: def.courseId ?? null,
     type: def.type,
     title: def.title,
+    description: def.description ?? null,
+    week: def.week ?? null,
     date,
     originalDate: date,
     day: weekdayName(parseDate(date)),
-    start,
-    end,
+    start: isAllDay ? null : start ?? null,
+    end: isAllDay ? null : end ?? null,
+    allDay: isAllDay,
     location: def.location ?? null,
     group: group ?? null,
     subdivision: sub,
@@ -352,6 +357,7 @@ export function materializeAcademicOccurrences(
               group,
               subdivision,
               batch: session.batch ?? null,
+              allDay: !!def.allDay,
               institutionId
             })
           );
@@ -364,7 +370,7 @@ export function materializeAcademicOccurrences(
     if (!appliesToGroup(def, targetGroup)) continue;
     if (!appliesToSubdivision(def, targetSub)) continue;
 
-    if (!def.start || !def.end) {
+    if (!def.allDay && (!def.start || !def.end)) {
       diagnostics.errors.push(`Event ${def.id} is missing start/end.`);
       continue;
     }
@@ -415,6 +421,7 @@ export function materializeAcademicOccurrences(
           group: targetGroup,
           subdivision: activeSubdivision ?? targetSub,
           batch: null,
+          allDay: !!def.allDay,
           institutionId
         })
       );
@@ -482,6 +489,7 @@ export function buildInstitutionOccurrences(
         type: event.type ?? "college-event",
         title: event.title,
         description: event.description ?? null,
+        week: event.week ?? null,
         date: meta.date,
         endDate: meta.endDate,
         allDay: meta.allDay,
