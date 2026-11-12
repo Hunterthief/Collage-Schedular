@@ -1,6 +1,7 @@
 {
   "programId": "clinical-pharmacy",
   "academicYearId": "2026-2027",
+  "yearLevel": 2,
   "rules": [
     {
       "id": "clinical-2026-2027-group-1",
@@ -24,7 +25,7 @@
       "sourceReview": [
         {
           "code": "OPEN_ENDED_RANGE",
-          "detail": "Source prints group 2 and subdivision 2B as '2510048 – الأخر' / '2510073 – الأخر' (to the end). Verify the official upper bound when the final seat list is published."
+          "detail": "Source prints group 2 and subdivision 2B as 'to the end'. Verify the official upper bound when the final seat list is published."
         }
       ]
     }
