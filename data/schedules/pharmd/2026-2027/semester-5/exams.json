@@ -1,0 +1,88 @@
+{
+  "events": [
+    {
+      "id": "pharmd-s5-midterm-pharmaceutics-iii",
+      "courseId": "02-06-01304",
+      "type": "examination",
+      "date": "2026-10-31",
+      "start": "11:00",
+      "end": "11:30",
+      "groups": [1, 2, 3],
+      "location": { "building": "new", "floor": null, "room": null },
+      "shorthand": "EN Pharmaceutics III",
+      "displayCode": "EN Pharmaceutics III (New Building)"
+    },
+    {
+      "id": "pharmd-s5-midterm-drug-design",
+      "courseId": "02-06-05305",
+      "type": "examination",
+      "date": "2026-11-01",
+      "start": "11:00",
+      "end": "11:30",
+      "groups": [1, 2, 3],
+      "location": { "building": "new", "floor": null, "room": null },
+      "shorthand": "EN Drug Design",
+      "displayCode": "EN Drug Design (New Building)"
+    },
+    {
+      "id": "pharmd-s5-midterm-scientific-writing",
+      "courseId": "02-06-09304",
+      "type": "examination",
+      "date": "2026-11-02",
+      "start": "12:00",
+      "end": "12:30",
+      "groups": [1, 2, 3],
+      "location": { "building": "new", "floor": null, "room": null },
+      "shorthand": "EN Scientific Writing and Communication skills",
+      "displayCode": "EN Scientific Writing and Communication skills (New Building)"
+    },
+    {
+      "id": "pharmd-s5-midterm-drug-information",
+      "courseId": "02-06-09305",
+      "type": "examination",
+      "date": "2026-11-02",
+      "start": "13:00",
+      "end": "13:30",
+      "groups": [1, 2, 3],
+      "location": { "building": "new", "floor": null, "room": null },
+      "shorthand": "EN Drug Information",
+      "displayCode": "EN Drug Information (New Building)"
+    },
+    {
+      "id": "pharmd-s5-midterm-pharmaceutical-microbiology",
+      "courseId": "02-06-04302",
+      "type": "examination",
+      "date": "2026-11-03",
+      "start": "12:00",
+      "end": "12:30",
+      "groups": [1, 2, 3],
+      "location": { "building": "new", "floor": null, "room": null },
+      "shorthand": "EN Pharmaceutical Microbiology",
+      "displayCode": "EN Pharmaceutical Microbiology (New Building)"
+    },
+    {
+      "id": "pharmd-s5-midterm-phytochemistry-i",
+      "courseId": "02-06-06304",
+      "type": "examination",
+      "date": "2026-11-04",
+      "start": "11:00",
+      "end": "11:30",
+      "groups": [1, 2, 3],
+      "location": { "building": "new", "floor": null, "room": null },
+      "shorthand": "EN Phytochemistry I",
+      "displayCode": "EN Phytochemistry I (New Building)"
+    },
+    {
+      "id": "pharmd-s5-midterm-basic-pharmacology",
+      "courseId": "02-06-02305",
+      "type": "examination",
+      "date": "2026-11-05",
+      "start": "11:00",
+      "end": "11:30",
+      "groups": [1, 2, 3],
+      "location": { "building": "new", "floor": null, "room": null },
+      "shorthand": "EN Basic Pharmacology",
+      "displayCode": "EN Basic Pharmacology (New Building)"
+    }
+  ]
+}
