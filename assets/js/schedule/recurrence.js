@@ -129,3 +129,107 @@ export function occursInRange(event, startStr, endStr) {
 
   return event.date >= startStr && event.date <= endStr;
 }
+
+function periodRange(period) {
+  const from = period.from ?? period.date ?? period.startDate;
+  const to = period.to ?? period.endDate ?? from;
+  return { from, to };
+}
+
+function periodOverlapsWeek(period, weekStartStr, weekEndStr) {
+  const { from, to } = periodRange(period);
+  if (!from) return false;
+  const end = to ?? from;
+  return from <= weekEndStr && end >= weekStartStr;
+}
+
+export function isAcademicBlackoutDate(dateStr, blackouts = [], eventType = null) {
+  if (!Array.isArray(blackouts) || blackouts.length === 0) return false;
+
+  return blackouts.some((period) => {
+    if (period.blocksAcademicEvents === false) return false;
+
+    const blockTypes = period.blockTypes ?? ["lecture", "practical"];
+
+    if (eventType && !blockTypes.includes(eventType)) return false;
+
+    const { from, to } = periodRange(period);
+    if (!from) return false;
+
+    const end = to ?? from;
+    return dateStr >= from && dateStr <= end;
+  });
+}
+
+export function teachingWeekNumber(
+  dateStr,
+  anchorDateStr,
+  blackouts = [],
+  weekStartDay = "Saturday"
+) {
+  if (!dateStr || !anchorDateStr) return null;
+
+  const targetWeekStartStr = startOfWeek(dateStr, weekStartDay);
+  const anchorWeekStartStr = startOfWeek(anchorDateStr, weekStartDay);
+
+  const targetWeekStart = parseDate(targetWeekStartStr);
+  const anchorWeekStart = parseDate(anchorWeekStartStr);
+
+  if (targetWeekStart < anchorWeekStart) return null;
+
+  let count = 0;
+  let cursor = anchorWeekStart;
+
+  while (cursor <= targetWeekStart) {
+    const cursorStr = formatDate(cursor);
+    const cursorEndStr = endOfWeek(cursorStr);
+
+    const excluded = Array.isArray(blackouts)
+      ? blackouts.some(
+          (period) =>
+            period.excludedFromRotation !== false &&
+            periodOverlapsWeek(period, cursorStr, cursorEndStr)
+        )
+      : false;
+
+    if (!excluded) {
+      count++;
+    }
+
+    if (cursorStr === targetWeekStartStr) {
+      break;
+    }
+
+    cursor = addDays(cursor, 7);
+  }
+
+  return count > 0 ? count : null;
+}
+
+export function getRotationSubdivision(
+  dateStr,
+  rotation,
+  anchorDateStr,
+  blackouts = [],
+  weekStartDay = "Saturday"
+) {
+  if (!rotation || !Array.isArray(rotation.sequence) || rotation.sequence.length === 0) {
+    return null;
+  }
+
+  const weekNumber = teachingWeekNumber(
+    dateStr,
+    anchorDateStr,
+    blackouts,
+    weekStartDay
+  );
+
+  if (!weekNumber) return null;
+
+  const startWeek = rotation.startWeek ?? 1;
+  const length = rotation.sequence.length;
+  const rawIndex = weekNumber - startWeek;
+  const index = ((rawIndex % length) + length) % length;
+
+  return rotation.sequence[index] ?? null;
+}
