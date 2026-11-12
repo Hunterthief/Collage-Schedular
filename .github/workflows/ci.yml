@@ -4,6 +4,9 @@ on:
   push:
   pull_request:
 
+permissions:
+  contents: write
+
 jobs:
   validate:
     runs-on: ubuntu-latest
@@ -21,12 +24,6 @@ jobs:
         with:
           node-version: "22"
 
-      - name: Show discovered test files
-        run: |
-          find . -path ./node_modules -prune -o \
-            \( -name '*.test.js' -o -name '*.test.mjs' -o -name '*.test.cjs' \) -print \
-            | sort
-
       - name: Run tests
         run: |
           count=$(find . -path ./node_modules -prune -o \
@@ -34,13 +31,27 @@ jobs:
             | wc -l)
           echo "Found $count test file(s)"
           if [ "$count" -eq 0 ]; then
-            echo "::error::No *.test.js / *.test.mjs / *.test.cjs files found. Commit your tests folder (the files must be named like foo.test.mjs)."
+            echo "::error::No *.test.js / *.test.mjs / *.test.cjs files found. Commit your tests folder."
             exit 1
           fi
           node --test
 
       - name: Generate calendar feeds
         run: node tools/generate-calendars.mjs
+
+      - name: Publish feeds into the repository so GitHub Pages serves them
+        if: github.event_name == 'push' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          touch .nojekyll
+          git add .nojekyll calendar/feeds
+          if git diff --cached --quiet; then
+            echo "Feeds unchanged; nothing to commit."
+          else
+            git commit -m "chore: regenerate calendar feeds [skip ci]"
+            git push
+          fi
 
       - name: Upload generated feeds
         uses: actions/upload-artifact@v4
