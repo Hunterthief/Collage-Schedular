@@ -6,10 +6,14 @@ export function buildFeedUrl(assignment, manifest) {
     manifest.calendarFeeds.pathTemplate ??
     "{programId}/{academicYearId}/group-{group}.ics";
 
+  const subdivision = assignment.subdivision ? String(assignment.subdivision).toUpperCase() : "";
+
   const path = template
     .replace("{programId}", assignment.programId)
     .replace("{academicYearId}", assignment.academicYearId)
-    .replace("{group}", String(assignment.practicalGroup));
+    .replace("{group}", String(assignment.practicalGroup))
+    .replace("{subdivision}", subdivision)
+    .replace("{subdivisionLower}", subdivision.toLowerCase());
 
   return `${baseUrl}/${path}`;
 }
