@@ -1,11 +1,13 @@
 .lookup-panel {
   display: flex;
   justify-content: center;
+  min-width: 0;
   margin-bottom: 18px;
 }
 
 .lookup-card {
   width: min(760px, 100%);
+  min-width: 0;
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 14px;
@@ -16,6 +18,7 @@
 .segmented {
   display: inline-flex;
   gap: 4px;
+  max-width: 100%;
   padding: 4px;
   background: var(--surface-2);
   border-radius: 999px;
@@ -33,6 +36,7 @@
   padding: 7px 14px;
   border-radius: 999px;
   cursor: pointer;
+  white-space: nowrap;
 }
 
 .segment:hover {
@@ -46,15 +50,21 @@
   box-shadow: 0 1px 2px rgba(60, 64, 67, 0.18);
 }
 
+/* minmax(0,1fr) is the overflow fix: an implicit/auto track otherwise
+   sizes to the search row's min-content and refuses to shrink. */
 .lookup-form {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 10px;
+  min-width: 0;
 }
 
 .search-field {
   display: flex;
   align-items: center;
   gap: 8px;
+  min-width: 0;
+  max-width: 100%;
   border: 1px solid var(--line-strong);
   border-radius: 999px;
   background: var(--surface);
@@ -77,13 +87,15 @@
 .search-field input {
   flex: 1 1 auto;
   min-width: 0;
+  width: 100%;
   height: 38px;
   border: 0;
   outline: none;
   background: transparent;
   color: var(--text);
   font: inherit;
-  font-size: 0.98rem;
+  /* 16px prevents mobile focus-zoom, which shifted the whole page. */
+  font-size: 16px;
 }
 
 .search-field input::placeholder {
@@ -101,6 +113,7 @@ label {
 input:not(.search-field input),
 select {
   width: 100%;
+  min-width: 0;
   height: 40px;
   border: 1px solid var(--line-strong);
   border-radius: 8px;
@@ -108,7 +121,7 @@ select {
   color: var(--text);
   padding: 0 12px;
   font: inherit;
-  font-size: 0.92rem;
+  font-size: 16px;
   outline: none;
 }
 
@@ -125,12 +138,18 @@ select {
   background-position: right 12px center;
   padding-right: 34px;
   cursor: pointer;
+  text-overflow: ellipsis;
 }
 
 .field-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
+  min-width: 0;
+}
+
+.field {
+  min-width: 0;
 }
 
 .form-actions {
@@ -138,6 +157,7 @@ select {
   align-items: center;
   gap: 10px;
   flex-wrap: wrap;
+  min-width: 0;
 }
 
 .btn {
@@ -158,6 +178,7 @@ select {
   text-decoration: none;
   cursor: pointer;
   white-space: nowrap;
+  flex: 0 0 auto;
 }
 
 .btn:hover {
@@ -191,6 +212,7 @@ select {
   font-size: 1.2rem;
   line-height: 1;
   cursor: pointer;
+  flex: 0 0 auto;
 }
 
 .icon-btn:hover {
@@ -201,6 +223,8 @@ select {
   margin: 0;
   color: var(--muted);
   font-size: 0.78rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .status {
@@ -208,6 +232,7 @@ select {
   margin-top: 10px;
   color: var(--muted);
   font-size: 0.84rem;
+  overflow-wrap: anywhere;
 }
 
 .status.success {
@@ -226,6 +251,7 @@ select {
   border-radius: 14px;
   box-shadow: var(--shadow);
   overflow: hidden;
+  min-width: 0;
 }
 
 .workspace-header {
@@ -234,6 +260,7 @@ select {
   justify-content: space-between;
   gap: 12px;
   flex-wrap: wrap;
+  min-width: 0;
   padding: 14px 16px;
   border-bottom: 1px solid var(--line);
   background: linear-gradient(180deg, #fff, #fafafa);
@@ -252,6 +279,7 @@ select {
   font-size: 1.05rem;
   font-weight: 600;
   letter-spacing: -0.01em;
+  overflow-wrap: anywhere;
 }
 
 .nav-controls {
@@ -263,6 +291,7 @@ select {
 .view-switch {
   display: inline-flex;
   gap: 4px;
+  max-width: 100%;
   padding: 4px;
   border: 1px solid var(--line);
   border-radius: 999px;
@@ -280,6 +309,7 @@ select {
   padding: 7px 13px;
   border-radius: 999px;
   cursor: pointer;
+  white-space: nowrap;
 }
 
 .view-btn:hover {
@@ -296,12 +326,14 @@ select {
   padding: 12px 16px;
   border-bottom: 1px solid var(--line);
   background: #fcfcfd;
+  min-width: 0;
 }
 
 .summary-pills {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+  min-width: 0;
 }
 
 .pill {
@@ -309,6 +341,7 @@ select {
   align-items: center;
   gap: 6px;
   min-height: 28px;
+  max-width: 100%;
   padding: 4px 10px;
   border: 1px solid var(--line);
   border-radius: 999px;
@@ -317,6 +350,8 @@ select {
   font-size: 0.78rem;
   font-weight: 600;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .pill span {
@@ -347,6 +382,7 @@ select {
   border: 1px solid var(--line);
   border-radius: 12px;
   background: #fbfcfd;
+  min-width: 0;
 }
 
 .subscription-card h2 {
@@ -375,6 +411,7 @@ select {
   border-radius: 8px;
   background: var(--surface);
   padding: 10px;
+  min-width: 0;
 }
 
 .feed-label {
@@ -389,6 +426,7 @@ select {
 
 .feed-box code {
   display: block;
+  max-width: 100%;
   border: 1px solid var(--line);
   border-radius: 6px;
   background: #f6f8fa;
@@ -397,6 +435,16 @@ select {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: 0.78rem;
   overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-strong) transparent;
+}
+
+.feed-box code::-webkit-scrollbar {
+  height: 6px;
+}
+.feed-box code::-webkit-scrollbar-thumb {
+  background: var(--line-strong);
+  border-radius: 999px;
 }
 
 .feed-actions {
@@ -404,14 +452,67 @@ select {
   gap: 8px;
   flex-wrap: wrap;
   margin-top: 9px;
+  min-width: 0;
 }
 
 @media (max-width: 760px) {
   .field-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .workspace-header {
     align-items: flex-start;
+  }
+}
+
+/* Narrow phones: the search control becomes a two-row card so the
+   input and the Search button each get the full width. */
+@media (max-width: 480px) {
+  .lookup-card {
+    padding: 12px;
+    border-radius: 12px;
+  }
+
+  .search-field {
+    flex-wrap: wrap;
+    border-radius: 16px;
+    padding: 8px;
+    gap: 6px;
+  }
+
+  .search-icon {
+    margin-left: 6px;
+  }
+
+  .search-field input {
+    flex: 1 1 auto;
+    height: 40px;
+  }
+
+  .search-field .btn {
+    flex: 1 1 100%;
+    height: 42px;
+    border-radius: 12px;
+  }
+
+  .segment {
+    padding: 7px 12px;
+  }
+
+  .subscription-card {
+    margin: 12px;
+    padding: 12px;
+  }
+
+  .feed-actions .btn {
+    flex: 1 1 100%;
+  }
+
+  .workspace-header {
+    padding: 12px;
+  }
+
+  .summary-strip {
+    padding: 10px 12px;
   }
 }
