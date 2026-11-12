@@ -1,6 +1,30 @@
 {
   "entries": [
     {
+      "id": "2026-11-11-pharmd-semester-5-initial-transcription",
+      "publishedAt": "2026-11-11T00:00:00Z",
+      "summary": {
+        "en": "Added initial PharmD 2026/2027 Semester 5 lecture and practical timetable from official faculty documents."
+      },
+      "affected": {
+        "programId": "pharmd",
+        "academicYearId": "2026-2027",
+        "semesterId": "pharmd-2026-2027-semester-5"
+      },
+      "calendarFeedAffected": true,
+      "notes": [
+        "Seven courses transcribed.",
+        "Eight lecture entries transcribed.",
+        "Seven practical event definitions transcribed.",
+        "Three practical groups and A/B subdivisions transcribed where available.",
+        "Drug Information lecture is split into early and late validity windows as shown in the source.",
+        "Semester start and end dates remain unconfirmed and must be filled from the official academic calendar.",
+        "Some practical place entries list multiple halls and are flagged for verification.",
+        "Group 2 subdivision gap at ID 2415113 is flagged.",
+        "Group 3 subdivision B boundary is flagged as transcription-ambiguous."
+      ]
+    },
+    {
       "id": "2026-11-11-fall-calendar-and-midterm-exams",
       "publishedAt": "2026-11-11T00:00:00Z",
       "summary": {
