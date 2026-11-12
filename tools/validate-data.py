@@ -92,6 +92,14 @@ def is_date(value):
         return False
 
 
+def normalize_sub(value):
+    """Normalize a subdivision label for comparison (A/a/ A -> 'A')."""
+    if value is None:
+        return None
+    text = str(value).strip().upper()
+    return text or None
+
+
 def to_array(value, key=None):
     if isinstance(value, list):
         return value
@@ -229,6 +237,27 @@ def validate_programs(root, manifest, report):
                     else:
                         load_json(root, datasets[key], report)
 
+                # Validate blackout windows if present.
+                for bo in semester.get("blackouts", []) or []:
+                    bid = bo.get("id") or f"{sid}/blackout"
+                    bf = bo.get("from") or bo.get("date") or bo.get("startDate")
+                    bt = bo.get("to") or bo.get("endDate") or bf
+                    if not bf:
+                        report.error(f"{bid}: blackout missing from/date/startDate")
+                    if bf and not is_date(bf):
+                        report.error(f"{bid}: invalid blackout from date: {bf}")
+                    if bt and not is_date(bt):
+                        report.error(f"{bid}: invalid blackout to date: {bt}")
+                    if bf and bt and bf > bt:
+                        report.error(f"{bid}: blackout from is after to")
+                    block_types = bo.get("blockTypes")
+                    if block_types is not None and not isinstance(block_types, list):
+                        report.error(f"{bid}: blockTypes must be an array")
+                    elif isinstance(block_types, list):
+                        for t in block_types:
+                            if t not in VALID_TYPES:
+                                report.error(f"{bid}: invalid blockType {t}")
+
                 semester_map[sid] = semester
 
     return {
@@ -272,16 +301,22 @@ def validate_assignment_ranges(rules, context, report, require_group=True):
             from_s = rule.get("from")
             to_s = rule.get("to")
 
-            if from_s is not None and not from_s.isdigit():
+            if from_s is not None and not str(from_s).isdigit():
                 report.error(f"{rid}: from must be numeric string or null")
-            if to_s is not None and not to_s.isdigit():
+            if to_s is not None and not str(to_s).isdigit():
                 report.error(f"{rid}: to must be numeric string or null")
 
-            if from_s is not None and to_s is not None and int(from_s) > int(to_s):
+            if (
+                from_s is not None
+                and to_s is not None
+                and str(from_s).isdigit()
+                and str(to_s).isdigit()
+                and int(from_s) > int(to_s)
+            ):
                 report.error(f"{rid}: from is greater than to")
 
-            from_i = int(from_s) if from_s is not None else 0
-            to_i = int(to_s) if to_s is not None else INF
+            from_i = int(from_s) if from_s is not None and str(from_s).isdigit() else 0
+            to_i = int(to_s) if to_s is not None and str(to_s).isdigit() else INF
 
             intervals.append((from_i, to_i, rid))
 
@@ -372,6 +407,83 @@ def validate_location_object(loc, ctx, location_data, report):
         report.error(f"{ctx}: floor must be integer or null")
 
 
+def validate_sessions(event, eid, report):
+    """
+    Validate the sessions array of any event (practical or examination).
+
+    A session is a true duplicate only when group + subdivision + batch repeat,
+    or when group + subdivision + time-slot repeat. Multiple batches inside the
+    same group (e.g. 1A-1 and 1A-2) are legitimate and must NOT be flagged.
+    """
+    sessions = event.get("sessions")
+
+    if event.get("type") == "practical" and not sessions:
+        report.error(f"{eid}: practical must have sessions")
+
+    if not isinstance(sessions, list) or not sessions:
+        return
+
+    seen_keys = set()
+    seen_slots = set()
+
+    for s in sessions:
+        if not isinstance(s, dict):
+            report.error(f"{eid}: session must be an object")
+            continue
+
+        g = s.get("group")
+        if g is None:
+            report.error(f"{eid}: session missing group")
+
+        sub = normalize_sub(s.get("subdivision"))
+        batch = s.get("batch")
+        ss = s.get("start")
+        se = s.get("end")
+
+        if ss and not is_time(ss):
+            report.error(f"{eid}: session invalid start {ss}")
+        if se and not is_time(se):
+            report.error(f"{eid}: session invalid end {se}")
+        if ss and se and ss >= se:
+            report.error(f"{eid}: session start must be before end")
+
+        fr = s.get("from")
+        to = s.get("to")
+        if fr is not None and not str(fr).isdigit():
+            report.error(f"{eid}: session from must be numeric string or null")
+        if to is not None and not str(to).isdigit():
+            report.error(f"{eid}: session to must be numeric string or null")
+        if (
+            fr is not None
+            and to is not None
+            and str(fr).isdigit()
+            and str(to).isdigit()
+            and int(fr) > int(to)
+        ):
+            report.error(f"{eid}: session from is greater than to")
+
+        students = s.get("students")
+        if students is not None and not isinstance(students, list):
+            report.error(f"{eid}: session students must be an array")
+
+        key = (g, sub, batch)
+        if key in seen_keys:
+            report.error(
+                f"{eid}: duplicate session (group={g}, subdivision={sub}, batch={batch})"
+            )
+        seen_keys.add(key)
+
+        # Only enforce time-slot uniqueness when both times are present.
+        if ss and se:
+            slot = (g, sub, ss, se)
+            if slot in seen_slots:
+                report.error(
+                    f"{eid}: two sessions share group={g}, subdivision={sub}, "
+                    f"time={ss}-{se}"
+                )
+            seen_slots.add(slot)
+
+
 def validate_event_record(
     event, ctx, course_ids, location_data, report, event_ids
 ):
@@ -410,34 +522,44 @@ def validate_event_record(
     if start and end and start >= end:
         report.error(f"{eid}: start must be before end")
 
-    if etype == "practical":
-        sessions = event.get("sessions", [])
-        if not sessions:
-            report.error(f"{eid}: practical must have sessions")
-        session_groups = set()
-        for s in sessions:
-            g = s.get("group")
-            if g is None:
-                report.error(f"{eid}: session missing group")
-            if g in session_groups:
-                report.error(f"{eid}: duplicate session group {g}")
-            session_groups.add(g)
+    all_day = event.get("allDay")
+    if all_day is not None and not isinstance(all_day, bool):
+        report.error(f"{eid}: allDay must be boolean")
 
-            ss = s.get("start")
-            se = s.get("end")
-            if ss and not is_time(ss):
-                report.error(f"{eid}: session invalid start {ss}")
-            if se and not is_time(se):
-                report.error(f"{eid}: session invalid end {se}")
-            if ss and se and ss >= se:
-                report.error(f"{eid}: session start must be before end")
-    else:
-        if not event.get("date") and not day:
+    # Sessions are validated for any event that defines them, not only practicals.
+    validate_sessions(event, eid, report)
+
+    if etype != "practical":
+        # Non-session-driven recurring events still need a day or a date,
+        # and a time window unless they are explicitly all-day.
+        if not date_val and not day:
             report.error(f"{eid}: non-practical event needs day or date")
-        if not event.get("date") and (not start or not end):
-            report.error(f"{eid}: recurring event needs start/end")
+        if not date_val and not all_day and (not start or not end):
+            report.error(f"{eid}: recurring event needs start/end (or allDay)")
 
     validate_location_object(event.get("location"), eid, location_data, report)
+
+    # Rotation block (alternating A/B patterns).
+    rotation = event.get("rotation")
+    if rotation is not None:
+        if not isinstance(rotation, dict):
+            report.error(f"{eid}: rotation must be an object")
+        else:
+            seq = rotation.get("sequence")
+            if not isinstance(seq, list) or not seq:
+                report.error(f"{eid}: rotation.sequence must be a non-empty array")
+            else:
+                norm = [normalize_sub(x) for x in seq]
+                if any(x is None for x in norm):
+                    report.error(f"{eid}: rotation.sequence entries must be strings")
+                if len(set(norm)) != len(norm):
+                    report.error(f"{eid}: rotation.sequence has duplicate subdivisions")
+            sw = rotation.get("startWeek", 1)
+            if not isinstance(sw, int) or sw < 1:
+                report.error(f"{eid}: rotation.startWeek must be an integer >= 1")
+            efb = rotation.get("excludeBlackouts")
+            if efb is not None and not isinstance(efb, bool):
+                report.error(f"{eid}: rotation.excludeBlackouts must be boolean")
 
     vf = event.get("validFrom")
     vu = event.get("validUntil")
@@ -486,10 +608,23 @@ def validate_semester_datasets(root, program_data, location_data, report):
                 e, f"{sid}/exams", course_ids, location_data, report, event_ids
             )
 
-        practical_multi_session_events = set()
-        for e in to_array(practicals_doc, "events"):
-            if len(e.get("sessions", [])) > 1:
-                practical_multi_session_events.add(e.get("id"))
+        # Events whose sessions are split by group/subdivision/batch need an
+        # explicit target when an exception cancels or moves them.
+        multi_target_events = set()
+        for source in (practicals_doc, exams_doc):
+            for e in to_array(source, "events"):
+                sessions = e.get("sessions") or []
+                keys = set()
+                for s in sessions:
+                    keys.add(
+                        (
+                            s.get("group"),
+                            normalize_sub(s.get("subdivision")),
+                            s.get("batch"),
+                        )
+                    )
+                if len(keys) > 1:
+                    multi_target_events.add(e.get("id"))
 
         for ex in to_array(exceptions_doc, "exceptions"):
             ex_id = ex.get("id")
@@ -524,12 +659,10 @@ def validate_semester_datasets(root, program_data, location_data, report):
             if ex.get("start") and ex.get("end") and ex.get("start") >= ex.get("end"):
                 report.error(f"{sid}: exception {ex_id} start >= end")
 
-            if (
-                ref in practical_multi_session_events
-                and ex.get("group") is None
-            ):
+            if ref in multi_target_events and ex.get("group") is None:
                 report.error(
-                    f"{sid}: exception {ex_id} targets multi-session practical {ref} without group"
+                    f"{sid}: exception {ex_id} targets a multi-session event {ref} "
+                    "without specifying group"
                 )
 
             validate_location_object(
