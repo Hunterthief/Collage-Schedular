@@ -1,7 +1,18 @@
 import { CONFIG } from "../config.js";
 
+/**
+ * The native `fetch` MUST be invoked with the global object as `this`.
+ * In a module, calling a bare function reference (or storing `fetch` in a
+ * property and calling it as a method) produces:
+ *   TypeError: 'fetch' called on an object that does not implement interface Window
+ *
+ * We neutralize every form of that bug by always applying the function with
+ * `globalThis` as the receiver via Reflect.apply. This is correct for the real
+ * fetch and harmless for an injected test mock (mocks ignore `this`).
+ */
 export class DataLoader {
   constructor({ fetchImpl = null, baseUrl = "" } = {}) {
+    // Never default to the bare `fetch` reference. null means "use global".
     this.fetchImpl = fetchImpl;
     this.baseUrl = baseUrl;
     this.cache = new Map();
@@ -14,15 +25,15 @@ export class DataLoader {
   }
 
   async request(url, init) {
-    if (this.fetchImpl) {
-      return this.fetchImpl(url, init);
-    }
+    const fn = this.fetchImpl ?? globalThis.fetch;
 
-    if (typeof globalThis.fetch !== "function") {
+    if (typeof fn !== "function") {
       throw new Error("Fetch is not available in this environment.");
     }
 
-    return globalThis.fetch(url, init);
+    // Supplying globalThis as the receiver makes illegal-invocation impossible,
+    // even if `fn` is a detached reference to the native fetch.
+    return Reflect.apply(fn, globalThis, [url, init]);
   }
 
   async loadJson(path, options = {}) {
@@ -55,7 +66,6 @@ export class DataLoader {
     this.manifest = await this.loadJson(CONFIG.manifestPath, {
       cache: CONFIG.request.manifest.cache
     });
-
     return this.manifest;
   }
 
@@ -69,20 +79,20 @@ export class DataLoader {
       this.loadJson(manifest.paths.locations),
       this.loadJson(manifest.paths.institutionEvents)
     ]);
-
     return { settings, locations, events };
   }
 
   async loadSemesterDatasets(semester, manifest = this.manifest) {
     const paths = semester.datasets;
 
-    const [courses, lectures, practicals, exams, exceptions] = await Promise.all([
-      this.loadJson(paths.courses),
-      this.loadJson(paths.lectures),
-      this.loadJson(paths.practicals),
-      this.loadJson(paths.exams),
-      this.loadJson(paths.exceptions)
-    ]);
+    const [courses, lectures, practicals, exams, exceptions] =
+      await Promise.all([
+        this.loadJson(paths.courses),
+        this.loadJson(paths.lectures),
+        this.loadJson(paths.practicals),
+        this.loadJson(paths.exams),
+        this.loadJson(paths.exceptions)
+      ]);
 
     return { courses, lectures, practicals, exams, exceptions };
   }
