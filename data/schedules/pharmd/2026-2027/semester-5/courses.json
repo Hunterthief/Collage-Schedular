@@ -1,11 +1,46 @@
 {
   "courses": [
-    { "id": "02-06-02305", "code": "02-06-02305", "title": { "en": "Basic Pharmacology" } },
-    { "id": "02-06-09305", "code": "02-06-09305", "title": { "en": "Drug Information" } },
-    { "id": "02-06-01304", "code": "02-06-01304", "title": { "en": "Pharmaceutics III" } },
-    { "id": "02-06-09304", "code": "02-06-09304", "title": { "en": "Scientific Writing and Communication skills" } },
-    { "id": "02-06-05305", "code": "02-06-05305", "title": { "en": "Drug Design" } },
-    { "id": "02-06-04302", "code": "02-06-04302", "title": { "en": "Pharmaceutical Microbiology" } },
-    { "id": "02-06-06304", "code": "02-06-06304", "title": { "en": "Phytochemistry I" } }
+    {
+      "id": "02-06-02305",
+      "code": "02-06-02305",
+      "title": { "en": "Basic Pharmacology" },
+      "color": "#1a73e8"
+    },
+    {
+      "id": "02-06-09305",
+      "code": "02-06-09305",
+      "title": { "en": "Drug Information" },
+      "color": "#0b8043"
+    },
+    {
+      "id": "02-06-01304",
+      "code": "02-06-01304",
+      "title": { "en": "Pharmaceutics III" },
+      "color": "#8e24aa"
+    },
+    {
+      "id": "02-06-09304",
+      "code": "02-06-09304",
+      "title": { "en": "Scientific Writing and Communication skills" },
+      "color": "#e37400"
+    },
+    {
+      "id": "02-06-05305",
+      "code": "02-06-05305",
+      "title": { "en": "Drug Design" },
+      "color": "#d93025"
+    },
+    {
+      "id": "02-06-04302",
+      "code": "02-06-04302",
+      "title": { "en": "Pharmaceutical Microbiology" },
+      "color": "#009688"
+    },
+    {
+      "id": "02-06-06304",
+      "code": "02-06-06304",
+      "title": { "en": "Phytochemistry I" },
+      "color": "#795548"
+    }
   ]
 }
