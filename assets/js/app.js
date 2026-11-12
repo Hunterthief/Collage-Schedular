@@ -23,7 +23,8 @@ import {
 import { timeToMinutes } from "./schedule/sorting.js";
 import {
   buildFeedUrl,
-  googleCalendarSubscribeUrl
+  googleCalendarSubscribeUrl,
+  googleCalendarAddByUrlUrl
 } from "./calendar/calendar-links.js";
 import { eventsToIcs, formatLocation } from "./calendar/ics-generator.js";
 import { localize } from "./i18n.js";
@@ -1045,6 +1046,32 @@ function renderUpcomingList(state, start, end) {
   els.timetable.innerHTML = html;
 }
 
+async function copyToClipboard(text) {
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+  } catch {
+    // Fall through to legacy path.
+  }
+
+  try {
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    const ok = document.execCommand("copy");
+    document.body.removeChild(ta);
+    return ok;
+  } catch {
+    return false;
+  }
+}
+
 function renderCalendar(state) {
   const feedUrl = buildFeedUrl(state.assignment, state.manifest);
 
@@ -1057,13 +1084,14 @@ function renderCalendar(state) {
     return;
   }
 
-  const googleUrl = googleCalendarSubscribeUrl(feedUrl, window.location.origin);
+  const addByUrlPage = googleCalendarAddByUrlUrl();
+  const oneClickUrl = googleCalendarSubscribeUrl(feedUrl);
 
   els.calendarLinks.innerHTML = `
     <ol class="steps">
-      <li>Open the Google Calendar link below.</li>
-      <li>If prompted, choose <strong>Add other calendar → From URL</strong>.</li>
-      <li>Paste the stable feed URL and subscribe.</li>
+      <li>Click <strong>Open Google Calendar</strong>. The feed URL is copied to your clipboard automatically.</li>
+      <li>In the page that opens, paste it into the <strong>URL of calendar</strong> box.</li>
+      <li>Click <strong>Add calendar</strong>. The subscription stays live and updates itself.</li>
     </ol>
 
     <div class="feed-box">
@@ -1075,23 +1103,62 @@ function renderCalendar(state) {
       <div class="feed-actions">
         <a
           class="btn primary"
-          href="${escapeHtml(googleUrl)}"
+          id="open-gcal"
+          href="${escapeHtml(addByUrlPage)}"
           target="_blank"
           rel="noopener noreferrer"
         >
-          Subscribe in Google Calendar
+          Open Google Calendar
         </a>
+
+        <button class="btn quiet" type="button" id="copy-feed">
+          Copy feed URL
+        </button>
 
         <button class="btn quiet" type="button" id="download-ics">
           Download .ics preview
         </button>
       </div>
+
+      <p class="hint" id="copy-hint">
+        Google's one-click subscribe endpoint is unreliable for external feeds, so this
+        button opens Google's official "Add by URL" page instead.
+      </p>
+
+      <p class="hint">
+        Prefer to try anyway?
+        <a href="${escapeHtml(oneClickUrl)}" target="_blank" rel="noopener noreferrer">One-click subscribe (may fail)</a>.
+        If Google says the calendar already exists, remove the old entry from your calendar list first.
+      </p>
     </div>
 
     <p class="hint">
-      Google controls refresh frequency. The feed URL stays stable when repository data is updated.
+      Google refreshes subscribed calendars on its own schedule (hours to days).
+      The website and the .ics file update immediately after each publish.
     </p>
   `;
+
+  const hint = document.getElementById("copy-hint");
+
+  document.getElementById("open-gcal").addEventListener("click", () => {
+    copyToClipboard(feedUrl).then((ok) => {
+      if (hint) {
+        hint.textContent = ok
+          ? "Feed URL copied. Paste it into the URL of calendar box, then click Add calendar."
+          : "Could not copy automatically. Select the feed URL above and copy it manually.";
+      }
+    });
+  });
+
+  document.getElementById("copy-feed").addEventListener("click", (e) => {
+    const btn = e.currentTarget;
+    copyToClipboard(feedUrl).then((ok) => {
+      btn.textContent = ok ? "Copied ✓" : "Copy failed";
+      setTimeout(() => {
+        btn.textContent = "Copy feed URL";
+      }, 1600);
+    });
+  });
 
   document.getElementById("download-ics").addEventListener("click", () => {
     const ics = eventsToIcs(state.schedule.events, {
