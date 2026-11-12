@@ -8,13 +8,9 @@
       "start": "11:00",
       "end": "11:30",
       "groups": [1, 2, 3],
-      "location": {
-        "building": "new",
-        "floor": null,
-        "room": null
-      },
+      "location": { "building": "new", "floor": null, "room": null },
       "shorthand": "EN Pharmaceutics III",
-      "displayCode": "EN Pharmaceutics III (New Building)"
+      "displayCode": "EN Pharmaceutics III"
     },
     {
       "id": "pharmd-s5-midterm-drug-design",
@@ -24,13 +20,9 @@
       "start": "11:00",
       "end": "11:30",
       "groups": [1, 2, 3],
-      "location": {
-        "building": "new",
-        "floor": null,
-        "room": null
-      },
+      "location": { "building": "new", "floor": null, "room": null },
       "shorthand": "EN Drug Design",
-      "displayCode": "EN Drug Design (New Building)"
+      "displayCode": "EN Drug Design"
     },
     {
       "id": "pharmd-s5-midterm-scientific-writing",
@@ -40,13 +32,9 @@
       "start": "12:00",
       "end": "12:30",
       "groups": [1, 2, 3],
-      "location": {
-        "building": "new",
-        "floor": null,
-        "room": null
-      },
+      "location": { "building": "new", "floor": null, "room": null },
       "shorthand": "EN Scientific Writing and Communication skills",
-      "displayCode": "EN Scientific Writing and Communication skills (New Building)"
+      "displayCode": "EN Scientific Writing and Communication skills"
     },
     {
       "id": "pharmd-s5-midterm-drug-information",
@@ -56,13 +44,9 @@
       "start": "13:00",
       "end": "13:30",
       "groups": [1, 2, 3],
-      "location": {
-        "building": "new",
-        "floor": null,
-        "room": null
-      },
+      "location": { "building": "new", "floor": null, "room": null },
       "shorthand": "EN Drug Information",
-      "displayCode": "EN Drug Information (New Building)"
+      "displayCode": "EN Drug Information"
     },
     {
       "id": "pharmd-s5-midterm-pharmaceutical-microbiology",
@@ -72,13 +56,9 @@
       "start": "12:00",
       "end": "12:30",
       "groups": [1, 2, 3],
-      "location": {
-        "building": "new",
-        "floor": null,
-        "room": null
-      },
+      "location": { "building": "new", "floor": null, "room": null },
       "shorthand": "EN Pharmaceutical Microbiology",
-      "displayCode": "EN Pharmaceutical Microbiology (New Building)"
+      "displayCode": "EN Pharmaceutical Microbiology"
     },
     {
       "id": "pharmd-s5-midterm-phytochemistry-i",
@@ -88,13 +68,9 @@
       "start": "11:00",
       "end": "11:30",
       "groups": [1, 2, 3],
-      "location": {
-        "building": "new",
-        "floor": null,
-        "room": null
-      },
+      "location": { "building": "new", "floor": null, "room": null },
       "shorthand": "EN Phytochemistry I",
-      "displayCode": "EN Phytochemistry I (New Building)"
+      "displayCode": "EN Phytochemistry I"
     },
     {
       "id": "pharmd-s5-midterm-basic-pharmacology",
@@ -104,78 +80,26 @@
       "start": "11:00",
       "end": "11:30",
       "groups": [1, 2, 3],
-      "location": {
-        "building": "new",
-        "floor": null,
-        "room": null
-      },
+      "location": { "building": "new", "floor": null, "room": null },
       "shorthand": "EN Basic Pharmacology",
-      "displayCode": "EN Basic Pharmacology (New Building)"
+      "displayCode": "EN Basic Pharmacology"
     },
     {
       "id": "pharmd-s5-drug-design-quiz-1",
       "courseId": "02-06-05305",
       "type": "examination",
-      "title": {
-        "en": "Drug Design (Quiz 1)"
-      },
+      "title": { "en": "Drug Design (Quiz 1)" },
       "day": "Wednesday",
       "date": "2026-11-18",
       "sessions": [
-        {
-          "group": 1,
-          "subdivision": "A",
-          "from": "2415001",
-          "to": "2415038",
-          "start": "09:00",
-          "end": "09:30"
-        },
-        {
-          "group": 1,
-          "subdivision": "B",
-          "from": "2415039",
-          "to": "2415076",
-          "start": "10:00",
-          "end": "10:30"
-        },
-        {
-          "group": 3,
-          "subdivision": "A",
-          "from": "2415149",
-          "to": "2415184",
-          "start": "11:00",
-          "end": "11:30"
-        },
-        {
-          "group": 3,
-          "subdivision": "B",
-          "from": "2415185",
-          "to": null,
-          "start": "12:00",
-          "end": "12:30"
-        },
-        {
-          "group": 2,
-          "subdivision": "A",
-          "from": "2415077",
-          "to": "2415112",
-          "start": "13:00",
-          "end": "13:30"
-        },
-        {
-          "group": 2,
-          "subdivision": "B",
-          "from": "2415114",
-          "to": "2415148",
-          "start": "14:00",
-          "end": "14:30"
-        }
+        { "group": 1, "subdivision": "A", "from": "2415001", "to": "2415038", "start": "09:00", "end": "09:30" },
+        { "group": 1, "subdivision": "B", "from": "2415039", "to": "2415076", "start": "10:00", "end": "10:30" },
+        { "group": 3, "subdivision": "A", "from": "2415149", "to": "2415184", "start": "11:00", "end": "11:30" },
+        { "group": 3, "subdivision": "B", "from": "2415185", "to": null, "start": "12:00", "end": "12:30" },
+        { "group": 2, "subdivision": "A", "from": "2415077", "to": "2415112", "start": "13:00", "end": "13:30" },
+        { "group": 2, "subdivision": "B", "from": "2415114", "to": "2415148", "start": "14:00", "end": "14:30" }
       ],
-      "location": {
-        "building": "old",
-        "floor": 2,
-        "room": "Pharmaceutical Chemistry Lab"
-      },
+      "location": { "building": "old", "floor": 2, "room": "Pharmaceutical Chemistry Lab" },
       "shorthand": "EO 2 Drug Design (Quiz 1)",
       "displayCode": "EO 2 Drug Design (Quiz 1)",
       "sourceReview": [
@@ -189,9 +113,7 @@
       "id": "pharmd-s5-drug-information-final-practical-exam-a",
       "courseId": "02-06-09305",
       "type": "examination",
-      "title": {
-        "en": "Drug Information Final Practical Exam (Group A)"
-      },
+      "title": { "en": "Drug Information Final Practical Exam (Group A)" },
       "description": {
         "en": "Final practical exam for Drug Information, Group A, as listed in the department tutorial schedule."
       },
@@ -200,37 +122,20 @@
       "allDay": true,
       "location": null,
       "sessions": [
-        {
-          "group": 1,
-          "subdivision": "A"
-        },
-        {
-          "group": 2,
-          "subdivision": "A"
-        },
-        {
-          "group": 3,
-          "subdivision": "A"
-        }
+        { "group": 1, "subdivision": "A" },
+        { "group": 2, "subdivision": "A" },
+        { "group": 3, "subdivision": "A" }
       ],
       "sourceReview": [
-        {
-          "code": "TIME_UNCONFIRMED",
-          "detail": "The Drug Information tutorial PDF gives the date and group, but does not provide an exam time."
-        },
-        {
-          "code": "LOCATION_UNCONFIRMED",
-          "detail": "The Drug Information tutorial PDF does not provide the final practical exam room or building."
-        }
+        { "code": "TIME_UNCONFIRMED", "detail": "The Drug Information tutorial PDF gives the date and group, but does not provide an exam time." },
+        { "code": "LOCATION_UNCONFIRMED", "detail": "The Drug Information tutorial PDF does not provide the final practical exam room or building." }
       ]
     },
     {
       "id": "pharmd-s5-drug-information-final-practical-exam-b",
       "courseId": "02-06-09305",
       "type": "examination",
-      "title": {
-        "en": "Drug Information Final Practical Exam (Group B)"
-      },
+      "title": { "en": "Drug Information Final Practical Exam (Group B)" },
       "description": {
         "en": "Final practical exam for Drug Information, Group B, as listed in the department tutorial schedule."
       },
@@ -239,28 +144,13 @@
       "allDay": true,
       "location": null,
       "sessions": [
-        {
-          "group": 1,
-          "subdivision": "B"
-        },
-        {
-          "group": 2,
-          "subdivision": "B"
-        },
-        {
-          "group": 3,
-          "subdivision": "B"
-        }
+        { "group": 1, "subdivision": "B" },
+        { "group": 2, "subdivision": "B" },
+        { "group": 3, "subdivision": "B" }
       ],
       "sourceReview": [
-        {
-          "code": "TIME_UNCONFIRMED",
-          "detail": "The Drug Information tutorial PDF gives the date and group, but does not provide an exam time."
-        },
-        {
-          "code": "LOCATION_UNCONFIRMED",
-          "detail": "The Drug Information tutorial PDF does not provide the final practical exam room or building."
-        }
+        { "code": "TIME_UNCONFIRMED", "detail": "The Drug Information tutorial PDF gives the date and group, but does not provide an exam time." },
+        { "code": "LOCATION_UNCONFIRMED", "detail": "The Drug Information tutorial PDF does not provide the final practical exam room or building." }
       ]
     }
   ]
