@@ -2,15 +2,24 @@
   "programs": [
     {
       "id": "pharmd",
-      "name": { "en": "PharmD", "ar": "دكتور صيدلة" },
+      "name": {
+        "en": "PharmD",
+        "ar": "دكتور صيدلة"
+      },
       "academicYears": [
         {
           "id": "2026-2027",
-          "name": { "en": "2026/2027", "ar": "٢٠٢٦/٢٠٢٧" },
+          "name": {
+            "en": "2026/2027",
+            "ar": "٢٠٢٦/٢٠٢٧"
+          },
           "semesters": [
             {
               "id": "pharmd-2026-2027-semester-5",
-              "name": { "en": "Semester 5", "ar": "الفصل الدراسي الخامس" },
+              "name": {
+                "en": "Semester 5",
+                "ar": "الفصل الدراسي الخامس"
+              },
               "validFrom": "2026-09-19",
               "validUntil": "2026-12-17",
               "status": "published",
