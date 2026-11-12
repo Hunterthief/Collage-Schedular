@@ -1,13 +1,8 @@
 import { createShorthandParser } from "./shorthand.js";
-import {
-  expandWeekly,
-  parseDate,
-  weekdayName
-} from "./recurrence.js";
+import { expandWeekly, parseDate, weekdayName } from "./recurrence.js";
 import { applyExceptions } from "./exceptions.js";
 import { institutionEventMatches } from "./targeting.js";
 import { sortOccurrences, detectConflicts } from "./sorting.js";
-import { localize } from "../i18n.js";
 
 function toArray(value) {
   if (Array.isArray(value)) return value;
@@ -37,7 +32,13 @@ export function buildCourseMap(courses, diagnostics) {
   return map;
 }
 
-export function normalizeEvents(rawList, fallbackType, parser, courseMap, diagnostics) {
+export function normalizeEvents(
+  rawList,
+  fallbackType,
+  parser,
+  courseMap,
+  diagnostics
+) {
   const out = [];
   const seen = new Set();
 
@@ -141,7 +142,14 @@ function makeOccurrence({ def, date, start, end, group, institutionId }) {
   };
 }
 
-export function materializeAcademicOccurrences(defs, semester, targetGroup, settings, institutionId, diagnostics) {
+export function materializeAcademicOccurrences(
+  defs,
+  semester,
+  targetGroup,
+  settings,
+  institutionId,
+  diagnostics
+) {
   const out = [];
 
   if (!semester.validFrom || !semester.validUntil) {
@@ -156,8 +164,10 @@ export function materializeAcademicOccurrences(defs, semester, targetGroup, sett
         continue;
       }
 
+      if (targetGroup == null) continue;
+
       for (const session of def.sessions) {
-        if (targetGroup != null && session.group !== targetGroup) continue;
+        if (session.group !== targetGroup) continue;
 
         const dates = def.date
           ? [def.date]
@@ -238,21 +248,37 @@ export function buildInstitutionOccurrences(
     const parsed = event.shorthand ? parser.parse(event.shorthand) : null;
     const location = event.location ?? parsed?.location ?? null;
 
-    const dates = event.date
-      ? [event.date]
-      : event.day && event.validFrom && event.validUntil
-      ? expandWeekly(event.validFrom, event.validUntil, event.day)
-      : [];
+    const metas = [];
 
-    if (dates.length === 0) {
+    if (event.date) {
+      metas.push({
+        date: event.date,
+        endDate: event.endDate ?? null,
+        allDay: !!event.allDay
+      });
+    } else if (event.startDate) {
+      metas.push({
+        date: event.startDate,
+        endDate: event.endDate ?? event.startDate,
+        allDay: event.allDay !== false
+      });
+    } else if (event.day && event.validFrom && event.validUntil) {
+      for (const d of expandWeekly(event.validFrom, event.validUntil, event.day)) {
+        metas.push({
+          date: d,
+          endDate: null,
+          allDay: false
+        });
+      }
+    } else {
       diagnostics.warnings.push(
         `Institution event ${event.id} has no materializable date window.`
       );
       continue;
     }
 
-    for (const date of dates) {
-      const uid = `${institutionId}:${event.id}:${date}`;
+    for (const meta of metas) {
+      const uid = `${institutionId}:${event.id}:${meta.date}`;
 
       out.push({
         uid,
@@ -262,11 +288,13 @@ export function buildInstitutionOccurrences(
         type: event.type ?? "college-event",
         title: event.title,
         description: event.description ?? null,
-        date,
-        originalDate: date,
-        day: weekdayName(parseDate(date)),
-        start: event.start ?? null,
-        end: event.end ?? null,
+        date: meta.date,
+        endDate: meta.endDate,
+        allDay: meta.allDay,
+        originalDate: meta.date,
+        day: weekdayName(parseDate(meta.date)),
+        start: meta.allDay ? null : event.start ?? null,
+        end: meta.allDay ? null : event.end ?? null,
         location,
         group: null,
         status: event.status,
@@ -316,6 +344,7 @@ export function composeSchedule({
   courses = [],
   lectures = [],
   practicals = [],
+  exams = [],
   exceptions = [],
   institutionEvents = [],
   context,
@@ -328,7 +357,8 @@ export function composeSchedule({
 
   const defs = [
     ...normalizeEvents(lectures, "lecture", parser, courseMap, diagnostics),
-    ...normalizeEvents(practicals, "practical", parser, courseMap, diagnostics)
+    ...normalizeEvents(practicals, "practical", parser, courseMap, diagnostics),
+    ...normalizeEvents(exams, "examination", parser, courseMap, diagnostics)
   ];
 
   const academic = materializeAcademicOccurrences(
