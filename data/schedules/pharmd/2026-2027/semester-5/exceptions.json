@@ -1,3 +1,18 @@
 {
-  "exceptions": []
+  "exceptions": [
+    {
+      "id": "pharmd-s5-di-lecture-tue-cancel-2026-11-10",
+      "eventId": "pharmd-s5-drug-information-lecture-late-tue",
+      "date": "2026-11-10",
+      "action": "cancel",
+      "note": "Department: no Drug Information lecture on Tuesday 2026-11-10. Cancels the Tuesday slot for all groups (wildcard, no group field)."
+    },
+    {
+      "id": "pharmd-s5-di-lecture-tue-cancel-2026-11-17",
+      "eventId": "pharmd-s5-drug-information-lecture-late-tue",
+      "date": "2026-11-17",
+      "action": "cancel",
+      "note": "Department: no Drug Information lecture on Tuesday 2026-11-17. Cancels the Tuesday slot for all groups (wildcard, no group field). From 2026-11-18 the lecture is on Wednesday instead."
+    }
+  ]
 }
