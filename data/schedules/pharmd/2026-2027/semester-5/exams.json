@@ -111,6 +111,79 @@
       },
       "shorthand": "EN Basic Pharmacology",
       "displayCode": "EN Basic Pharmacology (New Building)"
+    },
+    {
+      "id": "pharmd-s5-drug-design-quiz-1",
+      "courseId": "02-06-05305",
+      "type": "examination",
+      "title": {
+        "en": "Drug Design (Quiz 1)"
+      },
+      "day": "Wednesday",
+      "date": "2026-11-18",
+      "sessions": [
+        {
+          "group": 1,
+          "subdivision": "A",
+          "from": "2415001",
+          "to": "2415038",
+          "start": "09:00",
+          "end": "09:30"
+        },
+        {
+          "group": 1,
+          "subdivision": "B",
+          "from": "2415039",
+          "to": "2415076",
+          "start": "10:00",
+          "end": "10:30"
+        },
+        {
+          "group": 3,
+          "subdivision": "A",
+          "from": "2415149",
+          "to": "2415184",
+          "start": "11:00",
+          "end": "11:30"
+        },
+        {
+          "group": 3,
+          "subdivision": "B",
+          "from": "2415185",
+          "to": null,
+          "start": "12:00",
+          "end": "12:30"
+        },
+        {
+          "group": 2,
+          "subdivision": "A",
+          "from": "2415077",
+          "to": "2415112",
+          "start": "13:00",
+          "end": "13:30"
+        },
+        {
+          "group": 2,
+          "subdivision": "B",
+          "from": "2415114",
+          "to": "2415148",
+          "start": "14:00",
+          "end": "14:30"
+        }
+      ],
+      "location": {
+        "building": "old",
+        "floor": 2,
+        "room": "Pharmaceutical Chemistry Lab"
+      },
+      "shorthand": "EO 2 Drug Design (Quiz 1)",
+      "displayCode": "EO 2 Drug Design (Quiz 1)",
+      "sourceReview": [
+        {
+          "code": "QUIZ_MODELED_AS_EXAMINATION",
+          "detail": "Quiz 1 is modeled as an examination event because it is an assessment, not a regular practical section."
+        }
+      ]
     }
   ]
 }
