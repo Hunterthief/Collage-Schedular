@@ -1,0 +1,12 @@
+{
+  "courses": [
+    { "id": "02-PO-304", "code": "02-PO 304", "title": { "en": "Basic Pharmacology" }, "color": "#1a73e8" },
+    { "id": "09-PP-303", "code": "09-PP 303", "title": { "en": "Scientific Writing and Communication skills" }, "color": "#e37400" },
+    { "id": "02-NP-304", "code": "02-NP 304", "title": { "en": "Critical Thinking" }, "color": "#7b1fa2" },
+    { "id": "02-PO-303", "code": "02-PO 303", "title": { "en": "Physiology and Pathophysiology" }, "color": "#d93025" },
+    { "id": "05-PC-303", "code": "05-PC 303", "title": { "en": "Pharmaceutical Organic Chemistry-III" }, "color": "#0b8043" },
+    { "id": "08-PB-302", "code": "08-PB 302", "title": { "en": "Biochemistry-I" }, "color": "#009688" },
+    { "id": "01-PT-302", "code": "01-PT 302", "title": { "en": "Pharmaceutical Dosage Forms-I" }, "color": "#c2185b" },
+    { "id": "06-PG-303", "code": "06-PG 303", "title": { "en": "Pharmacognosy-II" }, "color": "#795548" }
+  ]
+}
