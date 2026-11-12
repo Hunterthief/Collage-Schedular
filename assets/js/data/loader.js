@@ -59,13 +59,14 @@ export class DataLoader {
   async loadSemesterDatasets(semester, manifest = this.manifest) {
     const paths = semester.datasets;
 
-    const [courses, lectures, practicals, exceptions] = await Promise.all([
+    const [courses, lectures, practicals, exams, exceptions] = await Promise.all([
       this.loadJson(paths.courses),
       this.loadJson(paths.lectures),
       this.loadJson(paths.practicals),
+      this.loadJson(paths.exams),
       this.loadJson(paths.exceptions)
     ]);
 
-    return { courses, lectures, practicals, exceptions };
+    return { courses, lectures, practicals, exams, exceptions };
   }
 }
