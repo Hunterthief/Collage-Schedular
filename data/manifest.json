@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "dataVersion": "2026-11-13T00:00:00Z",
+  "dataVersion": "2026-11-13T12:00:00Z",
   "timezone": "Africa/Cairo",
   "paths": {
     "programs": "data/programs/programs.json",
@@ -14,6 +14,11 @@
       "programId": "pharmd",
       "academicYearId": "2026-2027",
       "path": "data/students/assignments/pharmd/2026-2027.json"
+    },
+    {
+      "programId": "clinical-pharmacy",
+      "academicYearId": "2026-2027",
+      "path": "data/students/assignments/clinical-pharmacy/2026-2027.json"
     }
   ],
   "calendarFeeds": {
