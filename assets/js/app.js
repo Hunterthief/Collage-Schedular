@@ -8,10 +8,7 @@ import {
   StudentNotFoundError,
   DataIntegrityError
 } from "./student/resolver.js";
-import {
-  composeSchedule,
-  selectActiveSemester
-} from "./schedule/engine.js";
+import { composeSchedule, selectActiveSemester } from "./schedule/engine.js";
 import {
   todayInTimeZone,
   startOfWeek,
@@ -24,10 +21,7 @@ import {
   weekdayName
 } from "./schedule/recurrence.js";
 import { timeToMinutes } from "./schedule/sorting.js";
-import {
-  buildFeedUrl,
-  googleCalendarSubscribeUrl
-} from "./calendar/calendar-links.js";
+import { buildFeedUrl, googleCalendarSubscribeUrl } from "./calendar/calendar-links.js";
 import { eventsToIcs, formatLocation } from "./calendar/ics-generator.js";
 import { localize } from "./i18n.js";
 
@@ -35,6 +29,7 @@ const loader = new DataLoader();
 
 const els = {
   modeButtons: document.querySelectorAll(".segment"),
+  consoleTabs: document.querySelector(".console-tabs"),
   idForm: document.getElementById("id-form"),
   manualForm: document.getElementById("manual-form"),
   studentId: document.getElementById("student-id"),
@@ -58,7 +53,12 @@ init();
 
 async function init() {
   bindEvents();
-
+  setMode("id");
+  try {
+    els.studentId?.focus({ preventScroll: true });
+  } catch {
+    /* focus is best-effort */
+  }
   try {
     await ensureOptions();
   } catch (err) {
@@ -67,9 +67,9 @@ async function init() {
 }
 
 function bindEvents() {
-  els.modeButtons.forEach((btn) => {
-    btn.addEventListener("click", () => setMode(btn.dataset.mode));
-  });
+  els.modeButtons.forEach((btn) =>
+    btn.addEventListener("click", () => setMode(btn.dataset.mode))
+  );
 
   els.idForm.addEventListener("submit", onIdSubmit);
   els.manualForm.addEventListener("submit", onManualSubmit);
@@ -78,32 +78,34 @@ function bindEvents() {
     populateYears();
     populateGroups();
   });
+  els.yearSelect.addEventListener("change", populateGroups);
 
-  els.yearSelect.addEventListener("change", () => {
-    populateGroups();
-  });
-
-  els.tabs.forEach((btn) => {
+  els.tabs.forEach((btn) =>
     btn.addEventListener("click", () => {
       if (currentState) renderView(currentState, btn.dataset.view);
-    });
-  });
+    })
+  );
 }
 
 function setMode(mode) {
   els.modeButtons.forEach((btn) => {
     const active = btn.dataset.mode === mode;
     btn.classList.toggle("active", active);
-    btn.setAttribute("aria-selected", String(active));
+    btn.setAttribute("aria-pressed", String(active));
   });
+
+  // Drive the sliding ink indicator purely from a data attribute.
+  if (els.consoleTabs) els.consoleTabs.dataset.mode = mode;
 
   els.idForm.hidden = mode !== "id";
   els.manualForm.hidden = mode !== "manual";
 
   if (mode === "manual") {
-    ensureOptions().catch((err) => {
-      setStatus(`Could not load year/group options: ${err.message}`, "error");
-    });
+    ensureOptions().catch((err) =>
+      setStatus(`Could not load year/group options: ${err.message}`, "error")
+    );
+  } else {
+    els.studentId?.focus({ preventScroll: true });
   }
 }
 
@@ -116,32 +118,22 @@ async function ensureOptions() {
     loader.loadJson(manifest.paths.settings)
   ]);
 
-  lookupOptions = {
-    ...options,
-    settings,
-    manifest
-  };
+  lookupOptions = { ...options, settings, manifest };
 
   applyBranding(settings);
   populatePrograms(options.programs);
 
   return lookupOptions;
 }
+
 function applyBranding(settings) {
   const locale = settings.defaultLocale ?? CONFIG.ui.defaultLocale ?? "en";
-
   const title = localize(settings.calendarName, locale) || "College Schedule";
   const privacy = localize(settings.privacy?.notice, locale);
 
-  if (els.siteTitle) {
-    els.siteTitle.textContent = title;
-  }
-
+  if (els.siteTitle) els.siteTitle.textContent = title;
   document.title = title;
-
-  if (privacy && els.privacyNotice) {
-    els.privacyNotice.textContent = privacy;
-  }
+  if (privacy && els.privacyNotice) els.privacyNotice.textContent = privacy;
 }
 
 function populatePrograms(programs) {
@@ -154,71 +146,38 @@ function populatePrograms(programs) {
     return;
   }
 
-  for (const program of programs) {
-    addOption(els.programSelect, program.id, program.name);
-  }
-
+  for (const program of programs) addOption(els.programSelect, program.id, program.name);
   els.programSelect.value = programs[0].id;
   populateYears();
 }
 
 function populateYears() {
-  const program = lookupOptions?.programs.find(
-    (p) => p.id === els.programSelect.value
-  );
-
-  clearSelect(
-    els.yearSelect,
-    program?.years?.length ? "Select academic year" : "No academic years"
-  );
-
+  const program = lookupOptions?.programs.find((p) => p.id === els.programSelect.value);
+  clearSelect(els.yearSelect, program?.years?.length ? "Select academic year" : "No academic years");
   if (!program) return;
 
-  for (const year of program.years) {
-    addOption(els.yearSelect, year.id, year.name);
-  }
-
-  if (program.years.length === 1) {
-    els.yearSelect.value = program.years[0].id;
-  }
-
+  for (const year of program.years) addOption(els.yearSelect, year.id, year.name);
+  if (program.years.length === 1) els.yearSelect.value = program.years[0].id;
   populateGroups();
 }
 
 function populateGroups() {
-  const program = lookupOptions?.programs.find(
-    (p) => p.id === els.programSelect.value
-  );
-
-  const year = program?.years.find(
-    (y) => y.id === els.yearSelect.value
-  );
-
-  clearSelect(
-    els.groupSelect,
-    year?.groups?.length ? "Select practical group" : "No groups available"
-  );
-
+  const program = lookupOptions?.programs.find((p) => p.id === els.programSelect.value);
+  const year = program?.years.find((y) => y.id === els.yearSelect.value);
+  clearSelect(els.groupSelect, year?.groups?.length ? "Select practical group" : "No groups available");
   if (!year) return;
 
-  for (const group of year.groups) {
-    addOption(els.groupSelect, String(group), `Group ${group}`);
-  }
-
-  if (year.groups.length === 1) {
-    els.groupSelect.value = String(year.groups[0]);
-  }
+  for (const group of year.groups) addOption(els.groupSelect, String(group), `Group ${group}`);
+  if (year.groups.length === 1) els.groupSelect.value = String(year.groups[0]);
 }
 
 function clearSelect(select, placeholder) {
   select.innerHTML = "";
-
   const option = document.createElement("option");
   option.value = "";
   option.textContent = placeholder;
   option.disabled = true;
   option.selected = true;
-
   select.appendChild(option);
 }
 
@@ -231,8 +190,7 @@ function addOption(select, value, label) {
 
 async function onIdSubmit(event) {
   event.preventDefault();
-  setStatus("Loading schedule…");
-
+  setStatus("Searching…");
   try {
     const manifest = await loader.loadManifest();
     checkForUpdate(manifest.dataVersion);
@@ -251,8 +209,7 @@ async function onIdSubmit(event) {
 
 async function onManualSubmit(event) {
   event.preventDefault();
-  setStatus("Loading schedule…");
-
+  setStatus("Searching…");
   try {
     const programId = els.programSelect.value;
     const academicYearId = els.yearSelect.value;
@@ -272,13 +229,12 @@ async function onManualSubmit(event) {
       subdivision: null,
       subdivisionStatus: "not-applicable",
       source: "manual",
-      lookupMethod: "Year & Group",
+      lookupMethod: "Year & group",
       warnings: []
     };
 
     const manifest = await loader.loadManifest();
     checkForUpdate(manifest.dataVersion);
-
     await loadAndRenderSchedule(assignment, manifest);
   } catch (err) {
     renderError(err);
@@ -295,28 +251,18 @@ async function loadAndRenderSchedule(assignment, manifest) {
   const programs = await loader.loadPrograms(manifest);
 
   const program = findProgram(programs, assignment.programId);
-  if (!program) {
-    throw new DataIntegrityError(`Unknown program: ${assignment.programId}`);
-  }
+  if (!program) throw new DataIntegrityError(`Unknown program: ${assignment.programId}`);
 
   const year = findAcademicYear(program, assignment.academicYearId);
-  if (!year) {
-    throw new DataIntegrityError(
-      `Unknown academic year: ${assignment.academicYearId}`
-    );
-  }
+  if (!year) throw new DataIntegrityError(`Unknown academic year: ${assignment.academicYearId}`);
 
   const institution = await loader.loadInstitutionData(manifest);
-  const locale =
-    institution.settings.defaultLocale ?? CONFIG.ui.defaultLocale ?? "en";
-
+  const locale = institution.settings.defaultLocale ?? CONFIG.ui.defaultLocale ?? "en";
   const today = todayInTimeZone(manifest.timezone);
 
   const semester = selectActiveSemester(year, today, manifest.timezone);
   if (!semester) {
-    throw new Error(
-      "No active or upcoming published semester is available for this academic year."
-    );
+    throw new Error("No active or upcoming published semester is available for this academic year.");
   }
 
   const datasets = await loader.loadSemesterDatasets(semester, manifest);
@@ -333,74 +279,38 @@ async function loadAndRenderSchedule(assignment, manifest) {
     exams: datasets.exams,
     exceptions: datasets.exceptions,
     institutionEvents: institution.events,
-    context: {
-      ...assignment,
-      semesterId: semester.id,
-      today
-    },
+    context: { ...assignment, semesterId: semester.id, today },
     locale
   });
 
   const issues = [
-    ...schedule.diagnostics.errors.map((message) => ({
-      level: "error",
-      message
-    })),
-    ...schedule.diagnostics.warnings.map((message) => ({
-      level: "warning",
-      message
-    }))
+    ...schedule.diagnostics.errors.map((message) => ({ level: "error", message })),
+    ...schedule.diagnostics.warnings.map((message) => ({ level: "warning", message }))
   ];
 
   currentState = {
-    manifest,
-    institution,
-    program,
-    year,
-    semester,
-    assignment,
-    schedule,
-    today,
-    locale,
-    issues,
-    view: "weekly"
+    manifest, institution, program, year, semester,
+    assignment, schedule, today, locale, issues, view: "weekly"
   };
 
   renderAll(currentState);
 
-  const hasErrors = issues.some((issue) => issue.level === "error");
-  setStatus(
-    hasErrors
-      ? "Schedule loaded, but data issues were detected."
-      : "Schedule loaded.",
-    hasErrors ? "error" : "success"
-  );
+  const hasErrors = issues.some((i) => i.level === "error");
+  setStatus(hasErrors ? "Schedule loaded, but data issues were detected." : "Schedule loaded.",
+    hasErrors ? "error" : "success");
 }
 
 function checkForUpdate(dataVersion) {
   const key = "college-schedule-data-version";
-
   let previous = null;
-  try {
-    previous = localStorage.getItem(key);
-  } catch {
-    previous = null;
-  }
+  try { previous = localStorage.getItem(key); } catch { previous = null; }
 
   if (previous && previous !== dataVersion) {
     loader.cache?.clear();
     lookupOptions = null;
-    setStatus(
-      "Published data has changed. Cached files were cleared. Please reload if behavior seems stale.",
-      "info"
-    );
+    setStatus("Published data changed. Cached files cleared — reload if anything looks stale.", "info");
   }
-
-  try {
-    localStorage.setItem(key, dataVersion);
-  } catch {
-    // Ignore storage failures in private browsing modes.
-  }
+  try { localStorage.setItem(key, dataVersion); } catch { /* private mode */ }
 }
 
 function setStatus(message, kind = "info") {
@@ -410,6 +320,11 @@ function setStatus(message, kind = "info") {
 
 function renderAll(state) {
   els.result.hidden = false;
+  // Re-trigger the reveal animation on each fresh search.
+  els.result.classList.remove("results-show");
+  void els.result.offsetWidth; // reflow
+  els.result.classList.add("results-show");
+
   renderAssignmentSummary(state);
   renderView(state, state.view);
   renderCalendar(state);
@@ -418,66 +333,27 @@ function renderAll(state) {
 function renderAssignmentSummary(state) {
   const a = state.assignment;
   const locale = state.locale;
-
   const items = [];
 
-  if (a.displayId) {
-    items.push(["Student ID", a.displayId]);
-  }
-
+  if (a.displayId) items.push(["Student ID", a.displayId]);
   items.push(["Lookup", a.lookupMethod ?? "Student ID"]);
-  items.push([
-    "Program",
-    localize(state.program.name, locale) || state.program.id
-  ]);
-  items.push([
-    "Academic year",
-    localize(state.year.name, locale) || state.year.id
-  ]);
-  items.push([
-    "Semester",
-    localize(state.semester.name, locale) || state.semester.id
-  ]);
-  items.push([
-    "Practical group",
-    a.practicalGroup ?? "Unresolved"
-  ]);
-  items.push([
-    "Subdivision",
-    a.subdivision ??
-      (a.subdivisionStatus === "unresolved"
-        ? "Unresolved"
-        : "Not applicable")
-  ]);
+  items.push(["Program", localize(state.program.name, locale) || state.program.id]);
+  items.push(["Academic year", localize(state.year.name, locale) || state.year.id]);
+  items.push(["Semester", localize(state.semester.name, locale) || state.semester.id]);
+  items.push(["Practical group", a.practicalGroup ?? "Unresolved"]);
+  items.push(["Subdivision", a.subdivision ?? (a.subdivisionStatus === "unresolved" ? "Unresolved" : "Not applicable")]);
 
   let html = `<div class="summary-grid">`;
-
   for (const [label, value] of items) {
-    html += `
-      <div class="summary-item">
-        <span>${escapeHtml(label)}</span>
-        <strong>${escapeHtml(String(value))}</strong>
-      </div>
-    `;
+    html += `<div class="summary-item"><span>${escapeHtml(label)}</span><strong>${escapeHtml(String(value))}</strong></div>`;
   }
-
   html += `</div>`;
 
-  const notes = [
-    ...(a.warnings ?? []),
-    ...(state.issues ?? []).map((issue) => issue.message)
-  ].filter(Boolean);
-
+  const notes = [...(a.warnings ?? []), ...(state.issues ?? []).map((i) => i.message)].filter(Boolean);
   if (notes.length) {
     const visible = notes.slice(0, 5).join(" · ");
     const extra = notes.length > 5 ? " …" : "";
-
-    html += `
-      <div class="warning-box">
-        <strong>Data notes:</strong>
-        ${escapeHtml(visible + extra)}
-      </div>
-    `;
+    html += `<div class="warning-box"><strong>Data notes:</strong> ${escapeHtml(visible + extra)}</div>`;
   }
 
   els.assignmentSummary.innerHTML = html;
@@ -485,212 +361,113 @@ function renderAssignmentSummary(state) {
 
 function renderView(state, view) {
   state.view = view;
-
   els.tabs.forEach((btn) => {
     const active = btn.dataset.view === view;
     btn.classList.toggle("active", active);
-    btn.setAttribute("aria-selected", String(active));
+    if (active) btn.setAttribute("aria-current", "true");
+    else btn.removeAttribute("aria-current");
   });
 
   const events = state.schedule.events;
 
   if (view === "weekly") {
-    const weekStart = startOfWeek(
-      state.today,
-      state.institution.settings.weekStartDay ?? "Saturday"
-    );
-    const weekEnd = endOfWeek(weekStart);
-
-    const filtered = events.filter((e) => occursInRange(e, weekStart, weekEnd));
-
-    renderAgenda(
-      expandEventsForRange(filtered, weekStart, weekEnd, "repeat"),
-      state,
-      `Week of ${weekStart}`
-    );
-
+    const ws = startOfWeek(state.today, state.institution.settings.weekStartDay ?? "Saturday");
+    const we = endOfWeek(ws);
+    renderAgenda(expandEventsForRange(events.filter((e) => occursInRange(e, ws, we)), ws, we, "repeat"), state, `Week of ${ws}`);
     return;
   }
-
   if (view === "daily") {
-    const filtered = events.filter((e) => occursOnDay(e, state.today));
-
-    renderAgenda(
-      expandEventsForRange(filtered, state.today, state.today, "repeat"),
-      state,
-      `Today (${state.today})`
-    );
-
+    renderAgenda(expandEventsForRange(events.filter((e) => occursOnDay(e, state.today)), state.today, state.today, "repeat"), state, `Today (${state.today})`);
     return;
   }
-
-  const limit = formatDate(
-    addDays(parseDate(state.today), CONFIG.ui.upcomingDays)
-  );
-
-  const filtered = events.filter((e) => occursInRange(e, state.today, limit));
-
-  renderAgenda(
-    expandEventsForRange(filtered, state.today, limit, "once"),
-    state,
-    `Next ${CONFIG.ui.upcomingDays} days`
-  );
+  const limit = formatDate(addDays(parseDate(state.today), CONFIG.ui.upcomingDays));
+  renderAgenda(expandEventsForRange(events.filter((e) => occursInRange(e, state.today, limit)), state.today, limit, "once"), state, `Next ${CONFIG.ui.upcomingDays} days`);
 }
 
 function expandEventsForRange(events, rangeStart, rangeEnd, mode) {
   const out = [];
-
   for (const event of events) {
     if (event.allDay && event.endDate && event.endDate !== event.date) {
       const start = event.date > rangeStart ? event.date : rangeStart;
       const end = event.endDate < rangeEnd ? event.endDate : rangeEnd;
-
       if (mode === "repeat") {
         let cursor = start;
-
         while (cursor <= end) {
-          out.push({
-            ...event,
-            displayDate: cursor,
-            displayWhen: "All day"
-          });
-
+          out.push({ ...event, displayDate: cursor, displayWhen: "All day" });
           cursor = formatDate(addDays(parseDate(cursor), 1));
         }
       } else {
-        out.push({
-          ...event,
-          displayDate: start,
-          displayWhen: `${event.date} → ${event.endDate} (all day)`
-        });
+        out.push({ ...event, displayDate: start, displayWhen: `${event.date} → ${event.endDate} (all day)` });
       }
-
       continue;
     }
-
     let displayDate = event.date;
-
-    if (event.allDay && displayDate < rangeStart) {
-      displayDate = rangeStart;
-    }
-
-    let displayWhen;
-
-    if (event.allDay) {
-      displayWhen =
-        event.endDate && event.endDate !== event.date
-          ? `${event.date} → ${event.endDate} (all day)`
-          : "All day";
-    } else {
-      displayWhen = `${event.start ?? ""}–${event.end ?? ""} · ${event.day}`;
-    }
-
-    out.push({
-      ...event,
-      displayDate,
-      displayWhen
-    });
+    if (event.allDay && displayDate < rangeStart) displayDate = rangeStart;
+    const displayWhen = event.allDay
+      ? (event.endDate && event.endDate !== event.date ? `${event.date} → ${event.endDate} (all day)` : "All day")
+      : `${event.start ?? ""}–${event.end ?? ""} · ${event.day}`;
+    out.push({ ...event, displayDate, displayWhen });
   }
-
   return out;
 }
 
 function renderAgenda(displayEvents, state, heading) {
   const locale = state.locale;
   const buildings = state.institution.locations.buildings;
-
   const grouped = new Map();
 
   for (const event of displayEvents) {
     const day = event.displayDate ?? event.date;
-
     if (!grouped.has(day)) grouped.set(day, []);
     grouped.get(day).push(event);
   }
 
   let html = `<h2 class="sr-only">${escapeHtml(heading)}</h2>`;
 
-  if (displayEvents.length === 0) {
-    html += `<div class="empty-state">No events found for this view.</div>`;
+  if (!displayEvents.length) {
+    html += `<div class="empty-state">
+      <svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Nothing scheduled for this view.
+    </div>`;
     els.timetable.innerHTML = html;
     return;
   }
 
-  const sortedDays = Array.from(grouped.entries()).sort((a, b) =>
-    a[0].localeCompare(b[0])
-  );
+  const sortedDays = Array.from(grouped.entries()).sort((a, b) => a[0].localeCompare(b[0]));
 
   for (const [date, dayEvents] of sortedDays) {
     dayEvents.sort((a, b) => {
       if (!!a.allDay !== !!b.allDay) return a.allDay ? -1 : 1;
-
-      const aStart = timeToMinutes(a.start);
-      const bStart = timeToMinutes(b.start);
-
-      if (aStart !== bStart) return aStart - bStart;
-
+      const d = timeToMinutes(a.start) - timeToMinutes(b.start);
+      if (d !== 0) return d;
       return localize(a.title, locale).localeCompare(localize(b.title, locale));
     });
 
-    html += `
-      <section class="day">
-        <div class="day-header">
-          <h3>${escapeHtml(formatDayHeading(date))}</h3>
-          <span class="day-count">${dayEvents.length} event${dayEvents.length === 1 ? "" : "s"}</span>
-        </div>
-    `;
+    html += `<section class="day"><div class="day-header"><h3>${escapeHtml(formatDayHeading(date))}</h3><span class="day-count">${dayEvents.length} event${dayEvents.length === 1 ? "" : "s"}</span></div>`;
 
     for (const event of dayEvents) {
-      const classes = [
-        "event",
-        event.type,
-        event.status,
-        event.allDay ? "all-day" : "",
-        (event.sourceReview ?? []).length ? "unverified" : ""
-      ]
-        .filter(Boolean)
-        .join(" ");
-
-      const when =
-        event.displayWhen ??
-        (event.allDay
-          ? "All day"
-          : `${event.start ?? ""}–${event.end ?? ""} · ${event.day}`);
-
+      const classes = ["event", event.type, event.status, event.allDay ? "all-day" : "", (event.sourceReview ?? []).length ? "unverified" : ""].filter(Boolean).join(" ");
+      const when = event.displayWhen ?? (event.allDay ? "All day" : `${event.start ?? ""}–${event.end ?? ""} · ${event.day}`);
       const location = formatLocation(event.location, buildings, locale);
       const title = localize(event.title, locale);
       const typeLabel = event.type.replace(/-/g, " ");
 
-      html += `
-        <article class="${classes}">
-          <div class="event-main">
-            <div class="event-title">${escapeHtml(title)}</div>
-            <div class="event-meta">
-              <span class="time">${escapeHtml(when)}</span>
-              ${location ? `<span>${escapeHtml(location)}</span>` : ""}
-              ${event.courseId ? `<span>${escapeHtml(event.courseId)}</span>` : ""}
-            </div>
+      html += `<article class="${classes}">
+        <div class="event-main">
+          <div class="event-title">${escapeHtml(title)}</div>
+          <div class="event-meta">
+            <span class="time">${escapeHtml(when)}</span>
+            ${location ? `<span>${escapeHtml(location)}</span>` : ""}
+            ${event.courseId ? `<span>${escapeHtml(event.courseId)}</span>` : ""}
           </div>
-
-          <div class="event-side">
-            <span class="badge ${escapeHtml(event.type)}">${escapeHtml(typeLabel)}</span>
-
-            ${
-              event.status === "cancelled"
-                ? `<span class="badge cancelled">Cancelled</span>`
-                : ""
-            }
-
-            ${
-              (event.sourceReview ?? []).length
-                ? `<span class="badge unverified">Needs review</span>`
-                : ""
-            }
-          </div>
-        </article>
-      `;
+        </div>
+        <div class="event-side">
+          <span class="badge ${escapeHtml(event.type)}">${escapeHtml(typeLabel)}</span>
+          ${event.status === "cancelled" ? `<span class="badge cancelled">Cancelled</span>` : ""}
+          ${(event.sourceReview ?? []).length ? `<span class="badge unverified">Needs review</span>` : ""}
+        </div>
+      </article>`;
     }
-
     html += `</section>`;
   }
 
@@ -698,22 +475,15 @@ function renderAgenda(displayEvents, state, heading) {
 }
 
 function formatDayHeading(date) {
-  try {
-    return `${weekdayName(parseDate(date))} · ${date}`;
-  } catch {
-    return date;
-  }
+  try { return `${weekdayName(parseDate(date))} · ${date}`; }
+  catch { return date; }
 }
 
 function renderCalendar(state) {
   const feedUrl = buildFeedUrl(state.assignment, state.manifest);
 
   if (!feedUrl) {
-    els.calendarLinks.innerHTML = `
-      <div class="warning-box">
-        Calendar subscription is unavailable because your practical group could not be resolved.
-      </div>
-    `;
+    els.calendarLinks.innerHTML = `<div class="warning-box">Calendar subscription is unavailable because your practical group could not be resolved.</div>`;
     return;
   }
 
@@ -722,35 +492,20 @@ function renderCalendar(state) {
   els.calendarLinks.innerHTML = `
     <ol class="steps">
       <li>Open the Google Calendar link below.</li>
-      <li>If prompted, choose <strong>Add other calendar</strong> → <strong>From URL</strong>.</li>
+      <li>If prompted, choose <strong>Add other calendar → From URL</strong>.</li>
       <li>Paste the stable feed URL and subscribe.</li>
     </ol>
-
     <div class="feed-box">
       <div>
         <span class="label">Stable feed URL</span>
         <code>${escapeHtml(feedUrl)}</code>
       </div>
-
       <div class="feed-actions">
-        <a
-          class="btn primary"
-          href="${escapeHtml(googleUrl)}"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Subscribe in Google Calendar
-        </a>
-
-        <button class="btn secondary" type="button" id="download-ics">
-          Download .ics preview
-        </button>
+        <a class="btn primary" href="${escapeHtml(googleUrl)}" target="_blank" rel="noopener noreferrer">Subscribe in Google Calendar</a>
+        <button class="btn secondary" type="button" id="download-ics">Download .ics preview</button>
       </div>
     </div>
-
-    <p class="hint">
-      Google controls refresh frequency. The feed URL remains stable when repository data is updated.
-    </p>
+    <p class="hint">Google controls refresh frequency. The feed URL stays stable when repository data is updated.</p>
   `;
 
   document.getElementById("download-ics").addEventListener("click", () => {
@@ -762,49 +517,31 @@ function renderCalendar(state) {
       locations: state.institution.locations,
       generatedAt: new Date()
     });
-
     const blob = new Blob([ics], { type: "text/calendar;charset=utf-8" });
     const url = URL.createObjectURL(blob);
-
     const a = document.createElement("a");
     a.href = url;
     a.download = `group-${state.assignment.practicalGroup}.ics`;
     a.click();
-
     URL.revokeObjectURL(url);
   });
 }
 
 function renderError(err) {
   els.result.hidden = true;
-
   if (err instanceof StudentNotFoundError) {
-    setStatus(
-      "Student ID not found. Check the ID or contact the college office if you believe this is incorrect.",
-      "error"
-    );
+    setStatus("Student ID not found. Check the ID, or contact the college office if you believe this is wrong.", "error");
     return;
   }
-
   if (err instanceof DataIntegrityError) {
-    setStatus(
-      `Data integrity problem: ${err.message}. This is a repository data issue, not an authentication issue.`,
-      "error"
-    );
+    setStatus(`Data integrity problem: ${err.message}. This is a repository data issue, not an authentication issue.`, "error");
     return;
   }
-
   setStatus(`Unexpected error: ${err.message}`, "error");
 }
 
 function escapeHtml(value) {
-  return String(value ?? "").replace(/[&<>"']/g, (char) => {
-    return {
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      '"': "&quot;",
-      "'": "&#39;"
-    }[char];
-  });
+  return String(value ?? "").replace(/[&<>"']/g, (c) => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+  }[c]));
 }
