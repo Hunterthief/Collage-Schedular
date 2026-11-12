@@ -15,7 +15,11 @@ import {
   todayInTimeZone,
   startOfWeek,
   endOfWeek,
-  parseDate
+  parseDate,
+  formatDate,
+  addDays,
+  occursOnDay,
+  occursInRange
 } from "./schedule/recurrence.js";
 import {
   buildFeedUrl,
@@ -70,17 +74,23 @@ async function lookup(rawId) {
     const assignment = resolveStudentId(rawId, assignmentDocs);
 
     const program = findProgram(programs, assignment.programId);
-    if (!program) throw new DataIntegrityError(`Unknown program: ${assignment.programId}`);
+    if (!program)
+      throw new DataIntegrityError(`Unknown program: ${assignment.programId}`);
 
     const year = findAcademicYear(program, assignment.academicYearId);
-    if (!year) throw new DataIntegrityError(`Unknown academic year: ${assignment.academicYearId}`);
+    if (!year)
+      throw new DataIntegrityError(
+        `Unknown academic year: ${assignment.academicYearId}`
+      );
 
     const institution = await loader.loadInstitutionData(manifest);
     const today = todayInTimeZone(manifest.timezone);
 
     const semester = selectActiveSemester(year, today, manifest.timezone);
     if (!semester) {
-      throw new Error("No active or upcoming published semester found for this academic year.");
+      throw new Error(
+        "No active or upcoming published semester found for this academic year."
+      );
     }
 
     const datasets = await loader.loadSemesterDatasets(semester, manifest);
@@ -94,6 +104,7 @@ async function lookup(rawId) {
       courses: datasets.courses,
       lectures: datasets.lectures,
       practicals: datasets.practicals,
+      exams: datasets.exams,
       exceptions: datasets.exceptions,
       institutionEvents: institution.events,
       context: {
@@ -101,7 +112,8 @@ async function lookup(rawId) {
         semesterId: semester.id,
         today
       },
-      locale: institution.settings.defaultLocale ?? CONFIG.ui.defaultLocale
+      locale:
+        institution.settings.defaultLocale ?? CONFIG.ui.defaultLocale
     });
 
     currentState = {
@@ -158,45 +170,132 @@ function renderView(state, view) {
   const events = state.schedule.events;
 
   if (view === "weekly") {
-    const weekStart = startOfWeek(state.today, state.institution.settings.weekStartDay ?? "Saturday");
+    const weekStart = startOfWeek(
+      state.today,
+      state.institution.settings.weekStartDay ?? "Saturday"
+    );
     const weekEnd = endOfWeek(weekStart);
 
-    const filtered = events.filter((e) => e.date >= weekStart && e.date <= weekEnd);
-    renderAgenda(filtered, state, `Week of ${weekStart}`);
+    const filtered = events.filter((e) =>
+      occursInRange(e, weekStart, weekEnd)
+    );
+
+    renderAgenda(
+      expandEventsForRange(filtered, weekStart, weekEnd, "repeat"),
+      state,
+      `Week of ${weekStart}`
+    );
     return;
   }
 
   if (view === "daily") {
-    const filtered = events.filter((e) => e.date === state.today);
-    renderAgenda(filtered, state, `Today (${state.today})`);
+    const filtered = events.filter((e) => occursOnDay(e, state.today));
+
+    renderAgenda(
+      expandEventsForRange(filtered, state.today, state.today, "repeat"),
+      state,
+      `Today (${state.today})`
+    );
     return;
   }
 
-  const limitDate = new Date(parseDate(state.today).getTime() + CONFIG.ui.upcomingDays * 86400000);
-  const limit = limitDate.toISOString().slice(0, 10);
+  const limit = formatDate(
+    addDays(parseDate(state.today), CONFIG.ui.upcomingDays)
+  );
 
-  const filtered = events.filter((e) => e.date >= state.today && e.date <= limit);
-  renderAgenda(filtered, state, `Next ${CONFIG.ui.upcomingDays} days`);
+  const filtered = events.filter((e) =>
+    occursInRange(e, state.today, limit)
+  );
+
+  renderAgenda(
+    expandEventsForRange(filtered, state.today, limit, "once"),
+    state,
+    `Next ${CONFIG.ui.upcomingDays} days`
+  );
 }
 
-function renderAgenda(events, state, heading) {
+function expandEventsForRange(events, rangeStart, rangeEnd, mode) {
+  const out = [];
+
+  for (const event of events) {
+    if (event.allDay && event.endDate && event.endDate !== event.date) {
+      const start = event.date > rangeStart ? event.date : rangeStart;
+      const end = event.endDate < rangeEnd ? event.endDate : rangeEnd;
+
+      if (mode === "repeat") {
+        let cursor = start;
+
+        while (cursor <= end) {
+          out.push({
+            ...event,
+            displayDate: cursor,
+            displayWhen: "All day"
+          });
+
+          cursor = formatDate(addDays(parseDate(cursor), 1));
+        }
+      } else {
+        out.push({
+          ...event,
+          displayDate: start,
+          displayWhen: `${event.date} → ${event.endDate} (all day)`
+        });
+      }
+
+      continue;
+    }
+
+    let displayDate = event.date;
+
+    if (event.allDay && displayDate < rangeStart) {
+      displayDate = rangeStart;
+    }
+
+    let displayWhen;
+
+    if (event.allDay) {
+      displayWhen =
+        event.endDate && event.endDate !== event.date
+          ? `${event.date} → ${event.endDate} (all day)`
+          : "All day";
+    } else {
+      displayWhen = `${event.start ?? ""}–${event.end ?? ""} · ${event.day}`;
+    }
+
+    out.push({
+      ...event,
+      displayDate,
+      displayWhen
+    });
+  }
+
+  return out;
+}
+
+function renderAgenda(displayEvents, state, heading) {
   const locale = state.institution.settings.defaultLocale ?? "en";
   const buildings = state.institution.locations.buildings;
 
   const grouped = new Map();
 
-  for (const event of events) {
-    if (!grouped.has(event.date)) grouped.set(event.date, []);
-    grouped.get(event.date).push(event);
+  for (const event of displayEvents) {
+    const day = event.displayDate ?? event.date;
+
+    if (!grouped.has(day)) grouped.set(day, []);
+    grouped.get(day).push(event);
   }
 
   let html = `<h2>${heading}</h2>`;
 
-  if (events.length === 0) {
+  if (displayEvents.length === 0) {
     html += `<p>No events found.</p>`;
   }
 
-  for (const [date, dayEvents] of grouped.entries()) {
+  const sortedDays = Array.from(grouped.entries()).sort((a, b) =>
+    a[0].localeCompare(b[0])
+  );
+
+  for (const [date, dayEvents] of sortedDays) {
     html += `<section class="day"><h3>${date}</h3>`;
 
     for (const event of dayEvents) {
@@ -205,14 +304,21 @@ function renderAgenda(events, state, heading) {
         event.type,
         event.status,
         (event.sourceReview ?? []).length ? "unverified" : ""
-      ].filter(Boolean).join(" ");
+      ]
+        .filter(Boolean)
+        .join(" ");
+
+      const when =
+        event.displayWhen ??
+        (event.allDay
+          ? "All day"
+          : `${event.start ?? ""}–${event.end ?? ""} · ${event.day}`);
 
       html += `
         <article class="${classes}">
           <div class="event-title">${localize(event.title, locale)}</div>
           <div class="event-meta">
-            ${event.start ?? ""}–${event.end ?? ""}
-            · ${event.day}
+            ${when}
             · ${formatLocation(event.location, buildings, locale)}
           </div>
           <div class="event-type">${event.type}</div>
@@ -248,7 +354,7 @@ function renderCalendar(state) {
       </a>
     </p>
     <p>
-      Google Controls refresh frequency. After repository updates, the same feed URL remains stable.
+      Google controls refresh frequency. After repository updates, the same feed URL remains stable.
     </p>
     <button id="download-ics">Download .ics preview</button>
   `;
