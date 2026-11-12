@@ -1,10 +1,6 @@
 function getCurrentBase() {
-  if (typeof document !== "undefined" && document.baseURI) {
-    return document.baseURI;
-  }
-  if (typeof window !== "undefined" && window.location?.href) {
-    return window.location.href;
-  }
+  if (typeof document !== "undefined" && document.baseURI) return document.baseURI;
+  if (typeof window !== "undefined" && window.location?.href) return window.location.href;
   return "/";
 }
 
@@ -17,27 +13,36 @@ export function absoluteUrl(path, base = getCurrentBase()) {
   }
 }
 
+function cohortCount(manifest, assignment) {
+  return (manifest?.assignments ?? []).filter(
+    (a) => a.programId === assignment.programId && a.academicYearId === assignment.academicYearId
+  ).length;
+}
+
 export function buildFeedUrl(assignment, manifest) {
-  if (!assignment || assignment.practicalGroup == null) {
-    return null;
-  }
+  if (!assignment || assignment.practicalGroup == null) return null;
 
   const feeds = manifest?.calendarFeeds ?? {};
   const baseUrl = String(feeds.baseUrl ?? "calendar/feeds").replace(/\/$/, "");
+  const subdivision = assignment.subdivision ? String(assignment.subdivision).toUpperCase() : "";
+  const level = assignment.yearLevel ?? null;
 
-  const subdivision = assignment.subdivision
-    ? String(assignment.subdivision).toUpperCase()
-    : "";
+  // When a program/calendar-year holds more than one cohort (year level),
+  // feeds are level-scoped. With a single cohort, legacy URLs are preserved.
+  const useLevel = level != null && cohortCount(manifest, assignment) > 1;
 
-  // Prefer the subgroup feed when the student's subdivision is known.
-  const template =
-    subdivision && feeds.subdivisionPathTemplate
-      ? feeds.subdivisionPathTemplate
-      : feeds.pathTemplate ?? "{programId}/{academicYearId}/group-{group}.ics";
+  const template = useLevel
+    ? (subdivision
+        ? feeds.levelSubdivisionPathTemplate ?? "{programId}/{academicYearId}/year-{level}/group-{group}-{subdivisionLower}.ics"
+        : feeds.levelPathTemplate ?? "{programId}/{academicYearId}/year-{level}/group-{group}.ics")
+    : (subdivision
+        ? feeds.subdivisionPathTemplate ?? "{programId}/{academicYearId}/group-{group}-{subdivisionLower}.ics"
+        : feeds.pathTemplate ?? "{programId}/{academicYearId}/group-{group}.ics");
 
   const path = template
     .replace("{programId}", assignment.programId)
     .replace("{academicYearId}", assignment.academicYearId)
+    .replace("{level}", level == null ? "" : String(level))
     .replace("{group}", String(assignment.practicalGroup))
     .replace("{subdivision}", subdivision)
     .replace("{subdivisionLower}", subdivision.toLowerCase());
@@ -55,6 +60,5 @@ export function webcalUrl(feedUrl, _ignoredBase) {
 }
 
 export function googleCalendarSubscribeUrl(feedUrl, _ignoredBase) {
-  const webcal = webcalUrl(feedUrl);
-  return `https://www.google.com/calendar/render?cid=${encodeURIComponent(webcal)}`;
+  return `https://www.google.com/calendar/render?cid=${encodeURIComponent(webcalUrl(feedUrl))}`;
 }
