@@ -1,6 +1,7 @@
 {
   "programId": "pharmd",
   "academicYearId": "2026-2027",
+  "yearLevel": 3,
   "rules": [
     {
       "id": "pharmd-2026-2027-group-1",
@@ -8,18 +9,8 @@
       "from": "2415001",
       "to": "2415076",
       "subdivisions": [
-        {
-          "id": "pharmd-2026-2027-group-1-a",
-          "name": "A",
-          "from": "2415001",
-          "to": "2415038"
-        },
-        {
-          "id": "pharmd-2026-2027-group-1-b",
-          "name": "B",
-          "from": "2415039",
-          "to": "2415076"
-        }
+        { "id": "pharmd-2026-2027-group-1-a", "name": "A", "from": "2415001", "to": "2415038" },
+        { "id": "pharmd-2026-2027-group-1-b", "name": "B", "from": "2415039", "to": "2415076" }
       ]
     },
     {
@@ -28,23 +19,13 @@
       "from": "2415077",
       "to": "2415148",
       "subdivisions": [
-        {
-          "id": "pharmd-2026-2027-group-2-a",
-          "name": "A",
-          "from": "2415077",
-          "to": "2415112"
-        },
-        {
-          "id": "pharmd-2026-2027-group-2-b",
-          "name": "B",
-          "from": "2415114",
-          "to": "2415148"
-        }
+        { "id": "pharmd-2026-2027-group-2-a", "name": "A", "from": "2415077", "to": "2415112" },
+        { "id": "pharmd-2026-2027-group-2-b", "name": "B", "from": "2415114", "to": "2415148" }
       ],
       "sourceReview": [
         {
           "code": "SUBDIVISION_GAP",
-          "detail": "As transcribed from the source image, subdivision A ends at 2415112 and subdivision B starts at 2415114. Student ID 2415113 is not covered by either subdivision. Verify against the official group list."
+          "detail": "Subdivision A ends at 2415112 and B starts at 2415114; ID 2415113 is not covered by either. Verify against the official list."
         }
       ]
     },
@@ -54,23 +35,13 @@
       "from": "2415149",
       "to": null,
       "subdivisions": [
-        {
-          "id": "pharmd-2026-2027-group-3-a",
-          "name": "A",
-          "from": "2415149",
-          "to": "2415184"
-        },
-        {
-          "id": "pharmd-2026-2027-group-3-b",
-          "name": "B",
-          "from": "2415185",
-          "to": null
-        }
+        { "id": "pharmd-2026-2027-group-3-a", "name": "A", "from": "2415149", "to": "2415184" },
+        { "id": "pharmd-2026-2027-group-3-b", "name": "B", "from": "2415185", "to": null }
       ],
       "sourceReview": [
         {
           "code": "SUBDIVISION_TRANSCRIPTION_AMBIGUOUS",
-          "detail": "The source image for group 3 appears to define A from 2415149 to 2415184 and B from 2415185 to the end. Verify the B boundary against the official printed list before relying on subdivision resolution."
+          "detail": "Group 3 appears to define A 2415149-2415184 and B 2415185-end. Verify the B boundary against the official printed list."
         }
       ]
     }
