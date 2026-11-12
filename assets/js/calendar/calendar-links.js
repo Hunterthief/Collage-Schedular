@@ -13,10 +13,41 @@ export function absoluteUrl(path, base = getCurrentBase()) {
   }
 }
 
-function cohortCount(manifest, assignment) {
+function cohortsFor(assignment, manifest) {
   return (manifest?.assignments ?? []).filter(
-    (a) => a.programId === assignment.programId && a.academicYearId === assignment.academicYearId
-  ).length;
+    (a) =>
+      a.programId === assignment.programId &&
+      a.academicYearId === assignment.academicYearId
+  );
+}
+
+// The year level is part of the feed identity. Prefer the resolved assignment,
+// then fall back to the manifest cohort when it is unambiguous.
+export function resolveYearLevel(assignment, manifest) {
+  if (!assignment) return null;
+
+  if (assignment.yearLevel != null && assignment.yearLevel !== "") {
+    const n = Number(assignment.yearLevel);
+    return Number.isFinite(n) ? n : null;
+  }
+
+  const matches = cohortsFor(assignment, manifest).filter((a) => a.yearLevel != null);
+  if (matches.length === 1) {
+    const n = Number(matches[0].yearLevel);
+    return Number.isFinite(n) ? n : null;
+  }
+
+  return null;
+}
+
+function renderTemplate(template, values) {
+  return template
+    .replace("{programId}", values.programId)
+    .replace("{academicYearId}", values.academicYearId)
+    .replace("{level}", values.level == null ? "" : String(values.level))
+    .replace("{group}", String(values.group))
+    .replace("{subdivision}", values.subdivision)
+    .replace("{subdivisionLower}", values.subdivision.toLowerCase());
 }
 
 export function buildFeedUrl(assignment, manifest) {
@@ -24,30 +55,34 @@ export function buildFeedUrl(assignment, manifest) {
 
   const feeds = manifest?.calendarFeeds ?? {};
   const baseUrl = String(feeds.baseUrl ?? "calendar/feeds").replace(/\/$/, "");
-  const subdivision = assignment.subdivision ? String(assignment.subdivision).toUpperCase() : "";
-  const level = assignment.yearLevel ?? null;
+  const subdivision = assignment.subdivision
+    ? String(assignment.subdivision).toUpperCase()
+    : "";
+  const level = resolveYearLevel(assignment, manifest);
 
-  // When a program/calendar-year holds more than one cohort (year level),
-  // feeds are level-scoped. With a single cohort, legacy URLs are preserved.
-  const useLevel = level != null && cohortCount(manifest, assignment) > 1;
+  // Year-scoped paths are always used when the level is known, so 1st / 2nd /
+  // 3rd / 4th year feeds never collide and never change when a year is added.
+  const template =
+    level != null
+      ? subdivision
+        ? feeds.levelSubdivisionPathTemplate ??
+          "{programId}/{academicYearId}/year-{level}/group-{group}-{subdivisionLower}.ics"
+        : feeds.levelPathTemplate ??
+          "{programId}/{academicYearId}/year-{level}/group-{group}.ics"
+      : subdivision
+        ? feeds.subdivisionPathTemplate ??
+          "{programId}/{academicYearId}/group-{group}-{subdivisionLower}.ics"
+        : feeds.pathTemplate ?? "{programId}/{academicYearId}/group-{group}.ics";
 
-  const template = useLevel
-    ? (subdivision
-        ? feeds.levelSubdivisionPathTemplate ?? "{programId}/{academicYearId}/year-{level}/group-{group}-{subdivisionLower}.ics"
-        : feeds.levelPathTemplate ?? "{programId}/{academicYearId}/year-{level}/group-{group}.ics")
-    : (subdivision
-        ? feeds.subdivisionPathTemplate ?? "{programId}/{academicYearId}/group-{group}-{subdivisionLower}.ics"
-        : feeds.pathTemplate ?? "{programId}/{academicYearId}/group-{group}.ics");
+  const rel = renderTemplate(template, {
+    programId: assignment.programId,
+    academicYearId: assignment.academicYearId,
+    level,
+    group: assignment.practicalGroup,
+    subdivision
+  });
 
-  const path = template
-    .replace("{programId}", assignment.programId)
-    .replace("{academicYearId}", assignment.academicYearId)
-    .replace("{level}", level == null ? "" : String(level))
-    .replace("{group}", String(assignment.practicalGroup))
-    .replace("{subdivision}", subdivision)
-    .replace("{subdivisionLower}", subdivision.toLowerCase());
-
-  return absoluteUrl(`${baseUrl}/${path}`, getCurrentBase());
+  return absoluteUrl(`${baseUrl}/${rel}`, getCurrentBase());
 }
 
 export function googleCalendarAddByUrlUrl() {
