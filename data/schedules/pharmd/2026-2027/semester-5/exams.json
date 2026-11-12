@@ -184,6 +184,84 @@
           "detail": "Quiz 1 is modeled as an examination event because it is an assessment, not a regular practical section."
         }
       ]
+    },
+    {
+      "id": "pharmd-s5-drug-information-final-practical-exam-a",
+      "courseId": "02-06-09305",
+      "type": "examination",
+      "title": {
+        "en": "Drug Information Final Practical Exam (Group A)"
+      },
+      "description": {
+        "en": "Final practical exam for Drug Information, Group A, as listed in the department tutorial schedule."
+      },
+      "week": 12,
+      "date": "2026-12-06",
+      "allDay": true,
+      "location": null,
+      "sessions": [
+        {
+          "group": 1,
+          "subdivision": "A"
+        },
+        {
+          "group": 2,
+          "subdivision": "A"
+        },
+        {
+          "group": 3,
+          "subdivision": "A"
+        }
+      ],
+      "sourceReview": [
+        {
+          "code": "TIME_UNCONFIRMED",
+          "detail": "The Drug Information tutorial PDF gives the date and group, but does not provide an exam time."
+        },
+        {
+          "code": "LOCATION_UNCONFIRMED",
+          "detail": "The Drug Information tutorial PDF does not provide the final practical exam room or building."
+        }
+      ]
+    },
+    {
+      "id": "pharmd-s5-drug-information-final-practical-exam-b",
+      "courseId": "02-06-09305",
+      "type": "examination",
+      "title": {
+        "en": "Drug Information Final Practical Exam (Group B)"
+      },
+      "description": {
+        "en": "Final practical exam for Drug Information, Group B, as listed in the department tutorial schedule."
+      },
+      "week": 13,
+      "date": "2026-12-13",
+      "allDay": true,
+      "location": null,
+      "sessions": [
+        {
+          "group": 1,
+          "subdivision": "B"
+        },
+        {
+          "group": 2,
+          "subdivision": "B"
+        },
+        {
+          "group": 3,
+          "subdivision": "B"
+        }
+      ],
+      "sourceReview": [
+        {
+          "code": "TIME_UNCONFIRMED",
+          "detail": "The Drug Information tutorial PDF gives the date and group, but does not provide an exam time."
+        },
+        {
+          "code": "LOCATION_UNCONFIRMED",
+          "detail": "The Drug Information tutorial PDF does not provide the final practical exam room or building."
+        }
+      ]
     }
   ]
 }
