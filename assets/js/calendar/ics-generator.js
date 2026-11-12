@@ -9,8 +9,6 @@ function escapeText(value) {
     .replace(/\r?\n/g, "\\n");
 }
 
-// RFC 5545: content lines MUST NOT exceed 75 octets; longer lines are folded
-// with CRLF followed by a single space. Applied to EVERY line at the end.
 function foldLine(line) {
   const encoder = new TextEncoder();
   const bytes = encoder.encode(line);
@@ -138,7 +136,7 @@ function sequenceFor(event) {
     endDate: event.endDate ?? null,
     allDay: !!event.allDay,
     location: event.location,
-    title: event.title,
+    title: event.calendarTitle ?? event.title,
     status: event.status
   });
 
@@ -187,16 +185,21 @@ export function eventsToIcs(events, options) {
       dtendLine = "DTEND:" + localToUtcIso(event.date, event.end, timezone);
     }
 
-    const summary = escapeText(localize(event.title, locale));
+    // Shorthand form is the visible calendar name; full title goes in description.
+    const summary = escapeText(
+      localize(event.calendarTitle ?? event.title, locale)
+    );
     const location = escapeText(formatLocation(event.location, buildings, locale));
 
     const descriptionParts = [
+      event.calendarTitle ? `Title: ${localize(event.title, locale)}` : null,
       `Type: ${event.type}`,
       event.courseId ? `Course: ${event.courseId}` : null,
       event.group != null ? `Group: ${event.group}` : null,
       event.subdivision ? `Subdivision: ${event.subdivision}` : null,
       event.batch ? `Batch: ${event.batch}` : null,
       event.allDay ? "All-day" : null,
+      event.description ? localize(event.description, locale) : null,
       ...(event.sourceReview ?? []).map(
         (r) => `Review: ${r.code}${r.detail ? " - " + r.detail : ""}`
       )
@@ -216,6 +219,7 @@ export function eventsToIcs(events, options) {
       dtendLine,
       "SUMMARY:" + summary,
       location ? "LOCATION:" + location : null,
+      event.courseId ? "CATEGORIES:" + escapeText(event.courseId) : null,
       description ? "DESCRIPTION:" + description : null,
       "END:VEVENT"
     );
@@ -223,6 +227,5 @@ export function eventsToIcs(events, options) {
 
   lines.push("END:VCALENDAR");
 
-  // Fold every line once, at the end, so UID and all other properties comply.
   return lines.filter(Boolean).map(foldLine).join("\r\n") + "\r\n";
 }
