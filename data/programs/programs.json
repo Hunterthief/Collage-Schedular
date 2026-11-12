@@ -30,10 +30,33 @@
                 "exams": "data/schedules/pharmd/2026-2027/semester-5/exams.json",
                 "exceptions": "data/schedules/pharmd/2026-2027/semester-5/exceptions.json"
               },
+              "blackouts": [
+                {
+                  "id": "fall-2026-midterm-week",
+                  "label": {
+                    "en": "Mid-term Exams Week",
+                    "ar": "أسبوع امتحانات منتصف الفصل"
+                  },
+                  "from": "2026-10-31",
+                  "to": "2026-11-05",
+                  "blocksAcademicEvents": true,
+                  "blockTypes": [
+                    "lecture",
+                    "practical"
+                  ],
+                  "excludedFromRotation": true,
+                  "sourceReview": [
+                    {
+                      "code": "MIDTERM_WEEK_NO_CLASSES",
+                      "detail": "Mid-term exam week blocks lectures and practical sections. Examinations remain visible. This week is excluded from alternating A/B rotation patterns."
+                    }
+                  ]
+                }
+              ],
               "sourceReview": [
                 {
                   "code": "SEMESTER_WINDOW_FROM_PROVISIONAL_CALENDAR",
-                  "detail": "validFrom = Start of classes (19/9/2026) and validUntil = End of classes (17/12/2026) taken from the official Fall 2026/2027 academic calendar. That calendar states its dates are approximate and exact dates will be announced; verify before relying on feeds near the boundaries. Revision and final exams fall outside this weekly-class window and are modeled separately."
+                  "detail": "validFrom = Start of classes (2026-09-19) and validUntil = End of classes (2026-12-17) taken from the Fall 2026/2027 academic calendar. The calendar states dates are approximate and exact dates will be announced."
                 }
               ]
             }
