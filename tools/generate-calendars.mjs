@@ -8,6 +8,7 @@ import {
 import { sortOccurrences } from "../assets/js/schedule/sorting.js";
 import { eventsToIcs } from "../assets/js/calendar/ics-generator.js";
 import { createShorthandParser } from "../assets/js/schedule/shorthand.js";
+import { buildEventIndex, eventShorthand } from "../assets/js/schedule/labels.js";
 
 const ROOT = process.cwd();
 
@@ -50,13 +51,65 @@ function collectGroups(assignmentDocs, lectures, practicals, exams) {
     for (const g of event.groups ?? []) {
       if (typeof g === "number") groups.add(g);
     }
+    for (const session of event.sessions ?? []) {
+      if (session.group != null) groups.add(session.group);
+    }
   }
 
   return Array.from(groups).sort((a, b) => a - b);
 }
 
+function collectSubdivisions(assignmentDocs, group) {
+  const subs = new Set();
+
+  for (const wrapper of assignmentDocs) {
+    for (const rule of wrapper.doc.rules ?? []) {
+      if (rule.practicalGroup !== group) continue;
+      for (const sub of rule.subdivisions ?? []) {
+        const name = String(sub.name ?? "").trim().toUpperCase();
+        if (name) subs.add(name);
+      }
+    }
+  }
+
+  return Array.from(subs).sort();
+}
+
+function feedPath(manifest, programId, yearId, group, subdivision) {
+  const feeds = manifest.calendarFeeds ?? {};
+  const baseUrl = String(feeds.baseUrl ?? "calendar/feeds").replace(/\/$/, "");
+
+  const template = subdivision
+    ? feeds.subdivisionPathTemplate ??
+      "{programId}/{academicYearId}/group-{group}-{subdivisionLower}.ics"
+    : feeds.pathTemplate ?? "{programId}/{academicYearId}/group-{group}.ics";
+
+  const rel = template
+    .replace("{programId}", programId)
+    .replace("{academicYearId}", yearId)
+    .replace("{group}", String(group))
+    .replace("{subdivision}", subdivision ?? "")
+    .replace("{subdivisionLower}", (subdivision ?? "").toLowerCase());
+
+  return `${baseUrl}/${rel}`;
+}
+
+function withShorthandTitles(events, index) {
+  return events.map((e) => {
+    const code = eventShorthand(e, index);
+    return code ? { ...e, calendarTitle: code } : e;
+  });
+}
+
 async function ensureDir(filePath) {
   await fs.mkdir(path.dirname(filePath), { recursive: true });
+}
+
+async function writeIcs(relPath, ics) {
+  const outPath = path.resolve(ROOT, relPath);
+  await ensureDir(outPath);
+  await fs.writeFile(outPath, ics, "utf8");
+  console.log(`Generated ${path.relative(ROOT, outPath)}`);
 }
 
 async function main() {
@@ -80,14 +133,14 @@ async function main() {
   const generatedAt = new Date();
   const parser = createShorthandParser(locations.buildings);
   const diagnostics = { errors: [], warnings: [] };
-
-  const baseUrl = manifest.calendarFeeds.baseUrl.replace(/\/$/, "");
+  const locale = settings.defaultLocale ?? "en";
 
   const institutionContext = {
     programId: null,
     academicYearId: null,
     semesterId: null,
-    practicalGroup: null
+    practicalGroup: null,
+    subdivision: null
   };
 
   const institutionOccurrences = buildInstitutionOccurrences(
@@ -101,26 +154,22 @@ async function main() {
 
   const institutionFeedEvents = sortOccurrences(
     mergeOccurrences(institutionOccurrences, diagnostics),
-    settings.defaultLocale ?? "en"
+    locale
   );
 
-  const institutionIcs = eventsToIcs(institutionFeedEvents, {
-    calendarName: {
-      en: "College-wide Events",
-      ar: "فعاليات الكلية"
-    },
-    locale: settings.defaultLocale ?? "en",
-    timezone: manifest.timezone,
-    institutionId: settings.institutionId,
-    locations,
-    generatedAt
-  });
-
-  await ensureDir(path.resolve(ROOT, `${baseUrl}/institution.ics`));
-  await fs.writeFile(
-    path.resolve(ROOT, `${baseUrl}/institution.ics`),
-    institutionIcs,
-    "utf8"
+  await writeIcs(
+    feedPath(manifest, "institution", "", null, null).replace(
+      /institution\/\/?/,
+      "institution/"
+    ),
+    eventsToIcs(institutionFeedEvents, {
+      calendarName: { en: "College-wide Events", ar: "فعاليات الكلية" },
+      locale,
+      timezone: manifest.timezone,
+      institutionId: settings.institutionId,
+      locations,
+      generatedAt
+    })
   );
 
   for (const program of programs.programs) {
@@ -129,7 +178,8 @@ async function main() {
         (a) => a.programId === program.id && a.academicYearId === year.id
       );
 
-      const eventsByGroup = new Map();
+      // key: `${group}` for whole-group feeds, `${group}:${sub}` for subgroup feeds
+      const eventsByTarget = new Map();
 
       for (const semester of year.semesters) {
         if (semester.status === "draft") continue;
@@ -140,78 +190,87 @@ async function main() {
         const exams = await readJson(semester.datasets.exams);
         const exceptions = await readJson(semester.datasets.exceptions);
 
-        const groups = collectGroups(
-          yearAssignmentDocs,
-          lectures,
-          practicals,
-          exams
-        );
+        const index = buildEventIndex({ courses, lectures, practicals, exams });
+        const groups = collectGroups(yearAssignmentDocs, lectures, practicals, exams);
 
         for (const group of groups) {
-          if (!eventsByGroup.has(group)) eventsByGroup.set(group, []);
+          const targets = [
+            { group, subdivision: null },
+            ...collectSubdivisions(yearAssignmentDocs, group).map((s) => ({
+              group,
+              subdivision: s
+            }))
+          ];
 
-          const result = composeSchedule({
-            institutionId: settings.institutionId,
-            timezone: manifest.timezone,
-            settings,
-            locations,
-            semester,
-            courses,
-            lectures,
-            practicals,
-            exams,
-            exceptions,
-            institutionEvents,
-            context: {
-              programId: program.id,
-              academicYearId: year.id,
-              semesterId: semester.id,
-              practicalGroup: group
-            },
-            locale: settings.defaultLocale ?? "en"
-          });
+          for (const target of targets) {
+            const key = target.subdivision
+              ? `${group}:${target.subdivision}`
+              : `${group}`;
 
-          diagnostics.errors.push(...result.diagnostics.errors);
-          diagnostics.warnings.push(...result.diagnostics.warnings);
+            if (!eventsByTarget.has(key)) {
+              eventsByTarget.set(key, { ...target, events: [] });
+            }
 
-          for (const conflict of result.conflicts) {
-            diagnostics.warnings.push(conflict.message);
+            const result = composeSchedule({
+              institutionId: settings.institutionId,
+              timezone: manifest.timezone,
+              settings,
+              locations,
+              semester,
+              courses,
+              lectures,
+              practicals,
+              exams,
+              exceptions,
+              institutionEvents,
+              context: {
+                programId: program.id,
+                academicYearId: year.id,
+                semesterId: semester.id,
+                practicalGroup: target.group,
+                subdivision: target.subdivision
+              },
+              locale
+            });
+
+            diagnostics.errors.push(...result.diagnostics.errors);
+            diagnostics.warnings.push(...result.diagnostics.warnings);
+
+            for (const conflict of result.conflicts) {
+              diagnostics.warnings.push(conflict.message);
+            }
+
+            eventsByTarget
+              .get(key)
+              .events.push(...withShorthandTitles(result.events, index));
           }
-
-          eventsByGroup.get(group).push(...result.events);
         }
       }
 
-      for (const [group, events] of eventsByGroup.entries()) {
+      for (const { group, subdivision, events } of eventsByTarget.values()) {
         const merged = mergeOccurrences(events, diagnostics);
-        const sorted = sortOccurrences(merged, settings.defaultLocale ?? "en");
+        const sorted = sortOccurrences(merged, locale);
+
+        const label = subdivision
+          ? `Group ${group}${subdivision}`
+          : `Group ${group}`;
 
         const ics = eventsToIcs(sorted, {
           calendarName: {
-            en: `${program.id} ${year.id} Group ${group}`,
-            ar: `${program.id} ${year.id} مجموعة ${group}`
+            en: `${program.id} ${year.id} ${label}`,
+            ar: `${program.id} ${year.id} مجموعة ${group}${subdivision ?? ""}`
           },
-          locale: settings.defaultLocale ?? "en",
+          locale,
           timezone: manifest.timezone,
           institutionId: settings.institutionId,
           locations,
           generatedAt
         });
 
-        const outPath = path.resolve(
-          ROOT,
-          `${baseUrl}/${program.id}/${year.id}/group-${group}.ics`
-        );
-
-        await ensureDir(outPath);
-        await fs.writeFile(outPath, ics, "utf8");
-
-        console.log(`Generated ${path.relative(ROOT, outPath)}`);
+        await writeIcs(feedPath(manifest, program.id, year.id, group, subdivision), ics);
       }
     }
   }
-
-  console.log(`Generated ${baseUrl}/institution.ics`);
 
   if (diagnostics.errors.length) {
     console.error("Generation errors:");
