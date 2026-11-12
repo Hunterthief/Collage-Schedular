@@ -2,17 +2,14 @@ function getCurrentBase() {
   if (typeof document !== "undefined" && document.baseURI) {
     return document.baseURI;
   }
-
   if (typeof window !== "undefined" && window.location?.href) {
     return window.location.href;
   }
-
   return "/";
 }
 
 export function absoluteUrl(path, base = getCurrentBase()) {
   if (!path) return "";
-
   try {
     return new URL(path, base).href;
   } catch {
@@ -43,21 +40,24 @@ export function buildFeedUrl(assignment, manifest) {
     .replace("{subdivision}", subdivision)
     .replace("{subdivisionLower}", subdivision.toLowerCase());
 
-  const relativeUrl = `${baseUrl}/${path}`;
-
-  return absoluteUrl(relativeUrl, getCurrentBase());
+  return absoluteUrl(`${baseUrl}/${path}`, getCurrentBase());
 }
 
-export function googleCalendarSubscribeUrl(feedUrl, _ignoredBase) {
-  const absoluteFeedUrl = absoluteUrl(feedUrl, getCurrentBase());
-
-  return `https://calendar.google.com/calendar?cid=${encodeURIComponent(
-    absoluteFeedUrl
-  )}`;
+// Google's official "Add by URL" page. This is the reliable subscription
+// route: the user pastes the feed URL here and clicks "Add calendar".
+// It does NOT support pre-filling via ?url= or ?cid= parameters.
+export function googleCalendarAddByUrlUrl() {
+  return "https://calendar.google.com/calendar/u/0/r/settings/addbyurl";
 }
 
 export function webcalUrl(feedUrl, _ignoredBase) {
   const absoluteFeedUrl = absoluteUrl(feedUrl, getCurrentBase());
-
   return absoluteFeedUrl.replace(/^https?:\/\//, "webcal://");
+}
+
+// Legacy one-click attempt. Google's render?cid= endpoint is unreliable for
+// external ICS feeds; kept only as a labelled fallback in the UI.
+export function googleCalendarSubscribeUrl(feedUrl, _ignoredBase) {
+  const webcal = webcalUrl(feedUrl);
+  return `https://www.google.com/calendar/render?cid=${encodeURIComponent(webcal)}`;
 }
