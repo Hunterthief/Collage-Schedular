@@ -2,24 +2,15 @@
   "programs": [
     {
       "id": "pharmd",
-      "name": {
-        "en": "PharmD",
-        "ar": "دكتور صيدلة"
-      },
+      "name": { "en": "PharmD", "ar": "دكتور صيدلة" },
       "academicYears": [
         {
           "id": "2026-2027",
-          "name": {
-            "en": "2026/2027",
-            "ar": "٢٠٢٦/٢٠٢٧"
-          },
+          "name": { "en": "2026/2027", "ar": "٢٠٢٦/٢٠٢٧" },
           "semesters": [
             {
               "id": "pharmd-2026-2027-semester-5",
-              "name": {
-                "en": "Semester 5",
-                "ar": "الفصل الدراسي الخامس"
-              },
+              "name": { "en": "Semester 5", "ar": "الفصل الدراسي الخامس" },
               "validFrom": "2026-09-19",
               "validUntil": "2026-12-17",
               "status": "published",
@@ -33,30 +24,65 @@
               "blackouts": [
                 {
                   "id": "fall-2026-midterm-week",
-                  "label": {
-                    "en": "Mid-term Exams Week",
-                    "ar": "أسبوع امتحانات منتصف الفصل"
-                  },
+                  "label": { "en": "Mid-term Exams Week", "ar": "أسبوع امتحانات منتصف الفصل" },
                   "from": "2026-10-31",
                   "to": "2026-11-05",
                   "blocksAcademicEvents": true,
-                  "blockTypes": [
-                    "lecture",
-                    "practical"
-                  ],
-                  "excludedFromRotation": true,
-                  "sourceReview": [
-                    {
-                      "code": "MIDTERM_WEEK_NO_CLASSES",
-                      "detail": "Mid-term exam week blocks lectures and practical sections. Examinations remain visible. This week is excluded from alternating A/B rotation patterns."
-                    }
-                  ]
+                  "blockTypes": ["lecture", "practical"],
+                  "excludedFromRotation": true
                 }
               ],
               "sourceReview": [
                 {
                   "code": "SEMESTER_WINDOW_FROM_PROVISIONAL_CALENDAR",
-                  "detail": "validFrom = Start of classes (2026-09-19) and validUntil = End of classes (2026-12-17) taken from the Fall 2026/2027 academic calendar. The calendar states dates are approximate and exact dates will be announced."
+                  "detail": "validFrom = Start of classes (2026-09-19) and validUntil = End of classes (2026-12-17) taken from the Fall 2026/2027 academic calendar, which states dates are approximate."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "clinical-pharmacy",
+      "name": { "en": "PharmD (Clinical Pharmacy Program)", "ar": "برنامج الصيدلة الإكلينيكية" },
+      "academicYears": [
+        {
+          "id": "2026-2027",
+          "name": { "en": "2026/2027", "ar": "٢٠٢٦/٢٠٢٧" },
+          "semesters": [
+            {
+              "id": "clinical-pharmacy-2026-2027-semester-3",
+              "name": { "en": "Semester 3 (Year 2)", "ar": "الفصل الدراسي الثالث (الفرقة الثانية)" },
+              "validFrom": "2026-09-19",
+              "validUntil": "2026-12-17",
+              "status": "published",
+              "datasets": {
+                "courses": "data/schedules/clinical-pharmacy/2026-2027/semester-3/courses.json",
+                "lectures": "data/schedules/clinical-pharmacy/2026-2027/semester-3/lectures.json",
+                "practicals": "data/schedules/clinical-pharmacy/2026-2027/semester-3/practicals.json",
+                "exams": "data/schedules/clinical-pharmacy/2026-2027/semester-3/exams.json",
+                "exceptions": "data/schedules/clinical-pharmacy/2026-2027/semester-3/exceptions.json"
+              },
+              "blackouts": [
+                {
+                  "id": "fall-2026-midterm-week",
+                  "label": { "en": "Mid-term Exams Week", "ar": "أسبوع امتحانات منتصف الفصل" },
+                  "from": "2026-10-31",
+                  "to": "2026-11-05",
+                  "blocksAcademicEvents": true,
+                  "blockTypes": ["lecture", "practical"],
+                  "excludedFromRotation": true
+                }
+              ],
+              "sourceReview": [
+                {
+                  "code": "SEMESTER_WINDOW_FROM_PROVISIONAL_CALENDAR",
+                  "detail": "Semester window taken from the college-wide Fall 2026/2027 academic calendar (approximate dates)."
+                },
+                {
+                  "code": "EXAM_TIMETABLE_NOT_YET_PUBLISHED",
+                  "detail": "No Clinical Pharmacy mid-term/final exam timetable was supplied. exams.json is empty until the department publishes one; the college-wide mid-term blackout still applies."
                 }
               ]
             }
