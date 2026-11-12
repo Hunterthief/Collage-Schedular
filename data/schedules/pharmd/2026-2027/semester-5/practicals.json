@@ -1,0 +1,108 @@
+{
+  "events": [
+    {
+      "id": "pharmd-s5-scientific-writing-practical",
+      "courseId": "02-06-09304",
+      "type": "practical",
+      "day": "Saturday",
+      "sessions": [
+        { "group": 1, "start": "17:00", "end": "18:50" },
+        { "group": 2, "start": "15:00", "end": "16:50" },
+        { "group": 3, "start": "13:00", "end": "14:50" }
+      ],
+      "location": { "building": "new", "floor": null, "room": "Sixth Floor Hall / First Floor Hall" },
+      "shorthand": "PN Scientific Writing and Communication skills",
+      "displayCode": "PN Scientific Writing and Communication skills",
+      "sourceReview": [
+        { "code": "LOCATION_MULTI_UNCONFIRMED", "detail": "The source place row lists two New Building halls: sixth floor and first floor. Confirm whether the rooms differ by group or whether both halls are used for the same practical." }
+      ]
+    },
+    {
+      "id": "pharmd-s5-basic-pharmacology-practical",
+      "courseId": "02-06-02305",
+      "type": "practical",
+      "day": "Sunday",
+      "sessions": [
+        { "group": 1, "start": "09:00", "end": "10:50" },
+        { "group": 2, "start": "13:00", "end": "14:50" },
+        { "group": 3, "start": "11:00", "end": "12:50" }
+      ],
+      "location": { "building": "new", "floor": null, "room": "Sixth Floor Hall / Seventh Floor" },
+      "shorthand": "PN Basic Pharmacology",
+      "displayCode": "PN Basic Pharmacology",
+      "sourceReview": [
+        { "code": "LOCATION_MULTI_UNCONFIRMED", "detail": "The source place row lists both a sixth-floor hall and seventh-floor New Building location. Confirm the exact room allocation per group." }
+      ]
+    },
+    {
+      "id": "pharmd-s5-drug-information-practical",
+      "courseId": "02-06-09305",
+      "type": "practical",
+      "day": "Sunday",
+      "sessions": [
+        { "group": 1, "start": "11:00", "end": "12:50" },
+        { "group": 2, "start": "09:00", "end": "10:50" },
+        { "group": 3, "start": "13:00", "end": "14:50" }
+      ],
+      "location": { "building": "new", "floor": 0, "room": "Computer Hall" },
+      "shorthand": "PN 0 Drug Information",
+      "displayCode": "PN 0 Drug Information"
+    },
+    {
+      "id": "pharmd-s5-pharmaceutics-iii-practical",
+      "courseId": "02-06-01304",
+      "type": "practical",
+      "day": "Tuesday",
+      "sessions": [
+        { "group": 1, "start": "11:00", "end": "12:50" },
+        { "group": 2, "start": "13:00", "end": "14:50" },
+        { "group": 3, "start": "09:00", "end": "10:50" }
+      ],
+      "location": { "building": "new", "floor": 3, "room": null },
+      "shorthand": "PN 3 Pharmaceutics III",
+      "displayCode": "PN 3 Pharmaceutics III"
+    },
+    {
+      "id": "pharmd-s5-pharmaceutical-microbiology-practical",
+      "courseId": "02-06-04302",
+      "type": "practical",
+      "day": "Wednesday",
+      "sessions": [
+        { "group": 1, "start": "11:00", "end": "12:50" },
+        { "group": 2, "start": "09:00", "end": "10:50" },
+        { "group": 3, "start": "13:00", "end": "14:50" }
+      ],
+      "location": { "building": "new", "floor": 8, "room": null },
+      "shorthand": "PN 8 Pharmaceutical Microbiology",
+      "displayCode": "PN 8 Pharmaceutical Microbiology"
+    },
+    {
+      "id": "pharmd-s5-drug-design-practical",
+      "courseId": "02-06-05305",
+      "type": "practical",
+      "day": "Wednesday",
+      "sessions": [
+        { "group": 1, "start": "09:00", "end": "10:50" },
+        { "group": 2, "start": "13:00", "end": "14:50" },
+        { "group": 3, "start": "11:00", "end": "12:50" }
+      ],
+      "location": { "building": "new", "floor": 4, "room": "Simulation Labs" },
+      "shorthand": "PN 4 Drug Design",
+      "displayCode": "PN 4 Drug Design"
+    },
+    {
+      "id": "pharmd-s5-phytochemistry-i-practical",
+      "courseId": "02-06-06304",
+      "type": "practical",
+      "day": "Wednesday",
+      "sessions": [
+        { "group": 1, "start": "13:00", "end": "14:50" },
+        { "group": 2, "start": "11:00", "end": "12:50" },
+        { "group": 3, "start": "09:00", "end": "10:50" }
+      ],
+      "location": { "building": "new", "floor": 5, "room": null },
+      "shorthand": "PN 5 Phytochemistry I",
+      "displayCode": "PN 5 Phytochemistry I"
+    }
+  ]
+}
