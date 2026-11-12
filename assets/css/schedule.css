@@ -1,13 +1,12 @@
 .timetable {
   display: grid;
-  gap: 1rem;
+  gap: 12px;
 }
 
 .day {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow);
+  border-radius: 6px;
   overflow: hidden;
 }
 
@@ -15,35 +14,36 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.75rem;
-  padding: 1rem 1.15rem;
+  gap: 10px;
+  padding: 9px 12px;
+  background: var(--surface-alt);
   border-bottom: 1px solid var(--border);
-  background: linear-gradient(180deg, var(--surface-muted), var(--surface));
 }
 
 .day h3 {
   margin: 0;
-  font-size: 1.05rem;
-  letter-spacing: -0.01em;
+  font-size: 0.92rem;
+  font-weight: 650;
 }
 
 .day-count {
   flex: 0 0 auto;
-  padding: 0.28rem 0.62rem;
-  border-radius: var(--radius-pill);
-  background: var(--accent-soft);
-  color: var(--accent);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  background: #eef2f7;
+  color: var(--muted);
+  padding: 2px 6px;
   font-size: 0.75rem;
-  font-weight: 800;
+  font-weight: 650;
 }
 
 .event {
-  position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  gap: 0.55rem 0.9rem;
-  padding: 1rem 1.15rem 1rem 1.3rem;
-  border-top: 1px solid var(--border);
+  gap: 8px 12px;
+  align-items: start;
+  padding: 10px 12px;
+  border-top: 1px solid #eef1f5;
   background: var(--surface);
 }
 
@@ -51,117 +51,90 @@
   border-top: 0;
 }
 
-.event::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 5px;
-  background: var(--muted);
-}
-
-.event.lecture::before {
-  background: var(--lecture);
-}
-
-.event.practical::before {
-  background: var(--practical);
-}
-
-.event.examination::before {
-  background: var(--examination);
-}
-
-.event.college-event::before {
-  background: var(--college);
-}
-
 .event-main {
   min-width: 0;
-  display: grid;
-  gap: 0.28rem;
 }
 
 .event-title {
-  font-weight: 780;
-  font-size: 1.02rem;
+  margin-bottom: 2px;
+  font-size: 0.92rem;
+  font-weight: 650;
   overflow-wrap: anywhere;
 }
 
 .event-meta {
-  color: var(--muted);
-  font-size: 0.9rem;
   display: flex;
   flex-wrap: wrap;
-  gap: 0.35rem 0.65rem;
+  gap: 4px 10px;
+  color: var(--muted);
+  font-size: 0.8rem;
 }
 
 .event-meta .time {
-  font-weight: 700;
-  color: var(--fg);
+  color: var(--text);
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
 }
 
 .event-side {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 0.45rem;
+  gap: 4px;
 }
 
 .badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.32rem 0.6rem;
-  border-radius: var(--radius-pill);
-  font-size: 0.75rem;
-  font-weight: 800;
-  letter-spacing: 0.02em;
-  text-transform: capitalize;
+  display: inline-block;
   border: 1px solid transparent;
+  border-radius: 3px;
+  padding: 3px 6px;
+  font-size: 0.7rem;
+  font-weight: 750;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  text-transform: uppercase;
   white-space: nowrap;
 }
 
 .badge.lecture {
-  background: var(--lecture-soft);
-  color: var(--lecture);
-  border-color: rgba(37, 99, 235, 0.18);
+  color: #1e40af;
+  background: #eef4ff;
+  border-color: #d7e3ff;
 }
 
 .badge.practical {
-  background: var(--practical-soft);
-  color: var(--practical);
-  border-color: rgba(5, 150, 105, 0.18);
+  color: #065f46;
+  background: #ecfdf5;
+  border-color: #d1fae5;
 }
 
 .badge.examination {
-  background: var(--examination-soft);
-  color: var(--examination);
-  border-color: rgba(220, 38, 38, 0.18);
+  color: #991b1b;
+  background: #fef2f2;
+  border-color: #fee2e2;
 }
 
 .badge.college-event {
-  background: var(--college-soft);
-  color: var(--college);
-  border-color: rgba(124, 58, 237, 0.18);
+  color: #5b21b6;
+  background: #f5f3ff;
+  border-color: #ddd6fe;
 }
 
 .badge.unverified {
-  background: var(--warning-soft);
-  color: var(--warning);
-  border-color: rgba(180, 83, 9, 0.18);
+  color: #92400e;
+  background: #fff7ed;
+  border-color: #fed7aa;
 }
 
 .badge.cancelled {
-  background: var(--danger-soft);
-  color: var(--danger);
-  border-color: rgba(185, 28, 28, 0.18);
+  color: #9f1239;
+  background: #fff1f2;
+  border-color: #fecdd3;
 }
 
 .event.cancelled .event-title {
+  color: var(--muted);
   text-decoration: line-through;
-  opacity: 0.72;
 }
 
 .event.all-day .event-meta .time {
@@ -169,13 +142,13 @@
 }
 
 .empty-state {
-  padding: 2rem;
-  text-align: center;
-  color: var(--muted);
+  border: 1px dashed var(--border-strong);
+  border-radius: 6px;
   background: var(--surface);
-  border: 1px dashed var(--border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
+  color: var(--muted);
+  padding: 24px;
+  text-align: center;
+  font-size: 0.9rem;
 }
 
 @media (max-width: 640px) {
@@ -187,5 +160,16 @@
     align-items: flex-start;
     flex-direction: row;
     flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .summary-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+
+  .summary-item strong {
+    text-align: left;
   }
 }
