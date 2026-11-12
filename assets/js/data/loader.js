@@ -1,7 +1,7 @@
 import { CONFIG } from "../config.js";
 
 export class DataLoader {
-  constructor({ fetchImpl = fetch, baseUrl = "" } = {}) {
+  constructor({ fetchImpl = null, baseUrl = "" } = {}) {
     this.fetchImpl = fetchImpl;
     this.baseUrl = baseUrl;
     this.cache = new Map();
@@ -13,6 +13,18 @@ export class DataLoader {
     return new URL(path, this.baseUrl).href;
   }
 
+  async request(url, init) {
+    if (this.fetchImpl) {
+      return this.fetchImpl(url, init);
+    }
+
+    if (typeof globalThis.fetch !== "function") {
+      throw new Error("Fetch is not available in this environment.");
+    }
+
+    return globalThis.fetch(url, init);
+  }
+
   async loadJson(path, options = {}) {
     const url = this.resolve(path);
     const cacheKey = url;
@@ -22,7 +34,7 @@ export class DataLoader {
       return this.cache.get(cacheKey);
     }
 
-    const res = await this.fetchImpl(url, {
+    const res = await this.request(url, {
       cache: options.cache ?? "default"
     });
 
@@ -31,7 +43,11 @@ export class DataLoader {
     }
 
     const json = await res.json();
-    if (!noCache) this.cache.set(cacheKey, json);
+
+    if (!noCache) {
+      this.cache.set(cacheKey, json);
+    }
+
     return json;
   }
 
@@ -39,6 +55,7 @@ export class DataLoader {
     this.manifest = await this.loadJson(CONFIG.manifestPath, {
       cache: CONFIG.request.manifest.cache
     });
+
     return this.manifest;
   }
 
