@@ -2,7 +2,7 @@ import { CONFIG } from "./config.js";
 import { DataLoader } from "./data/loader.js";
 import { findProgram, findAcademicYear } from "./data/programs.js";
 import { loadAssignmentDocuments } from "./student/assignments.js";
-import { buildLookupOptions } from "./data/options.js";
+import { buildLookupOptions, yearLevelLabel } from "./data/options.js";
 import {
   resolveStudentId,
   StudentNotFoundError,
@@ -34,6 +34,7 @@ import {
   eventColor,
   eventShorthand
 } from "./schedule/labels.js";
+import { buildReminderPlan, ReminderScheduler } from "./schedule/reminders.js";
 import { localize } from "./i18n.js";
 
 const loader = new DataLoader();
@@ -45,6 +46,7 @@ const els = {
   studentId: document.getElementById("student-id"),
   programSelect: document.getElementById("program-select"),
   yearSelect: document.getElementById("year-select"),
+  levelSelect: document.getElementById("level-select"),
   groupSelect: document.getElementById("group-select"),
   status: document.getElementById("status"),
   result: document.getElementById("result"),
@@ -67,6 +69,7 @@ const WEEKDAYS_LONG = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Frida
 
 let currentState = null;
 let lookupOptions = null;
+let reminderScheduler = null;
 
 init();
 
@@ -76,14 +79,19 @@ async function init() {
   try { els.studentId?.focus({ preventScroll: true }); } catch {}
   try { await ensureOptions(); }
   catch (err) { setStatus(`Could not load lookup options: ${err.message}`, "error"); }
+
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) reminderScheduler?.reschedule();
+  });
 }
 
 function bindEvents() {
   els.modeButtons.forEach((btn) => btn.addEventListener("click", () => setMode(btn.dataset.mode)));
   els.idForm.addEventListener("submit", onIdSubmit);
   els.manualForm.addEventListener("submit", onManualSubmit);
-  els.programSelect.addEventListener("change", () => { populateYears(); populateGroups(); });
-  els.yearSelect.addEventListener("change", populateGroups);
+  els.programSelect.addEventListener("change", () => { populateYears(); });
+  els.yearSelect.addEventListener("change", () => { populateLevels(); });
+  els.levelSelect.addEventListener("change", () => { populateGroups(); });
   els.viewButtons.forEach((btn) => btn.addEventListener("click", () => {
     if (currentState) renderView(currentState, btn.dataset.view);
   }));
@@ -134,6 +142,7 @@ function populatePrograms(programs) {
   if (!programs.length) {
     clearSelect(els.programSelect, "No programs available");
     clearSelect(els.yearSelect, "No academic years");
+    clearSelect(els.levelSelect, "No years");
     clearSelect(els.groupSelect, "No groups available");
     return;
   }
@@ -142,22 +151,44 @@ function populatePrograms(programs) {
   populateYears();
 }
 
+function selectedProgram() {
+  return lookupOptions?.programs.find((p) => p.id === els.programSelect.value) ?? null;
+}
+
+function selectedYear() {
+  return selectedProgram()?.years.find((y) => y.id === els.yearSelect.value) ?? null;
+}
+
+function selectedLevel() {
+  return selectedYear()?.levels.find((l) => String(l.level ?? "") === els.levelSelect.value) ?? null;
+}
+
 function populateYears() {
-  const program = lookupOptions?.programs.find((p) => p.id === els.programSelect.value);
+  const program = selectedProgram();
   clearSelect(els.yearSelect, program?.years?.length ? "Select academic year" : "No academic years");
   if (!program) return;
   for (const year of program.years) addOption(els.yearSelect, year.id, year.name);
   if (program.years.length === 1) els.yearSelect.value = program.years[0].id;
+  populateLevels();
+}
+
+function populateLevels() {
+  const year = selectedYear();
+  clearSelect(els.levelSelect, year?.levels?.length ? "Select year" : "No years");
+  if (!year) return;
+  for (const level of year.levels) {
+    addOption(els.levelSelect, String(level.level ?? ""), level.label);
+  }
+  if (year.levels.length === 1) els.levelSelect.value = String(year.levels[0].level ?? "");
   populateGroups();
 }
 
 function populateGroups() {
-  const program = lookupOptions?.programs.find((p) => p.id === els.programSelect.value);
-  const year = program?.years.find((y) => y.id === els.yearSelect.value);
-  clearSelect(els.groupSelect, year?.groups?.length ? "Select practical group" : "No groups available");
-  if (!year) return;
-  for (const group of year.groups) addOption(els.groupSelect, group.value, group.label);
-  if (year.groups.length === 1) els.groupSelect.value = year.groups[0].value;
+  const level = selectedLevel();
+  clearSelect(els.groupSelect, level?.groups?.length ? "Select practical group" : "No groups available");
+  if (!level) return;
+  for (const group of level.groups) addOption(els.groupSelect, group.value, group.label);
+  if (level.groups.length === 1) els.groupSelect.value = level.groups[0].value;
 }
 
 function clearSelect(select, placeholder) {
@@ -199,14 +230,16 @@ async function onManualSubmit(event) {
     await ensureOptions();
     const programId = els.programSelect.value;
     const academicYearId = els.yearSelect.value;
+    const levelValue = els.levelSelect.value;
     const groupValue = els.groupSelect.value;
-    if (!programId || !academicYearId || !groupValue) {
-      setStatus("Select a program, academic year, and practical group.", "error");
+
+    if (!programId || !academicYearId || levelValue === "" || !groupValue) {
+      setStatus("Select a program, academic year, year, and practical group.", "error");
       return;
     }
-    const program = lookupOptions?.programs.find((p) => p.id === programId);
-    const year = program?.years.find((y) => y.id === academicYearId);
-    const groupOption = year?.groups.find((g) => g.value === groupValue);
+
+    const level = selectedLevel();
+    const groupOption = level?.groups.find((g) => g.value === groupValue);
     if (!groupOption) throw new Error("Selected group is no longer available. Reload the page.");
 
     const assignment = {
@@ -214,6 +247,7 @@ async function onManualSubmit(event) {
       displayId: null,
       programId,
       academicYearId,
+      yearLevel: level?.level ?? null,
       practicalGroup: groupOption.practicalGroup,
       subdivision: groupOption.subdivision ?? null,
       subdivisionStatus: groupOption.subdivision ? "resolved" : "not-applicable",
@@ -248,12 +282,23 @@ async function loadAndRenderSchedule(assignment, manifest) {
   const year = findAcademicYear(program, assignment.academicYearId);
   if (!year) throw new DataIntegrityError(`Unknown academic year: ${assignment.academicYearId}`);
 
+  const scopedYear = {
+    ...year,
+    semesters: (year.semesters ?? []).filter(
+      (s) => assignment.yearLevel == null || s.yearLevel == null || s.yearLevel === assignment.yearLevel
+    )
+  };
+
   const institution = await loader.loadInstitutionData(manifest);
   const locale = institution.settings.defaultLocale ?? CONFIG.ui.defaultLocale ?? "en";
   const today = todayInTimeZone(manifest.timezone);
 
-  const semester = selectActiveSemester(year, today, manifest.timezone);
-  if (!semester) throw new Error("No active or upcoming published semester is available for this academic year.");
+  const semester = selectActiveSemester(scopedYear, today, manifest.timezone);
+  if (!semester) {
+    throw new Error(
+      `No active or upcoming published semester is available for ${yearLevelLabel(assignment.yearLevel)} in this academic year.`
+    );
+  }
 
   const datasets = await loader.loadSemesterDatasets(semester, manifest);
   const labelIndex = buildEventIndex(datasets);
@@ -284,6 +329,7 @@ async function loadAndRenderSchedule(assignment, manifest) {
     assignment, schedule, today, locale, issues,
     courses: Array.isArray(datasets.courses) ? datasets.courses : datasets.courses?.courses ?? [],
     labelIndex,
+    reminderPlan: buildReminderPlan(schedule.events),
     anchorDate: today,
     view: "weekly"
   };
@@ -316,6 +362,7 @@ function renderAll(state) {
   renderAssignmentSummary(state);
   renderView(state, state.view);
   renderCalendar(state);
+  renderReminderCard(state);
 }
 
 function navigate(delta) {
@@ -421,8 +468,6 @@ function nowMinutesInTimeZone(timeZone) {
   return hour * 60 + get("minute");
 }
 
-// ---- subject colors + shorthand labels ----
-
 function evLabel(state, event) {
   return eventLabel(event, state.labelIndex, state.locale);
 }
@@ -439,6 +484,10 @@ function colorStyle(color, kind) {
   return `background:${color}1a;border-color:${color}59;color:${color};`;
 }
 
+function reminderLabel(minutes) {
+  return minutes === 60 ? "1 hour before" : `${minutes} min before`;
+}
+
 function renderAssignmentSummary(state) {
   const a = state.assignment;
   const locale = state.locale;
@@ -447,7 +496,8 @@ function renderAssignmentSummary(state) {
   if (a.displayId) pills.push({ label: "ID", value: a.displayId });
   pills.push({ label: "Lookup", value: a.lookupMethod ?? "Student ID" });
   pills.push({ label: "Program", value: localize(state.program.name, locale) || state.program.id });
-  pills.push({ label: "Year", value: localize(state.year.name, locale) || state.year.id });
+  pills.push({ label: "Academic year", value: localize(state.year.name, locale) || state.year.id });
+  if (a.yearLevel != null) pills.push({ label: "Year", value: yearLevelLabel(a.yearLevel), className: "group" });
   pills.push({ label: "Semester", value: localize(state.semester.name, locale) || state.semester.id });
   pills.push({ label: "Group", value: a.groupLabel ?? formatGroupLabel(a), className: "group" });
   if (a.subdivision) pills.push({ label: "Subdivision", value: a.subdivision });
@@ -563,9 +613,10 @@ function renderGoogleStyleCalendar(state, days) {
       const time = formatTimeRange(event.start, event.end);
       const location = formatLocation(event.location, state.institution.locations.buildings, state.locale);
       const color = evColor(state, event);
-      const tooltip = [label, full !== label ? full : null, time, location].filter(Boolean).join(" · ");
+      const mins = state.reminderPlan.get(event.uid);
+      const tooltip = [label, full !== label ? full : null, time, location, mins ? `Reminder ${reminderLabel(mins)}` : null].filter(Boolean).join(" · ");
 
-      html += `<div class="gc-event type-${escapeHtml(event.type)} status-${escapeHtml(event.status)}" style="top:${top}px; height:${height}px; left:calc(${leftPercent}% + 2px); width:calc(${widthPercent}% - 4px); ${colorStyle(color, "block")}" title="${escapeHtml(tooltip)}"><div class="gc-event-title">${escapeHtml(label)}</div><div class="gc-event-time">${escapeHtml(time)}</div></div>`;
+      html += `<div class="gc-event type-${escapeHtml(event.type)} status-${escapeHtml(event.status)}" style="top:${top}px; height:${height}px; left:calc(${leftPercent}% + 2px); width:calc(${widthPercent}% - 4px); ${colorStyle(color, "block")}" title="${escapeHtml(tooltip)}"><div class="gc-event-title">${escapeHtml(label)}</div><div class="gc-event-time">${escapeHtml(time)}${mins ? ` · 🔔 ${mins === 60 ? "1h" : "15m"}` : ""}</div></div>`;
     }
 
     html += `</div>`;
@@ -672,9 +723,11 @@ function renderUpcomingList(state, start, end) {
       const location = formatLocation(event.location, buildings, state.locale);
       const color = evColor(state, event);
       const type = event.type ?? "event";
+      const mins = state.reminderPlan.get(event.uid);
 
       const tags = [];
       tags.push(`<span class="tag ${escapeHtml(type)}" style="${colorStyle(color, "tag")}">${escapeHtml(type.replace(/-/g, " "))}</span>`);
+      if (mins) tags.push(`<span class="tag" style="background:var(--accent-soft);border-color:var(--accent);color:var(--accent);">🔔 ${escapeHtml(reminderLabel(mins))}</span>`);
       if (event.status === "cancelled") tags.push(`<span class="tag cancelled">Cancelled</span>`);
       if ((event.sourceReview ?? []).length) tags.push(`<span class="tag unverified">Needs review</span>`);
 
@@ -703,6 +756,100 @@ async function copyToClipboard(text) {
     document.body.removeChild(ta);
     return ok;
   } catch { return false; }
+}
+
+function showToast(message) {
+  let stack = document.getElementById("toast-stack");
+  if (!stack) {
+    stack = document.createElement("div");
+    stack.id = "toast-stack";
+    stack.style.cssText = "position:fixed;right:16px;bottom:16px;z-index:9999;display:flex;flex-direction:column;gap:8px;max-width:min(360px,calc(100vw - 32px));";
+    document.body.appendChild(stack);
+  }
+  const toast = document.createElement("div");
+  toast.style.cssText = "background:var(--surface);color:var(--text);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:8px;box-shadow:var(--shadow);padding:10px 12px;font-size:0.85rem;line-height:1.4;";
+  toast.textContent = message;
+  stack.appendChild(toast);
+  setTimeout(() => {
+    toast.style.opacity = "0";
+    toast.style.transition = "opacity 0.4s";
+    setTimeout(() => toast.remove(), 450);
+  }, 9000);
+}
+
+function ensureScheduler(state) {
+  if (reminderScheduler) return reminderScheduler;
+  reminderScheduler = new ReminderScheduler({
+    timeZone: state.manifest.timezone,
+    onToast: showToast,
+    onStateChange: () => { if (currentState) updateReminderStatus(currentState); }
+  });
+  return reminderScheduler;
+}
+
+function updateReminderStatus(state) {
+  const el = document.getElementById("reminder-status");
+  const toggle = document.getElementById("reminders-toggle");
+  if (!el || !reminderScheduler) return;
+  if (toggle) toggle.checked = reminderScheduler.enabled;
+
+  const perm = reminderScheduler.permission;
+  const permText =
+    perm === "granted" ? "Browser notifications are allowed." :
+    perm === "denied" ? "Browser notifications are blocked — reminders appear as in-page popups only." :
+    perm === "unsupported" ? "This browser does not support notifications — reminders appear as in-page popups only." :
+    "Enable reminders to allow browser notifications.";
+
+  el.textContent = reminderScheduler.enabled
+    ? `Reminders are on. ${permText} They fire while this page is open.`
+    : `Reminders are off. ${permText}`;
+}
+
+function renderReminderCard(state) {
+  const scheduler = ensureScheduler(state);
+  scheduler.setEvents(state.schedule.events, {
+    labelFor: (e) => evLabel(state, e),
+    timeFor: (e) => formatEventTime(e),
+    locationFor: (e) => formatLocation(e.location, state.institution.locations.buildings, state.locale)
+  });
+
+  let card = document.getElementById("reminder-card");
+  if (!card) {
+    const anchor = document.querySelector(".subscription-card");
+    card = document.createElement("section");
+    card.id = "reminder-card";
+    card.className = "subscription-card";
+    card.setAttribute("aria-labelledby", "reminder-heading");
+    anchor.parentNode.insertBefore(card, anchor);
+  }
+
+  card.innerHTML = `
+    <h2 id="reminder-heading">Reminders</h2>
+    <p class="hint">
+      First event of each day: reminder <strong>1 hour before</strong>.
+      Every later event that day: reminder <strong>15 minutes before</strong>.
+      All-day events get no reminder. The same rule is written into the .ics feeds
+      (Apple Calendar, Outlook and Thunderbird honor it). Google ignores alarms on
+      subscribed calendars, so keep this page open with reminders on for the exact rule.
+    </p>
+    <div class="feed-actions" style="align-items:center;">
+      <label style="display:inline-flex;align-items:center;gap:8px;cursor:pointer;margin:0;">
+        <input type="checkbox" id="reminders-toggle" style="width:18px;height:18px;accent-color:var(--accent);" />
+        Enable reminders while this page is open
+      </label>
+      <button class="btn quiet" type="button" id="reminder-test">Send test reminder</button>
+    </div>
+    <p class="hint" id="reminder-status" style="margin-top:8px;"></p>
+  `;
+
+  document.getElementById("reminders-toggle").addEventListener("change", async (e) => {
+    if (e.target.checked) await scheduler.enable();
+    else scheduler.disable();
+    updateReminderStatus(state);
+  });
+
+  document.getElementById("reminder-test").addEventListener("click", () => scheduler.test());
+  updateReminderStatus(state);
 }
 
 function renderCalendar(state) {
@@ -735,7 +882,7 @@ function renderCalendar(state) {
       <p class="hint" id="copy-hint">${escapeHtml(subNote)} Google's one-click endpoint is unreliable, so this button opens Google's official "Add by URL" page.</p>
       <p class="hint">Prefer to try anyway? <a href="${escapeHtml(oneClickUrl)}" target="_blank" rel="noopener noreferrer">One-click subscribe (may fail)</a>. If Google says the calendar already exists, remove the old entry first.</p>
     </div>
-    <p class="hint">Subject colors appear on this website. Google assigns one color per subscribed calendar, so in Google the subject is identified by its shorthand name (e.g. PN 7 Basic Pharmacology).</p>
+    <p class="hint">Subject colors appear on this website. Google assigns one color per subscribed calendar, so in Google the subject is identified by its shorthand name (e.g. PN 7 Basic Pharmacology). Reminders in the feed follow the 1h / 15m rule; Google subscription ignores them, so use the Reminders panel above for Google-equivalent alerts.</p>
   `;
 
   const hint = document.getElementById("copy-hint");
@@ -786,7 +933,8 @@ function renderCalendar(state) {
 function calendarFileName(assignment) {
   const group = assignment.practicalGroup ?? "unresolved";
   const sub = assignment.subdivision ? `-${String(assignment.subdivision).toLowerCase()}` : "";
-  return `group-${group}${sub}.ics`;
+  const level = assignment.yearLevel != null ? `-year-${assignment.yearLevel}` : "";
+  return `group-${group}${sub}${level}.ics`;
 }
 
 function renderError(err) {
