@@ -1,0 +1,33 @@
+{
+  "programId": "clinical-pharmacy",
+  "academicYearId": "2026-2027",
+  "rules": [
+    {
+      "id": "clinical-2026-2027-group-1",
+      "practicalGroup": 1,
+      "from": "2510001",
+      "to": "2510047",
+      "subdivisions": [
+        { "id": "clinical-2026-2027-group-1-a", "name": "A", "from": "2510001", "to": "2510024" },
+        { "id": "clinical-2026-2027-group-1-b", "name": "B", "from": "2510025", "to": "2510047" }
+      ]
+    },
+    {
+      "id": "clinical-2026-2027-group-2",
+      "practicalGroup": 2,
+      "from": "2510048",
+      "to": null,
+      "subdivisions": [
+        { "id": "clinical-2026-2027-group-2-a", "name": "A", "from": "2510048", "to": "2510072" },
+        { "id": "clinical-2026-2027-group-2-b", "name": "B", "from": "2510073", "to": null }
+      ],
+      "sourceReview": [
+        {
+          "code": "OPEN_ENDED_RANGE",
+          "detail": "Source prints group 2 and subdivision 2B as '2510048 – الأخر' / '2510073 – الأخر' (to the end). Verify the official upper bound when the final seat list is published."
+        }
+      ]
+    }
+  ],
+  "overrides": []
+}
