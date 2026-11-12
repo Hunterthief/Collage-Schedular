@@ -2,37 +2,29 @@
   "programs": [
     {
       "id": "pharmd",
-      "name": {
-        "en": "PharmD",
-        "ar": "دكتور صيدلة"
-      },
+      "name": { "en": "PharmD", "ar": "دكتور صيدلة" },
       "academicYears": [
         {
           "id": "2026-2027",
-          "name": {
-            "en": "2026/2027",
-            "ar": "٢٠٢٦/٢٠٢٧"
-          },
+          "name": { "en": "2026/2027", "ar": "٢٠٢٦/٢٠٢٧" },
           "semesters": [
             {
               "id": "pharmd-2026-2027-semester-5",
-              "name": {
-                "en": "Semester 5",
-                "ar": "الفصل الدراسي الخامس"
-              },
-              "validFrom": "2026-02-01",
-              "validUntil": "2026-06-30",
-              "status": "draft",
+              "name": { "en": "Semester 5", "ar": "الفصل الدراسي الخامس" },
+              "validFrom": "2026-09-19",
+              "validUntil": "2026-12-17",
+              "status": "published",
               "datasets": {
                 "courses": "data/schedules/pharmd/2026-2027/semester-5/courses.json",
                 "lectures": "data/schedules/pharmd/2026-2027/semester-5/lectures.json",
                 "practicals": "data/schedules/pharmd/2026-2027/semester-5/practicals.json",
+                "exams": "data/schedules/pharmd/2026-2027/semester-5/exams.json",
                 "exceptions": "data/schedules/pharmd/2026-2027/semester-5/exceptions.json"
               },
               "sourceReview": [
                 {
-                  "code": "DATE_UNCONFIRMED",
-                  "detail": "Replace with verified official semester dates before publishing."
+                  "code": "SEMESTER_WINDOW_FROM_PROVISIONAL_CALENDAR",
+                  "detail": "validFrom = Start of classes (19/9/2026) and validUntil = End of classes (17/12/2026) taken from the official Fall 2026/2027 academic calendar. That calendar states its dates are approximate and exact dates will be announced; verify before relying on feeds near the boundaries. Revision and final exams fall outside this weekly-class window and are modeled separately."
                 }
               ]
             }
