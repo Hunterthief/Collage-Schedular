@@ -10,7 +10,9 @@
         "type": "object",
         "required": ["id", "title", "status"],
         "properties": {
-          "id": { "type": "string" },
+          "id": {
+            "type": "string"
+          },
           "title": {
             "type": ["object", "string"]
           },
@@ -21,12 +23,39 @@
             "type": "string",
             "default": "college-event"
           },
-          "date": { "type": ["string", "null"] },
-          "day": { "type": ["string", "null"] },
-          "start": { "type": ["string", "null"] },
-          "end": { "type": ["string", "null"] },
-          "validFrom": { "type": ["string", "null"] },
-          "validUntil": { "type": ["string", "null"] },
+          "date": {
+            "type": ["string", "null"],
+            "format": "date"
+          },
+          "startDate": {
+            "type": ["string", "null"],
+            "format": "date"
+          },
+          "endDate": {
+            "type": ["string", "null"],
+            "format": "date"
+          },
+          "allDay": {
+            "type": "boolean",
+            "default": false
+          },
+          "day": {
+            "type": ["string", "null"]
+          },
+          "start": {
+            "type": ["string", "null"]
+          },
+          "end": {
+            "type": ["string", "null"]
+          },
+          "validFrom": {
+            "type": ["string", "null"],
+            "format": "date"
+          },
+          "validUntil": {
+            "type": ["string", "null"],
+            "format": "date"
+          },
           "location": {
             "type": ["object", "null"],
             "properties": {
@@ -40,12 +69,30 @@
             "required": ["scope"],
             "properties": {
               "scope": {
-                "enum": ["all", "program", "academic-year", "semester", "group", "custom"]
+                "enum": [
+                  "all",
+                  "program",
+                  "academic-year",
+                  "semester",
+                  "group",
+                  "custom"
+                ]
               }
             }
           },
           "status": {
             "enum": ["draft", "published", "cancelled", "completed"]
+          },
+          "sourceReview": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["code"],
+              "properties": {
+                "code": { "type": "string" },
+                "detail": { "type": "string" }
+              }
+            }
           }
         }
       }
