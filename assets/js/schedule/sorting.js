@@ -30,7 +30,7 @@ export function sortOccurrences(events, locale = "en") {
 
 export function detectConflicts(events) {
   const active = events
-    .filter((e) => e.status === "published" && e.start && e.end)
+    .filter((e) => e.status === "published" && !e.allDay && e.start && e.end)
     .sort((a, b) => {
       const dateCmp = a.date.localeCompare(b.date);
       if (dateCmp !== 0) return dateCmp;
@@ -55,7 +55,10 @@ export function detectConflicts(events) {
 
       if (overlaps) {
         conflicts.push({
-          severity: a.source === "institution" || b.source === "institution" ? "warning" : "error",
+          severity:
+            a.source === "institution" || b.source === "institution"
+              ? "warning"
+              : "error",
           date: a.date,
           events: [a, b],
           message: `Overlap between ${a.eventId} and ${b.eventId} on ${a.date}.`
