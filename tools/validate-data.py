@@ -109,7 +109,14 @@ def validate_manifest(root, report):
     if not manifest:
         return None
 
-    for key in ["schemaVersion", "dataVersion", "timezone", "paths", "assignments", "calendarFeeds"]:
+    for key in [
+        "schemaVersion",
+        "dataVersion",
+        "timezone",
+        "paths",
+        "assignments",
+        "calendarFeeds",
+    ]:
         if key not in manifest:
             report.error(f"manifest missing required key: {key}")
 
@@ -185,15 +192,19 @@ def validate_programs(root, manifest, report):
             for semester in year.get("semesters", []):
                 sid = semester.get("id")
                 if not sid:
-                    report.error(f"academic year {qualified_year} has semester missing id")
+                    report.error(
+                        f"academic year {qualified_year} has semester missing id"
+                    )
                     continue
 
                 if sid in semester_ids:
                     report.error(f"duplicate semester id: {sid}")
                 semester_ids.add(sid)
 
-                if semester.get("status") not in {"draft", "published", "cancelled", "completed"}:
-                    report.error(f"semester {sid} has invalid status: {semester.get('status')}")
+                if semester.get("status") not in VALID_STATUSES:
+                    report.error(
+                        f"semester {sid} has invalid status: {semester.get('status')}"
+                    )
 
                 vf = semester.get("validFrom")
                 vu = semester.get("validUntil")
@@ -206,7 +217,13 @@ def validate_programs(root, manifest, report):
                     report.error(f"semester {sid} validFrom is after validUntil")
 
                 datasets = semester.get("datasets", {})
-                for key in ["courses", "lectures", "practicals", "exceptions"]:
+                for key in [
+                    "courses",
+                    "lectures",
+                    "practicals",
+                    "exams",
+                    "exceptions",
+                ]:
                     if key not in datasets:
                         report.error(f"semester {sid} missing dataset path: {key}")
                     else:
@@ -223,14 +240,14 @@ def validate_programs(root, manifest, report):
     }
 
 
-def validate_assignment_ranges(rules, context, report):
+def validate_assignment_ranges(rules, context, report, require_group=True):
     intervals = []
     explicit = {}
 
     for idx, rule in enumerate(rules):
         rid = rule.get("id") or f"{context}-rule-{idx}"
 
-        if rule.get("practicalGroup") is None:
+        if require_group and rule.get("practicalGroup") is None:
             report.error(f"{rid}: missing practicalGroup")
 
         students = rule.get("students", [])
@@ -243,7 +260,9 @@ def validate_assignment_ranges(rules, context, report):
                 report.error(f"{rid}: student id must be string")
                 continue
             if sid in explicit:
-                report.error(f"duplicate explicit student assignment: {sid} in {rid} and {explicit[sid]}")
+                report.error(
+                    f"duplicate explicit student assignment: {sid} in {rid} and {explicit[sid]}"
+                )
             explicit[sid] = rid
 
         has_from = "from" in rule
@@ -268,7 +287,12 @@ def validate_assignment_ranges(rules, context, report):
 
         subdivisions = rule.get("subdivisions", [])
         if subdivisions:
-            validate_assignment_ranges(subdivisions, f"{rid}/subdivisions", report)
+            validate_assignment_ranges(
+                subdivisions,
+                f"{rid}/subdivisions",
+                report,
+                require_group=False,
+            )
 
     intervals.sort(key=lambda x: x[0])
 
@@ -285,7 +309,9 @@ def validate_assignment_ranges(rules, context, report):
         sid_i = int(sid)
         for start, end, range_rid in intervals:
             if start <= sid_i <= end and range_rid != rid:
-                report.error(f"explicit student {sid} in {rid} overlaps range {range_rid}")
+                report.error(
+                    f"explicit student {sid} in {rid} overlaps range {range_rid}"
+                )
 
 
 def validate_assignments(root, manifest, program_data, report):
@@ -297,7 +323,9 @@ def validate_assignments(root, manifest, program_data, report):
         if pid not in program_data["program_ids"]:
             report.error(f"assignment references unknown program: {pid}")
         if f"{pid}/{yid}" not in program_data["year_ids"]:
-            report.error(f"assignment references unknown academic year: {pid}/{yid}")
+            report.error(
+                f"assignment references unknown academic year: {pid}/{yid}"
+            )
 
         doc = load_json(root, rel, report)
         if not doc:
@@ -332,7 +360,11 @@ def validate_location_object(loc, ctx, location_data, report):
         return
 
     building = loc.get("building")
-    if building and building not in location_data["ids"] and building not in location_data["codes"]:
+    if (
+        building
+        and building not in location_data["ids"]
+        and building not in location_data["codes"]
+    ):
         report.error(f"{ctx}: unknown building {building}")
 
     floor = loc.get("floor")
@@ -340,7 +372,9 @@ def validate_location_object(loc, ctx, location_data, report):
         report.error(f"{ctx}: floor must be integer or null")
 
 
-def validate_event_record(event, ctx, course_ids, location_data, report, event_ids):
+def validate_event_record(
+    event, ctx, course_ids, location_data, report, event_ids
+):
     eid = event.get("id")
     if not eid:
         report.error(f"{ctx}: event missing id")
@@ -422,6 +456,7 @@ def validate_semester_datasets(root, program_data, location_data, report):
         courses_doc = load_json(root, datasets["courses"], report)
         lectures_doc = load_json(root, datasets["lectures"], report)
         practicals_doc = load_json(root, datasets["practicals"], report)
+        exams_doc = load_json(root, datasets["exams"], report)
         exceptions_doc = load_json(root, datasets["exceptions"], report)
 
         course_ids = set()
@@ -437,10 +472,19 @@ def validate_semester_datasets(root, program_data, location_data, report):
         event_ids = set()
 
         for e in to_array(lectures_doc, "events"):
-            validate_event_record(e, f"{sid}/lectures", course_ids, location_data, report, event_ids)
+            validate_event_record(
+                e, f"{sid}/lectures", course_ids, location_data, report, event_ids
+            )
 
         for e in to_array(practicals_doc, "events"):
-            validate_event_record(e, f"{sid}/practicals", course_ids, location_data, report, event_ids)
+            validate_event_record(
+                e, f"{sid}/practicals", course_ids, location_data, report, event_ids
+            )
+
+        for e in to_array(exams_doc, "events"):
+            validate_event_record(
+                e, f"{sid}/exams", course_ids, location_data, report, event_ids
+            )
 
         practical_multi_session_events = set()
         for e in to_array(practicals_doc, "events"):
@@ -455,10 +499,14 @@ def validate_semester_datasets(root, program_data, location_data, report):
 
             ref = ex.get("eventId")
             if ref not in event_ids:
-                report.error(f"{sid}: exception {ex_id} references unknown event {ref}")
+                report.error(
+                    f"{sid}: exception {ex_id} references unknown event {ref}"
+                )
 
             if ex.get("action") not in VALID_ACTIONS:
-                report.error(f"{sid}: exception {ex_id} invalid action {ex.get('action')}")
+                report.error(
+                    f"{sid}: exception {ex_id} invalid action {ex.get('action')}"
+                )
 
             if not is_date(ex.get("date", "")):
                 report.error(f"{sid}: exception {ex_id} invalid date")
@@ -476,15 +524,25 @@ def validate_semester_datasets(root, program_data, location_data, report):
             if ex.get("start") and ex.get("end") and ex.get("start") >= ex.get("end"):
                 report.error(f"{sid}: exception {ex_id} start >= end")
 
-            if ref in practical_multi_session_events and ex.get("group") is None:
+            if (
+                ref in practical_multi_session_events
+                and ex.get("group") is None
+            ):
                 report.error(
                     f"{sid}: exception {ex_id} targets multi-session practical {ref} without group"
                 )
 
-            validate_location_object(ex.get("location"), f"{sid}/exception/{ex_id}", location_data, report)
+            validate_location_object(
+                ex.get("location"),
+                f"{sid}/exception/{ex_id}",
+                location_data,
+                report,
+            )
 
 
-def validate_institution_events(root, manifest, program_data, location_data, report):
+def validate_institution_events(
+    root, manifest, program_data, location_data, report
+):
     doc = load_json(root, manifest["paths"]["institutionEvents"], report)
     if not doc:
         return
@@ -506,6 +564,21 @@ def validate_institution_events(root, manifest, program_data, location_data, rep
         if event.get("date") and not is_date(event.get("date")):
             report.error(f"{eid}: invalid date")
 
+        sd = event.get("startDate")
+        ed = event.get("endDate")
+
+        if sd and not is_date(sd):
+            report.error(f"{eid}: invalid startDate")
+        if ed and not is_date(ed):
+            report.error(f"{eid}: invalid endDate")
+        if sd and ed and sd > ed:
+            report.error(f"{eid}: startDate after endDate")
+
+        if event.get("allDay") is not None and not isinstance(
+            event.get("allDay"), bool
+        ):
+            report.error(f"{eid}: allDay must be boolean")
+
         if event.get("day") and event.get("day") not in WEEKDAYS:
             report.error(f"{eid}: invalid day")
 
@@ -513,10 +586,24 @@ def validate_institution_events(root, manifest, program_data, location_data, rep
             report.error(f"{eid}: invalid start")
         if event.get("end") and not is_time(event.get("end")):
             report.error(f"{eid}: invalid end")
-        if event.get("start") and event.get("end") and event.get("start") >= event.get("end"):
+        if event.get("start") and event.get("end") and event.get("start") >= event.get(
+            "end"
+        ):
             report.error(f"{eid}: start >= end")
 
         validate_location_object(event.get("location"), eid, location_data, report)
+
+        has_single = bool(event.get("date"))
+        has_range = bool(sd)
+        has_weekly = bool(
+            event.get("day") and event.get("validFrom") and event.get("validUntil")
+        )
+
+        if not (has_single or has_range or has_weekly):
+            report.error(
+                f"{eid}: institution event has no materializable window "
+                "(need date, startDate, or day+validFrom+validUntil)"
+            )
 
         audience = event.get("audience", {})
         scope = audience.get("scope", "all")
@@ -530,10 +617,20 @@ def validate_institution_events(root, manifest, program_data, location_data, rep
                     report.error(f"{eid}: unknown program {pid}")
 
         if scope == "academic-year":
-            for y in audience.get("academicYears", []):
-                qualified = f"{y.get('programId')}/{y.get('academicYearId')}"
-                if qualified not in program_data["year_ids"]:
-                    report.error(f"{eid}: unknown academic year {qualified}")
+            if isinstance(audience.get("academicYears"), list):
+                for y in audience.get("academicYears", []):
+                    qualified = f"{y.get('programId')}/{y.get('academicYearId')}"
+                    if qualified not in program_data["year_ids"]:
+                        report.error(f"{eid}: unknown academic year {qualified}")
+            elif audience.get("programId") and isinstance(
+                audience.get("academicYearIds"), list
+            ):
+                if audience.get("programId") not in program_data["program_ids"]:
+                    report.error(f"{eid}: unknown program {audience.get('programId')}")
+                for yid in audience.get("academicYearIds", []):
+                    qualified = f"{audience.get('programId')}/{yid}"
+                    if qualified not in program_data["year_ids"]:
+                        report.error(f"{eid}: unknown academic year {qualified}")
 
         if scope == "semester":
             for sid in audience.get("semesterIds", []):
@@ -565,7 +662,9 @@ def main():
 
     validate_assignments(root, manifest, program_data, report)
     validate_semester_datasets(root, program_data, location_data, report)
-    validate_institution_events(root, manifest, program_data, location_data, report)
+    validate_institution_events(
+        root, manifest, program_data, location_data, report
+    )
 
     report.print()
     sys.exit(1 if report.errors else 0)
