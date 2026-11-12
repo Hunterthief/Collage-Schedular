@@ -26,20 +26,54 @@
       "id": "pharmd-2026-2027-group-2",
       "practicalGroup": 2,
       "from": "2415077",
-      "to": "2415148"
+      "to": "2415148",
+      "subdivisions": [
+        {
+          "id": "pharmd-2026-2027-group-2-a",
+          "name": "A",
+          "from": "2415077",
+          "to": "2415112"
+        },
+        {
+          "id": "pharmd-2026-2027-group-2-b",
+          "name": "B",
+          "from": "2415114",
+          "to": "2415148"
+        }
+      ],
+      "sourceReview": [
+        {
+          "code": "SUBDIVISION_GAP",
+          "detail": "As transcribed from the source image, subdivision A ends at 2415112 and subdivision B starts at 2415114. Student ID 2415113 is not covered by either subdivision. Verify against the official group list."
+        }
+      ]
     },
     {
       "id": "pharmd-2026-2027-group-3",
       "practicalGroup": 3,
       "from": "2415149",
-      "to": null
+      "to": null,
+      "subdivisions": [
+        {
+          "id": "pharmd-2026-2027-group-3-a",
+          "name": "A",
+          "from": "2415149",
+          "to": "2415184"
+        },
+        {
+          "id": "pharmd-2026-2027-group-3-b",
+          "name": "B",
+          "from": "2415185",
+          "to": null
+        }
+      ],
+      "sourceReview": [
+        {
+          "code": "SUBDIVISION_TRANSCRIPTION_AMBIGUOUS",
+          "detail": "The source image for group 3 appears to define A from 2415149 to 2415184 and B from 2415185 to the end. Verify the B boundary against the official printed list before relying on subdivision resolution."
+        }
+      ]
     }
   ],
-  "overrides": [],
-  "sourceReview": [
-    {
-      "code": "ASSIGNMENT_UNCONFIRMED",
-      "detail": "Replace with verified official student ID ranges and subdivision boundaries."
-    }
-  ]
+  "overrides": []
 }
