@@ -1,108 +1,77 @@
-export class ShorthandParseError extends Error {}
+// Shorthand is a convenience parser only. Structured JSON fields remain the
+// source of truth. Supported leading letters:
+//   L = lecture, P = practical, E = examination
+// Supported building codes (matched case-insensitively against the locations
+// data you pass in): the code letter, e.g. N -> new, O -> old.
+// Optional floor number may follow the building letter, with or without a space.
+// A non-empty title is required. Malformed input throws so data mistakes are
+// loud rather than silent.
 
-export const EVENT_TYPE_BY_CODE = Object.freeze({
+const TYPE_BY_LETTER = {
   L: "lecture",
   P: "practical",
   E: "examination"
-});
+};
 
-export function createShorthandParser(buildings) {
-  const normalizedBuildings = buildings
-    .map((b) => ({
-      ...b,
-      code: String(b.code).toUpperCase()
-    }))
-    .sort((a, b) => b.code.length - a.code.length);
+const SHORTHAND_RE = /^([lpe])([a-z])\s*(\d+)?\s*(\S.*)$/i;
 
-  function matchBuilding(rest) {
-    const upper = rest.toUpperCase();
-
-    for (const building of normalizedBuildings) {
-      if (!upper.startsWith(building.code)) continue;
-
-      const nextChar = rest[building.code.length];
-
-      if (
-        nextChar === undefined ||
-        nextChar === " " ||
-        /\d/.test(nextChar)
-      ) {
-        return { building, consumed: building.code.length };
-      }
-    }
-
-    return null;
+export function createShorthandParser(buildings = []) {
+  // Map every building code (lowercased) to its canonical id.
+  const codeToId = new Map();
+  for (const b of buildings) {
+    if (b?.code) codeToId.set(String(b.code).toLowerCase(), b.id);
+    if (b?.id) codeToId.set(String(b.id).toLowerCase(), b.id);
   }
 
-  function parse(input) {
-    if (typeof input !== "string") {
-      throw new ShorthandParseError("Shorthand must be a string.");
+  function parse(raw) {
+    if (typeof raw !== "string") {
+      throw new TypeError("Shorthand must be a string.");
     }
 
-    const original = input.trim();
-
-    if (!original) {
-      throw new ShorthandParseError("Shorthand cannot be empty.");
+    const input = raw.trim();
+    if (!input) {
+      throw new Error("Shorthand cannot be empty.");
     }
 
-    const typeCode = original[0].toUpperCase();
-    const type = EVENT_TYPE_BY_CODE[typeCode];
+    const m = SHORTHAND_RE.exec(input);
+    if (!m) {
+      throw new Error(`Unrecognized shorthand: "${input}".`);
+    }
 
+    const typeLetter = m[1].toUpperCase();
+    const buildingLetter = m[2].toLowerCase();
+    const floorRaw = m[3];
+    const title = m[4].trim();
+
+    const type = TYPE_BY_LETTER[typeLetter];
     if (!type) {
-      throw new ShorthandParseError(
-        `Unknown event type code "${typeCode}" in shorthand "${original}".`
+      throw new Error(`Unknown shorthand type "${typeLetter}" in "${input}".`);
+    }
+
+    const buildingId = codeToId.get(buildingLetter);
+    if (!buildingId) {
+      throw new Error(
+        `Unknown shorthand building "${m[2]}" in "${input}". Not present in locations data.`
       );
     }
-
-    let rest = original.slice(1).trimStart();
-
-    const buildingMatch = matchBuilding(rest);
-
-    if (!buildingMatch) {
-      throw new ShorthandParseError(
-        `Unknown or ambiguous building code in shorthand "${original}".`
-      );
-    }
-
-    rest = rest.slice(buildingMatch.consumed).trimStart();
-
-    let floor = null;
-
-    if (/^\d/.test(rest)) {
-      const floorMatch = /^(\d+)(?=\s|$)/.exec(rest);
-
-      if (!floorMatch) {
-        throw new ShorthandParseError(
-          `Invalid floor token in shorthand "${original}".`
-        );
-      }
-
-      floor = Number(floorMatch[1]);
-      rest = rest.slice(floorMatch[0].length).trimStart();
-    }
-
-    const title = rest.trim();
 
     if (!title) {
-      throw new ShorthandParseError(
-        `Missing course/event name in shorthand "${original}".`
-      );
+      throw new Error(`Shorthand "${input}" is missing a title.`);
     }
+
+    const floor = floorRaw != null ? Number(floorRaw) : null;
 
     return {
       type,
       location: {
-        building: buildingMatch.building.id,
+        building: buildingId,
         floor,
         room: null
       },
       title,
-      displayCode: original
+      displayCode: input
     };
   }
 
-  return {
-    parse,
-    buildings: normalizedBuildings
-  };
+  return { parse };
 }
