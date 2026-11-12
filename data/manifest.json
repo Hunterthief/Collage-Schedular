@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "dataVersion": "2026-11-13T12:00:00Z",
+  "dataVersion": "2026-11-13T18:00:00Z",
   "timezone": "Africa/Cairo",
   "paths": {
     "programs": "data/programs/programs.json",
@@ -24,6 +24,8 @@
   "calendarFeeds": {
     "baseUrl": "calendar/feeds",
     "pathTemplate": "{programId}/{academicYearId}/group-{group}.ics",
-    "subdivisionPathTemplate": "{programId}/{academicYearId}/group-{group}-{subdivisionLower}.ics"
+    "subdivisionPathTemplate": "{programId}/{academicYearId}/group-{group}-{subdivisionLower}.ics",
+    "levelPathTemplate": "{programId}/{academicYearId}/year-{level}/group-{group}.ics",
+    "levelSubdivisionPathTemplate": "{programId}/{academicYearId}/year-{level}/group-{group}-{subdivisionLower}.ics"
   }
 }
