@@ -48,7 +48,6 @@ const els = {
   calendarLinks: document.getElementById("calendar-links"),
   tabs: document.querySelectorAll(".tab"),
   siteTitle: document.getElementById("site-title"),
-  siteSubtitle: document.getElementById("site-subtitle"),
   privacyNotice: document.getElementById("privacy-notice")
 };
 
