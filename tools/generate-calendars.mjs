@@ -55,27 +55,51 @@ function collectSubdivisions(doc, group) {
   return Array.from(subs).sort();
 }
 
-function feedPath(manifest, programId, yearId, group, subdivision, level, useLevel) {
+function renderTemplate(template, values) {
+  return template
+    .replace("{programId}", values.programId)
+    .replace("{academicYearId}", values.academicYearId)
+    .replace("{level}", values.level == null ? "" : String(values.level))
+    .replace("{group}", String(values.group))
+    .replace("{subdivision}", values.subdivision ?? "")
+    .replace("{subdivisionLower}", (values.subdivision ?? "").toLowerCase());
+}
+
+function baseUrlOf(manifest) {
+  return String(manifest.calendarFeeds?.baseUrl ?? "calendar/feeds").replace(/\/$/, "");
+}
+
+// Canonical path: year-scoped whenever the level is known.
+function canonicalPath(manifest, programId, yearId, group, subdivision, level) {
   const feeds = manifest.calendarFeeds ?? {};
-  const baseUrl = String(feeds.baseUrl ?? "calendar/feeds").replace(/\/$/, "");
+  const template =
+    level != null
+      ? subdivision
+        ? feeds.levelSubdivisionPathTemplate ??
+          "{programId}/{academicYearId}/year-{level}/group-{group}-{subdivisionLower}.ics"
+        : feeds.levelPathTemplate ??
+          "{programId}/{academicYearId}/year-{level}/group-{group}.ics"
+      : subdivision
+        ? feeds.subdivisionPathTemplate ??
+          "{programId}/{academicYearId}/group-{group}-{subdivisionLower}.ics"
+        : feeds.pathTemplate ?? "{programId}/{academicYearId}/group-{group}.ics";
 
-  const template = useLevel && level != null
-    ? (subdivision
-        ? feeds.levelSubdivisionPathTemplate ?? "{programId}/{academicYearId}/year-{level}/group-{group}-{subdivisionLower}.ics"
-        : feeds.levelPathTemplate ?? "{programId}/{academicYearId}/year-{level}/group-{group}.ics")
-    : (subdivision
-        ? feeds.subdivisionPathTemplate ?? "{programId}/{academicYearId}/group-{group}-{subdivisionLower}.ics"
-        : feeds.pathTemplate ?? "{programId}/{academicYearId}/group-{group}.ics");
+  return `${baseUrlOf(manifest)}/${renderTemplate(template, {
+    programId, academicYearId: yearId, level, group, subdivision
+  })}`;
+}
 
-  const rel = template
-    .replace("{programId}", programId)
-    .replace("{academicYearId}", yearId)
-    .replace("{level}", level == null ? "" : String(level))
-    .replace("{group}", String(group))
-    .replace("{subdivision}", subdivision ?? "")
-    .replace("{subdivisionLower}", (subdivision ?? "").toLowerCase());
+// Pre-year flat path, kept alive only for cohorts that explicitly own it.
+function legacyPath(manifest, programId, yearId, group, subdivision) {
+  const feeds = manifest.calendarFeeds ?? {};
+  const template = subdivision
+    ? feeds.subdivisionPathTemplate ??
+      "{programId}/{academicYearId}/group-{group}-{subdivisionLower}.ics"
+    : feeds.pathTemplate ?? "{programId}/{academicYearId}/group-{group}.ics";
 
-  return `${baseUrl}/${rel}`;
+  return `${baseUrlOf(manifest)}/${renderTemplate(template, {
+    programId, academicYearId: yearId, level: null, group, subdivision
+  })}`;
 }
 
 function withShorthandTitles(events, index) {
@@ -102,9 +126,13 @@ async function main() {
   const assignmentDocs = await Promise.all(
     manifest.assignments.map(async (entry) => {
       const doc = await readJson(entry.path);
+      const rawLevel = entry.yearLevel ?? doc.yearLevel ?? null;
+      const level = rawLevel == null || rawLevel === "" ? null : Number(rawLevel);
       return {
         programId: entry.programId ?? doc.programId,
         academicYearId: entry.academicYearId ?? doc.academicYearId,
+        level: Number.isFinite(level) ? level : null,
+        legacyAlias: entry.legacyAlias === true,
         doc
       };
     })
@@ -114,7 +142,16 @@ async function main() {
   const parser = createShorthandParser(locations.buildings);
   const diagnostics = { errors: [], warnings: [] };
   const locale = settings.defaultLocale ?? "en";
-  const baseUrl = String(manifest.calendarFeeds.baseUrl ?? "calendar/feeds").replace(/\/$/, "");
+  const baseUrl = baseUrlOf(manifest);
+
+  // Remove the stray feed produced by an older generator revision.
+  const strayDir = path.resolve(ROOT, baseUrl, "institution");
+  await fs.rm(path.join(strayDir, "group-null.ics"), { force: true });
+  try {
+    await fs.rmdir(strayDir);
+  } catch {
+    // Directory absent or not empty; nothing to clean.
+  }
 
   const institutionOccurrences = buildInstitutionOccurrences(
     institutionEvents,
@@ -137,6 +174,9 @@ async function main() {
     })
   );
 
+  // Guard against two cohorts claiming the same pre-year flat path.
+  const legacyOwners = new Map();
+
   for (const program of programs.programs) {
     for (const year of program.academicYears) {
       const cohorts = assignmentDocs.filter(
@@ -144,13 +184,17 @@ async function main() {
       );
       if (!cohorts.length) continue;
 
-      const useLevel = cohorts.length > 1;
-
       for (const cohort of cohorts) {
-        const level = cohort.doc.yearLevel ?? null;
+        const level = cohort.level;
         const semesters = year.semesters.filter(
           (s) => s.status !== "draft" && (level == null || s.yearLevel == null || s.yearLevel === level)
         );
+
+        if (!semesters.length) {
+          diagnostics.warnings.push(
+            `No published semester matches ${program.id}/${year.id} year level ${level ?? "unspecified"}.`
+          );
+        }
 
         const eventsByTarget = new Map();
 
@@ -211,20 +255,35 @@ async function main() {
           const label = subdivision ? `Group ${group}${subdivision}` : `Group ${group}`;
           const levelLabel = level == null ? "" : ` Year ${level}`;
 
-          await writeIcs(
-            feedPath(manifest, program.id, year.id, group, subdivision, level, useLevel),
-            eventsToIcs(sorted, {
-              calendarName: {
-                en: `${program.id} ${year.id}${levelLabel} ${label}`,
-                ar: `${program.id} ${year.id}${levelLabel} مجموعة ${group}${subdivision ?? ""}`
-              },
-              locale,
-              timezone: manifest.timezone,
-              institutionId: settings.institutionId,
-              locations,
-              generatedAt
-            })
-          );
+          const ics = eventsToIcs(sorted, {
+            calendarName: {
+              en: `${program.id} ${year.id}${levelLabel} ${label}`,
+              ar: `${program.id} ${year.id}${levelLabel} مجموعة ${group}${subdivision ?? ""}`
+            },
+            locale,
+            timezone: manifest.timezone,
+            institutionId: settings.institutionId,
+            locations,
+            generatedAt
+          });
+
+          const canonical = canonicalPath(manifest, program.id, year.id, group, subdivision, level);
+          await writeIcs(canonical, ics);
+
+          if (!cohort.legacyAlias || level == null) continue;
+
+          const alias = legacyPath(manifest, program.id, year.id, group, subdivision);
+          if (alias === canonical) continue;
+
+          const owner = `${program.id}/${year.id} year ${level}`;
+          if (legacyOwners.has(alias) && legacyOwners.get(alias) !== owner) {
+            diagnostics.errors.push(
+              `Legacy alias conflict: ${alias} is claimed by both ${legacyOwners.get(alias)} and ${owner}. Set legacyAlias on only one cohort.`
+            );
+            continue;
+          }
+          legacyOwners.set(alias, owner);
+          await writeIcs(alias, ics);
         }
       }
     }
