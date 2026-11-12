@@ -115,30 +115,6 @@
       "validUntil": null
     },
     {
-      "id": "pharmd-s5-drug-information-lecture-late-tue",
-      "courseId": "02-06-09305",
-      "type": "lecture",
-      "day": "Tuesday",
-      "start": "17:00",
-      "end": "17:55",
-      "groups": [1, 2, 3],
-      "location": {
-        "building": "old",
-        "floor": 0,
-        "room": "Ground Lecture Hall"
-      },
-      "shorthand": "LO 0 Drug Information",
-      "displayCode": "LO 0 Drug Information",
-      "validFrom": "2026-11-07",
-      "validUntil": "2026-11-17",
-      "sourceReview": [
-        {
-          "code": "DAY_CHANGED_BY_DEPARTMENT_INSTRUCTION",
-          "detail": "Drug Information lecture moved off Tuesday after 2026-11-17. Department instruction: from 2026-11-18 onwards LO 0 Drug Information is on Wednesday instead of Tuesday. This event therefore covers only the Tuesday window 2026-11-07 to 2026-11-17."
-        }
-      ]
-    },
-    {
       "id": "pharmd-s5-drug-information-lecture-late-wed",
       "courseId": "02-06-09305",
       "type": "lecture",
@@ -158,7 +134,7 @@
       "sourceReview": [
         {
           "code": "DAY_CHANGED_BY_DEPARTMENT_INSTRUCTION",
-          "detail": "Department instruction: from 2026-11-18 onwards LO 0 Drug Information is on Wednesday instead of Tuesday. Same time slot (17:00-17:55) and same room (LO 0 Ground Lecture Hall) as the previous Tuesday lecture."
+          "detail": "Department instruction: from 2026-11-18 onwards LO 0 Drug Information is on Wednesday instead of Tuesday. The Tuesday occurrences (2026-11-10 and 2026-11-17) were canceled and have been removed entirely from the dataset."
         },
         {
           "code": "END_DATE_UNCONFIRMED",
