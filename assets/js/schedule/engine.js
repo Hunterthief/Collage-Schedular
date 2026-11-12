@@ -41,7 +41,6 @@ function compareIds(a, b) {
     if (ba > bb) return 1;
     return 0;
   }
-
   return String(a).localeCompare(String(b));
 }
 
@@ -53,19 +52,13 @@ function idInRange(id, from, to) {
 
 function sessionMatchesStudent(session, studentId) {
   const sid = normalizeStudentId(studentId);
-
   if (!sid) return true;
 
   if (Array.isArray(session.students)) {
-    const matched = session.students
-      .map(normalizeStudentId)
-      .includes(sid);
-    if (matched) return true;
+    if (session.students.map(normalizeStudentId).includes(sid)) return true;
   }
 
-  if (session.from == null && session.to == null) {
-    return true;
-  }
+  if (session.from == null && session.to == null) return true;
 
   return idInRange(sid, session.from, session.to);
 }
@@ -77,7 +70,11 @@ function sessionMatchesTarget(
   activeSubdivision,
   studentId
 ) {
-  if (session.group != null && targetGroup != null && session.group !== targetGroup) {
+  if (
+    session.group != null &&
+    targetGroup != null &&
+    session.group !== targetGroup
+  ) {
     return false;
   }
 
@@ -93,21 +90,17 @@ function sessionMatchesTarget(
 
 export function buildCourseMap(courses, diagnostics) {
   const map = new Map();
-
   for (const course of toArray(courses)) {
     if (!course.id) {
       diagnostics.errors.push("Course missing id.");
       continue;
     }
-
     if (map.has(course.id)) {
       diagnostics.errors.push(`Duplicate course id: ${course.id}`);
       continue;
     }
-
     map.set(course.id, course);
   }
-
   return map;
 }
 
@@ -126,15 +119,25 @@ export function normalizeEvents(
       diagnostics.errors.push("Event missing id.");
       continue;
     }
-
     if (seen.has(raw.id)) {
       diagnostics.errors.push(`Duplicate event id: ${raw.id}`);
       continue;
     }
-
     seen.add(raw.id);
 
-    const parsed = raw.shorthand ? parser.parse(raw.shorthand) : null;
+    // A single malformed shorthand string must not crash the whole schedule.
+    // Record it as a diagnostic error and fall back to structured fields.
+    let parsed = null;
+    if (raw.shorthand) {
+      try {
+        parsed = parser.parse(raw.shorthand);
+      } catch (err) {
+        diagnostics.errors.push(
+          `Event ${raw.id} has invalid shorthand "${raw.shorthand}": ${err.message}`
+        );
+        parsed = null;
+      }
+    }
 
     const type = raw.type ?? parsed?.type ?? fallbackType;
 
@@ -151,7 +154,6 @@ export function normalizeEvents(
           `Event ${raw.id} shorthand building conflicts with structured location.`
         );
       }
-
       if (parsed.location.floor !== raw.location.floor) {
         diagnostics.errors.push(
           `Event ${raw.id} shorthand floor conflicts with structured location.`
@@ -160,7 +162,6 @@ export function normalizeEvents(
     }
 
     const course = raw.courseId ? courseMap.get(raw.courseId) : null;
-
     if (raw.courseId && !course) {
       diagnostics.errors.push(
         `Event ${raw.id} references unknown course ${raw.courseId}.`
@@ -169,7 +170,6 @@ export function normalizeEvents(
     }
 
     const title = raw.title ?? course?.title ?? parsed?.title;
-
     if (!title) {
       diagnostics.errors.push(`Event ${raw.id} has no resolvable title.`);
       continue;
@@ -201,15 +201,8 @@ function appliesToGroup(def, targetGroup) {
 
 function appliesToSubdivision(def, targetSubdivision) {
   const allowed = def.subdivisions;
-
-  if (!Array.isArray(allowed) || allowed.length === 0) {
-    return true;
-  }
-
-  if (targetSubdivision == null) {
-    return false;
-  }
-
+  if (!Array.isArray(allowed) || allowed.length === 0) return true;
+  if (targetSubdivision == null) return false;
   return allowed
     .map(normalizeSubdivision)
     .filter(Boolean)
@@ -303,12 +296,9 @@ export function materializeAcademicOccurrences(
           );
 
       for (const date of dates) {
-        if (isAcademicBlackoutDate(date, blackouts, def.type)) {
-          continue;
-        }
+        if (isAcademicBlackoutDate(date, blackouts, def.type)) continue;
 
         let activeSubdivision = null;
-
         if (def.rotation) {
           activeSubdivision = normalizeSubdivision(
             getRotationSubdivision(
@@ -319,14 +309,8 @@ export function materializeAcademicOccurrences(
               weekStartDay
             )
           );
-
-          if (!activeSubdivision) {
-            continue;
-          }
-
-          if (targetSub && targetSub !== activeSubdivision) {
-            continue;
-          }
+          if (!activeSubdivision) continue;
+          if (targetSub && targetSub !== activeSubdivision) continue;
         }
 
         for (const session of def.sessions) {
@@ -363,7 +347,6 @@ export function materializeAcademicOccurrences(
           );
         }
       }
-
       continue;
     }
 
@@ -386,12 +369,9 @@ export function materializeAcademicOccurrences(
         );
 
     for (const date of dates) {
-      if (isAcademicBlackoutDate(date, blackouts, def.type)) {
-        continue;
-      }
+      if (isAcademicBlackoutDate(date, blackouts, def.type)) continue;
 
       let activeSubdivision = null;
-
       if (def.rotation) {
         activeSubdivision = normalizeSubdivision(
           getRotationSubdivision(
@@ -402,14 +382,8 @@ export function materializeAcademicOccurrences(
             weekStartDay
           )
         );
-
-        if (!activeSubdivision) {
-          continue;
-        }
-
-        if (targetSub && targetSub !== activeSubdivision) {
-          continue;
-        }
+        if (!activeSubdivision) continue;
+        if (targetSub && targetSub !== activeSubdivision) continue;
       }
 
       out.push(
@@ -443,14 +417,22 @@ export function buildInstitutionOccurrences(
 
   for (const event of toArray(institutionEvents)) {
     if (!["published", "cancelled"].includes(event.status)) continue;
-
     if (!institutionEventMatches(event, context)) continue;
 
-    const parsed = event.shorthand ? parser.parse(event.shorthand) : null;
+    let parsed = null;
+    if (event.shorthand) {
+      try {
+        parsed = parser.parse(event.shorthand);
+      } catch (err) {
+        diagnostics.errors.push(
+          `Institution event ${event.id} has invalid shorthand "${event.shorthand}": ${err.message}`
+        );
+        parsed = null;
+      }
+    }
     const location = event.location ?? parsed?.location ?? null;
 
     const metas = [];
-
     if (event.date) {
       metas.push({
         date: event.date,
@@ -465,11 +447,7 @@ export function buildInstitutionOccurrences(
       });
     } else if (event.day && event.validFrom && event.validUntil) {
       for (const d of expandWeekly(event.validFrom, event.validUntil, event.day)) {
-        metas.push({
-          date: d,
-          endDate: null,
-          allDay: false
-        });
+        metas.push({ date: d, endDate: null, allDay: false });
       }
     } else {
       diagnostics.warnings.push(
@@ -480,7 +458,6 @@ export function buildInstitutionOccurrences(
 
     for (const meta of metas) {
       const uid = `${institutionId}:${event.id}:${meta.date}`;
-
       out.push({
         uid,
         uidBase: uid,
@@ -514,28 +491,23 @@ export function buildInstitutionOccurrences(
 
 export function mergeOccurrences(events, diagnostics) {
   const map = new Map();
-
   for (const event of events) {
     const existing = map.get(event.uid);
-
     if (!existing) {
       map.set(event.uid, event);
       continue;
     }
-
     if (existing.eventId !== event.eventId) {
       diagnostics.errors.push(
         `UID collision between ${existing.eventId} and ${event.eventId}: ${event.uid}`
       );
       continue;
     }
-
     if (existing.status === "cancelled" && event.status === "published") {
       map.set(event.uid, event);
       continue;
     }
   }
-
   return Array.from(map.values());
 }
 
@@ -602,12 +574,7 @@ export function composeSchedule({
   const events = sortOccurrences(merged, locale);
   const conflicts = detectConflicts(events);
 
-  return {
-    events,
-    conflicts,
-    diagnostics,
-    locale
-  };
+  return { events, conflicts, diagnostics, locale };
 }
 
 export function selectActiveSemester(academicYear, today, timezone) {
@@ -620,7 +587,6 @@ export function selectActiveSemester(academicYear, today, timezone) {
       today >= s.validFrom &&
       today <= s.validUntil
   );
-
   if (active) return active;
 
   const upcoming = semesters
