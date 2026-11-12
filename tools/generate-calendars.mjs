@@ -1,10 +1,13 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { composeSchedule, buildInstitutionOccurrences, mergeOccurrences } from "../assets/js/schedule/engine.js";
+import {
+  composeSchedule,
+  buildInstitutionOccurrences,
+  mergeOccurrences
+} from "../assets/js/schedule/engine.js";
 import { sortOccurrences } from "../assets/js/schedule/sorting.js";
 import { eventsToIcs } from "../assets/js/calendar/ics-generator.js";
 import { createShorthandParser } from "../assets/js/schedule/shorthand.js";
-import { localize } from "../assets/js/i18n.js";
 
 const ROOT = process.cwd();
 
@@ -22,7 +25,7 @@ function toArray(value) {
   return [];
 }
 
-function collectGroups(assignmentDocs, lectures, practicals) {
+function collectGroups(assignmentDocs, lectures, practicals, exams) {
   const groups = new Set();
 
   for (const wrapper of assignmentDocs) {
@@ -40,6 +43,12 @@ function collectGroups(assignmentDocs, lectures, practicals) {
   for (const event of toArray(practicals)) {
     for (const session of event.sessions ?? []) {
       if (session.group != null) groups.add(session.group);
+    }
+  }
+
+  for (const event of toArray(exams)) {
+    for (const g of event.groups ?? []) {
+      if (typeof g === "number") groups.add(g);
     }
   }
 
@@ -74,7 +83,6 @@ async function main() {
 
   const baseUrl = manifest.calendarFeeds.baseUrl.replace(/\/$/, "");
 
-  // Institution-only feed: scope=all college-wide events.
   const institutionContext = {
     programId: null,
     academicYearId: null,
@@ -97,7 +105,10 @@ async function main() {
   );
 
   const institutionIcs = eventsToIcs(institutionFeedEvents, {
-    calendarName: { en: "College-wide Events", ar: "فعاليات الكلية" },
+    calendarName: {
+      en: "College-wide Events",
+      ar: "فعاليات الكلية"
+    },
     locale: settings.defaultLocale ?? "en",
     timezone: manifest.timezone,
     institutionId: settings.institutionId,
@@ -106,7 +117,11 @@ async function main() {
   });
 
   await ensureDir(path.resolve(ROOT, `${baseUrl}/institution.ics`));
-  await fs.writeFile(path.resolve(ROOT, `${baseUrl}/institution.ics`), institutionIcs, "utf8");
+  await fs.writeFile(
+    path.resolve(ROOT, `${baseUrl}/institution.ics`),
+    institutionIcs,
+    "utf8"
+  );
 
   for (const program of programs.programs) {
     for (const year of program.academicYears) {
@@ -115,8 +130,6 @@ async function main() {
       );
 
       const eventsByGroup = new Map();
-      let allLectures = [];
-      let allPracticals = [];
 
       for (const semester of year.semesters) {
         if (semester.status === "draft") continue;
@@ -124,12 +137,15 @@ async function main() {
         const courses = await readJson(semester.datasets.courses);
         const lectures = await readJson(semester.datasets.lectures);
         const practicals = await readJson(semester.datasets.practicals);
+        const exams = await readJson(semester.datasets.exams);
         const exceptions = await readJson(semester.datasets.exceptions);
 
-        allLectures = [...allLectures, ...toArray(lectures)];
-        allPracticals = [...allPracticals, ...toArray(practicals)];
-
-        const groups = collectGroups(yearAssignmentDocs, lectures, practicals);
+        const groups = collectGroups(
+          yearAssignmentDocs,
+          lectures,
+          practicals,
+          exams
+        );
 
         for (const group of groups) {
           if (!eventsByGroup.has(group)) eventsByGroup.set(group, []);
@@ -143,6 +159,7 @@ async function main() {
             courses,
             lectures,
             practicals,
+            exams,
             exceptions,
             institutionEvents,
             context: {
