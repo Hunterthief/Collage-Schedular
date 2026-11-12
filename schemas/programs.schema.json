@@ -1,0 +1,111 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schemas/programs.schema.json",
+  "type": "object",
+  "required": ["programs"],
+  "properties": {
+    "programs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "academicYears"],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "object",
+            "properties": {
+              "en": { "type": "string" },
+              "ar": { "type": "string" }
+            }
+          },
+          "academicYears": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["id", "name", "semesters"],
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "object",
+                  "properties": {
+                    "en": { "type": "string" },
+                    "ar": { "type": "string" }
+                  }
+                },
+                "semesters": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "id",
+                      "name",
+                      "validFrom",
+                      "validUntil",
+                      "status",
+                      "datasets"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "object",
+                        "properties": {
+                          "en": { "type": "string" },
+                          "ar": { "type": "string" }
+                        }
+                      },
+                      "validFrom": {
+                        "type": ["string", "null"],
+                        "format": "date"
+                      },
+                      "validUntil": {
+                        "type": ["string", "null"],
+                        "format": "date"
+                      },
+                      "status": {
+                        "enum": ["draft", "published", "cancelled", "completed"]
+                      },
+                      "datasets": {
+                        "type": "object",
+                        "required": [
+                          "courses",
+                          "lectures",
+                          "practicals",
+                          "exams",
+                          "exceptions"
+                        ],
+                        "properties": {
+                          "courses": { "type": "string" },
+                          "lectures": { "type": "string" },
+                          "practicals": { "type": "string" },
+                          "exams": { "type": "string" },
+                          "exceptions": { "type": "string" }
+                        }
+                      },
+                      "sourceReview": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "required": ["code"],
+                          "properties": {
+                            "code": { "type": "string" },
+                            "detail": { "type": "string" }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
