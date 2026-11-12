@@ -8,7 +8,11 @@
       "start": "11:00",
       "end": "11:30",
       "groups": [1, 2, 3],
-      "location": { "building": "new", "floor": null, "room": null },
+      "location": {
+        "building": "new",
+        "floor": null,
+        "room": null
+      },
       "shorthand": "EN Pharmaceutics III",
       "displayCode": "EN Pharmaceutics III (New Building)"
     },
@@ -20,7 +24,11 @@
       "start": "11:00",
       "end": "11:30",
       "groups": [1, 2, 3],
-      "location": { "building": "new", "floor": null, "room": null },
+      "location": {
+        "building": "new",
+        "floor": null,
+        "room": null
+      },
       "shorthand": "EN Drug Design",
       "displayCode": "EN Drug Design (New Building)"
     },
@@ -32,7 +40,11 @@
       "start": "12:00",
       "end": "12:30",
       "groups": [1, 2, 3],
-      "location": { "building": "new", "floor": null, "room": null },
+      "location": {
+        "building": "new",
+        "floor": null,
+        "room": null
+      },
       "shorthand": "EN Scientific Writing and Communication skills",
       "displayCode": "EN Scientific Writing and Communication skills (New Building)"
     },
@@ -44,7 +56,11 @@
       "start": "13:00",
       "end": "13:30",
       "groups": [1, 2, 3],
-      "location": { "building": "new", "floor": null, "room": null },
+      "location": {
+        "building": "new",
+        "floor": null,
+        "room": null
+      },
       "shorthand": "EN Drug Information",
       "displayCode": "EN Drug Information (New Building)"
     },
@@ -56,7 +72,11 @@
       "start": "12:00",
       "end": "12:30",
       "groups": [1, 2, 3],
-      "location": { "building": "new", "floor": null, "room": null },
+      "location": {
+        "building": "new",
+        "floor": null,
+        "room": null
+      },
       "shorthand": "EN Pharmaceutical Microbiology",
       "displayCode": "EN Pharmaceutical Microbiology (New Building)"
     },
@@ -68,7 +88,11 @@
       "start": "11:00",
       "end": "11:30",
       "groups": [1, 2, 3],
-      "location": { "building": "new", "floor": null, "room": null },
+      "location": {
+        "building": "new",
+        "floor": null,
+        "room": null
+      },
       "shorthand": "EN Phytochemistry I",
       "displayCode": "EN Phytochemistry I (New Building)"
     },
@@ -80,7 +104,11 @@
       "start": "11:00",
       "end": "11:30",
       "groups": [1, 2, 3],
-      "location": { "building": "new", "floor": null, "room": null },
+      "location": {
+        "building": "new",
+        "floor": null,
+        "room": null
+      },
       "shorthand": "EN Basic Pharmacology",
       "displayCode": "EN Basic Pharmacology (New Building)"
     }
