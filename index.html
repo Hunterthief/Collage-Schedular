@@ -13,6 +13,11 @@
     <link rel="stylesheet" href="assets/css/main.css" />
     <link rel="stylesheet" href="assets/css/components.css" />
     <link rel="stylesheet" href="assets/css/schedule.css" />
+    <style>
+      .field-grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      @media (max-width: 980px) { .field-grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+      @media (max-width: 560px) { .field-grid-4 { grid-template-columns: minmax(0, 1fr); } }
+    </style>
   </head>
   <body>
     <div class="app-shell">
@@ -37,27 +42,16 @@
 
         <div class="lookup-card">
           <div class="segmented" role="group" aria-label="Lookup method">
-            <button
-              type="button"
-              class="segment active"
-              data-mode="id"
-              aria-pressed="true"
-            >
+            <button type="button" class="segment active" data-mode="id" aria-pressed="true">
               Student ID
             </button>
-            <button
-              type="button"
-              class="segment"
-              data-mode="manual"
-              aria-pressed="false"
-            >
+            <button type="button" class="segment" data-mode="manual" aria-pressed="false">
               Year &amp; group
             </button>
           </div>
 
           <form id="id-form" class="lookup-form">
             <label class="sr-only" for="student-id">University student ID</label>
-
             <div class="search-field">
               <span class="search-icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -65,7 +59,6 @@
                   <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                 </svg>
               </span>
-
               <input
                 id="student-id"
                 name="student-id"
@@ -76,25 +69,25 @@
                 placeholder="Enter university ID, e.g. 2415001"
                 required
               />
-
               <button class="btn primary" type="submit">Search</button>
             </div>
-
             <p class="hint">Leading zeroes are preserved. No login required.</p>
           </form>
 
           <form id="manual-form" class="lookup-form" hidden>
-            <div class="field-grid">
+            <div class="field-grid field-grid-4">
               <div class="field">
                 <label for="program-select">Program</label>
                 <select id="program-select" required></select>
               </div>
-
               <div class="field">
                 <label for="year-select">Academic year</label>
                 <select id="year-select" required></select>
               </div>
-
+              <div class="field">
+                <label for="level-select">Year</label>
+                <select id="level-select" required></select>
+              </div>
               <div class="field">
                 <label for="group-select">Practical group</label>
                 <select id="group-select" required></select>
@@ -104,7 +97,7 @@
             <div class="form-actions">
               <button class="btn primary" type="submit">View timetable</button>
               <p class="hint">
-                Groups include subdivisions such as 1A, 1B, 2A, 2B, 3A, and 3B.
+                Pick your year (1st, 2nd, 3rd…), then the group printed on your official schedule.
               </p>
             </div>
           </form>
@@ -117,7 +110,6 @@
         <div class="workspace-header">
           <div class="workspace-title">
             <h2 id="period-heading">Schedule</h2>
-
             <div class="nav-controls">
               <button type="button" class="icon-btn" id="prev-period" aria-label="Previous period">‹</button>
               <button type="button" class="btn quiet" id="today-btn">Today</button>
@@ -133,7 +125,6 @@
         </div>
 
         <div id="assignment-summary" class="summary-strip"></div>
-
         <div id="timetable" class="calendar-container"></div>
 
         <section class="subscription-card" aria-labelledby="subscription-heading">
