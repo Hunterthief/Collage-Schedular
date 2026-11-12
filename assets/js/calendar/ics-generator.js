@@ -1,4 +1,5 @@
 import { localize } from "../i18n.js";
+import { parseDate, addDays, formatDate } from "../schedule/recurrence.js";
 
 function escapeText(value) {
   return String(value ?? "")
@@ -132,6 +133,8 @@ function sequenceFor(event) {
   const payload = JSON.stringify({
     start: event.start,
     end: event.end,
+    endDate: event.endDate ?? null,
+    allDay: !!event.allDay,
     location: event.location,
     title: event.title,
     status: event.status
@@ -166,10 +169,23 @@ export function eventsToIcs(events, options) {
 
   for (const event of events) {
     if (event.status === "draft" || event.status === "completed") continue;
-    if (!event.date || !event.start || !event.end) continue;
+    if (!event.date) continue;
 
-    const dtstart = localToUtcIso(event.date, event.start, timezone);
-    const dtend = localToUtcIso(event.date, event.end, timezone);
+    let dtstartLine;
+    let dtendLine;
+
+    if (event.allDay) {
+      dtstartLine = "DTSTART;VALUE=DATE:" + event.date.replace(/-/g, "");
+
+      const endStr = event.endDate ?? event.date;
+      const exclusive = formatDate(addDays(parseDate(endStr), 1));
+      dtendLine = "DTEND;VALUE=DATE:" + exclusive.replace(/-/g, "");
+    } else {
+      if (!event.start || !event.end) continue;
+
+      dtstartLine = "DTSTART:" + localToUtcIso(event.date, event.start, timezone);
+      dtendLine = "DTEND:" + localToUtcIso(event.date, event.end, timezone);
+    }
 
     const summary = escapeText(localize(event.title, locale));
     const location = escapeText(formatLocation(event.location, buildings, locale));
@@ -178,6 +194,7 @@ export function eventsToIcs(events, options) {
       `Type: ${event.type}`,
       event.courseId ? `Course: ${event.courseId}` : null,
       event.group != null ? `Group: ${event.group}` : null,
+      event.allDay ? "All-day" : null,
       ...(event.sourceReview ?? []).map(
         (r) => `Review: ${r.code}${r.detail ? " - " + r.detail : ""}`
       )
@@ -194,8 +211,8 @@ export function eventsToIcs(events, options) {
       "LAST-MODIFIED:" + stamp,
       "SEQUENCE:" + sequenceFor(event),
       "STATUS:" + status,
-      "DTSTART:" + dtstart,
-      "DTEND:" + dtend,
+      dtstartLine,
+      dtendLine,
       foldLine("SUMMARY:" + summary),
       location ? foldLine("LOCATION:" + location) : null,
       description ? foldLine("DESCRIPTION:" + description) : null,
