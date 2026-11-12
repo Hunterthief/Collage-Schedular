@@ -1,155 +1,416 @@
-.results { animation: rise 0.4s var(--ease) both; }
-
-@keyframes rise {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: none; }
+.calendar-container {
+  min-height: 300px;
 }
 
-.timetable { display: grid; gap: 12px; }
-
-.day {
+.gc-calendar {
+  border-top: 1px solid var(--line);
+  overflow: auto;
   background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: var(--r-lg);
-  box-shadow: var(--shadow-1);
-  overflow: hidden;
-  animation: rise 0.4s var(--ease) both;
 }
-/* Stagger the day cards for a touch of flare */
-.timetable .day:nth-child(1) { animation-delay: 0.02s; }
-.timetable .day:nth-child(2) { animation-delay: 0.06s; }
-.timetable .day:nth-child(3) { animation-delay: 0.10s; }
-.timetable .day:nth-child(4) { animation-delay: 0.14s; }
-.timetable .day:nth-child(5) { animation-delay: 0.18s; }
-.timetable .day:nth-child(n+6) { animation-delay: 0.22s; }
 
-.day-header {
+.gc-row {
+  display: grid;
+  grid-template-columns: 64px 1fr;
+  min-width: calc(64px + var(--day-count) * 112px);
+}
+
+.gc-header-row {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+}
+
+.gc-corner {
+  border-right: 1px solid var(--line);
+}
+
+.gc-day-heads,
+.gc-allday-cells,
+.gc-columns {
+  display: grid;
+  grid-template-columns: repeat(var(--day-count), minmax(112px, 1fr));
+}
+
+.gc-day-head {
+  min-height: 58px;
+  padding: 8px 6px;
+  border-left: 1px solid var(--line);
+  text-align: center;
+  background: var(--surface);
+}
+
+.gc-day-head:first-child {
+  border-left: 0;
+}
+
+.gc-weekday {
+  display: block;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.gc-daynum {
+  display: inline-grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  margin-top: 3px;
+  border-radius: 50%;
+  color: var(--text);
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.gc-day-head.today .gc-weekday {
+  color: var(--accent);
+}
+
+.gc-day-head.today .gc-daynum {
+  background: var(--accent);
+  color: #fff;
+}
+
+.gc-allday-row {
+  border-bottom: 1px solid var(--line);
+  background: #fff;
+}
+
+.gc-allday-label {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding: 6px 8px 0 0;
+  border-right: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.gc-allday-cell {
+  min-height: 34px;
+  padding: 4px;
+  border-left: 1px solid var(--line);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-content: flex-start;
+}
+
+.gc-allday-cell:first-child {
+  border-left: 0;
+}
+
+.gc-allday-chip {
+  max-width: 100%;
+  padding: 3px 7px;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  font-size: 0.72rem;
+  font-weight: 650;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gc-allday-chip.type-college-event {
+  background: var(--college-bg);
+  border-color: var(--college-border);
+  color: #5e1b84;
+}
+
+.gc-body-row {
+  position: relative;
+}
+
+.gc-time-gutter {
+  position: relative;
+  border-right: 1px solid var(--line);
+  background: var(--surface);
+  height: calc((var(--range-end) - var(--range-start)) / 60 * var(--hour-height));
+}
+
+.gc-hour-label {
+  position: absolute;
+  right: 8px;
+  transform: translateY(-50%);
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 600;
+  white-space: nowrap;
+  background: var(--surface);
+  padding: 0 2px;
+}
+
+.gc-columns {
+  position: relative;
+  height: calc((var(--range-end) - var(--range-start)) / 60 * var(--hour-height));
+}
+
+.gc-day-column {
+  position: relative;
+  border-left: 1px solid var(--line);
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent calc(var(--hour-height) - 1px),
+    var(--line) calc(var(--hour-height) - 1px),
+    var(--line) var(--hour-height)
+  );
+}
+
+.gc-day-column:first-child {
+  border-left: 0;
+}
+
+.gc-day-column.today {
+  background-color: rgba(26, 115, 232, 0.035);
+}
+
+.gc-event {
+  position: absolute;
+  overflow: hidden;
+  border-radius: 5px;
+  border: 1px solid transparent;
+  border-left-width: 4px;
+  padding: 4px 7px;
+  color: var(--text);
+  background: var(--surface-2);
+  box-shadow: 0 1px 1px rgba(60, 64, 67, 0.10);
+  cursor: default;
+  z-index: 2;
+}
+
+.gc-event:hover {
+  filter: brightness(0.98);
+}
+
+.gc-event .gc-event-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1.18;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gc-event .gc-event-time {
+  margin-top: 2px;
+  font-size: 0.68rem;
+  line-height: 1.15;
+  color: inherit;
+  opacity: 0.88;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gc-event.type-lecture {
+  background: var(--lecture-bg);
+  border-color: var(--lecture-border);
+  border-left-color: var(--lecture);
+  color: #174ea6;
+}
+
+.gc-event.type-practical {
+  background: var(--practical-bg);
+  border-color: var(--practical-border);
+  border-left-color: var(--practical);
+  color: #0d652d;
+}
+
+.gc-event.type-examination {
+  background: var(--examination-bg);
+  border-color: var(--examination-border);
+  border-left-color: var(--examination);
+  color: #a50e0e;
+}
+
+.gc-event.type-college-event {
+  background: var(--college-bg);
+  border-color: var(--college-border);
+  border-left-color: var(--college);
+  color: #5e1b84;
+}
+
+.gc-event.status-cancelled {
+  opacity: 0.62;
+}
+
+.gc-event.status-cancelled .gc-event-title {
+  text-decoration: line-through;
+}
+
+.gc-now-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--danger);
+  z-index: 8;
+  pointer-events: none;
+}
+
+.gc-now-line::before {
+  content: "";
+  position: absolute;
+  left: -4px;
+  top: -3px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--danger);
+}
+
+.agenda {
+  padding: 14px 16px 18px;
+  display: grid;
+  gap: 12px;
+}
+
+.agenda-day {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--surface);
+}
+
+.agenda-day-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  padding: 11px 16px;
-  background: linear-gradient(180deg, var(--surface-2), var(--surface));
+  padding: 9px 12px;
+  background: #f8f9fa;
   border-bottom: 1px solid var(--line);
 }
-.day h3 {
+
+.agenda-day-header h3 {
   margin: 0;
-  font-size: 0.95rem;
-  font-weight: 700;
-  letter-spacing: -0.01em;
+  font-size: 0.92rem;
+  font-weight: 650;
 }
-.day-count {
-  flex: 0 0 auto;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  background: var(--surface-3);
+
+.agenda-count {
   color: var(--muted);
-  padding: 3px 9px;
-  font-size: 0.72rem;
-  font-weight: 700;
+  font-size: 0.75rem;
+  font-weight: 650;
+}
+
+.agenda-event {
+  display: grid;
+  grid-template-columns: 92px minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: start;
+  padding: 11px 12px;
+  border-top: 1px solid #eef1f4;
+}
+
+.agenda-event:first-of-type {
+  border-top: 0;
+}
+
+.agenda-time {
+  color: var(--text-2);
+  font-size: 0.8rem;
+  font-weight: 650;
   font-variant-numeric: tabular-nums;
 }
 
-.event {
-  position: relative;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 6px 14px;
-  align-items: start;
-  padding: 13px 16px 13px 18px;
-  border-top: 1px solid var(--line);
-  background: var(--surface);
-  transition: background 0.15s var(--ease);
+.agenda-main {
+  min-width: 0;
 }
-.event:first-of-type { border-top: 0; }
-.event:hover { background: var(--surface-2); }
 
-/* Quiet left accent bar = the "flare" that still reads as data, not decoration */
-.event::before {
-  content: "";
-  position: absolute;
-  left: 0; top: 0; bottom: 0;
-  width: 3px;
-  background: var(--muted);
-}
-.event.lecture::before     { background: var(--lecture); }
-.event.practical::before   { background: var(--practical); }
-.event.examination::before { background: var(--examination); }
-.event.college-event::before { background: var(--college); }
-
-.event-main { min-width: 0; }
-
-.event-title {
-  margin-bottom: 3px;
-  font-size: 0.96rem;
+.agenda-title {
+  font-size: 0.92rem;
   font-weight: 650;
-  letter-spacing: -0.005em;
   overflow-wrap: anywhere;
 }
 
-.event-meta {
+.agenda-meta {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 0.78rem;
   display: flex;
   flex-wrap: wrap;
-  gap: 4px 12px;
-  color: var(--muted);
-  font-size: 0.8rem;
-}
-.event-meta .time {
-  color: var(--ink);
-  font-weight: 650;
-  font-variant-numeric: tabular-nums;
+  gap: 4px 10px;
 }
 
-.event-side {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 5px;
-}
-
-.badge {
+.tag {
   display: inline-block;
+  padding: 3px 7px;
+  border-radius: 4px;
   border: 1px solid transparent;
-  border-radius: 6px;
-  padding: 3px 8px;
-  font-size: 0.66rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  line-height: 1.2;
+  font-size: 0.68rem;
+  font-weight: 750;
+  letter-spacing: 0.03em;
   text-transform: uppercase;
   white-space: nowrap;
 }
-.badge.lecture       { color: var(--lecture);   background: color-mix(in srgb, var(--lecture) 12%, var(--surface));   border-color: color-mix(in srgb, var(--lecture) 28%, transparent); }
-.badge.practical     { color: var(--practical); background: color-mix(in srgb, var(--practical) 12%, var(--surface)); border-color: color-mix(in srgb, var(--practical) 28%, transparent); }
-.badge.examination   { color: var(--examination); background: color-mix(in srgb, var(--examination) 12%, var(--surface)); border-color: color-mix(in srgb, var(--examination) 28%, transparent); }
-.badge.college-event { color: var(--college);   background: color-mix(in srgb, var(--college) 12%, var(--surface));   border-color: color-mix(in srgb, var(--college) 28%, transparent); }
-.badge.unverified    { color: var(--warn);      background: color-mix(in srgb, var(--warn) 12%, var(--surface));      border-color: color-mix(in srgb, var(--warn) 30%, transparent); }
-.badge.cancelled     { color: var(--err);       background: color-mix(in srgb, var(--err) 12%, var(--surface));       border-color: color-mix(in srgb, var(--err) 30%, transparent); }
 
-.event.cancelled .event-title { color: var(--muted); text-decoration: line-through; }
-.event.all-day .event-meta .time { color: var(--college); }
+.tag.lecture {
+  background: var(--lecture-bg);
+  border-color: var(--lecture-border);
+  color: #174ea6;
+}
+
+.tag.practical {
+  background: var(--practical-bg);
+  border-color: var(--practical-border);
+  color: #0d652d;
+}
+
+.tag.examination {
+  background: var(--examination-bg);
+  border-color: var(--examination-border);
+  color: #a50e0e;
+}
+
+.tag.college-event {
+  background: var(--college-bg);
+  border-color: var(--college-border);
+  color: #5e1b84;
+}
+
+.tag.unverified {
+  background: #fff3cd;
+  border-color: #f0c36d;
+  color: #7a4700;
+}
+
+.tag.cancelled {
+  background: #fce8e6;
+  border-color: #f4a7a1;
+  color: #a50e0e;
+}
 
 .empty-state {
-  border: 1px dashed var(--line-2);
-  border-radius: var(--r-lg);
+  margin: 16px;
+  padding: 34px 18px;
+  border: 1px dashed var(--line-strong);
+  border-radius: 10px;
   background: var(--surface);
   color: var(--muted);
-  padding: 34px 20px;
   text-align: center;
-  font-size: 0.9rem;
-}
-.empty-state svg { display: block; margin: 0 auto 10px; color: var(--line-2); }
-
-@media (max-width: 640px) {
-  .event { grid-template-columns: 1fr; }
-  .event-side { align-items: flex-start; flex-direction: row; flex-wrap: wrap; gap: 6px; }
-  .summary-item { flex-direction: column; align-items: flex-start; gap: 2px; }
-  .summary-item strong { text-align: left; }
 }
 
-/* Respect users who prefer no motion */
-@media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
-  .results, .day { animation: none; }
-  .search-console, .btn, .tab-ink, .segment, .tab { transition: none; }
+@media (max-width: 700px) {
+  .agenda-event {
+    grid-template-columns: 1fr;
+  }
+
+  .gc-row {
+    min-width: calc(54px + var(--day-count) * 96px);
+  }
+
+  .gc-time-gutter {
+    width: 54px;
+  }
 }
