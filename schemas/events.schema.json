@@ -4,8 +4,12 @@
   "type": "object",
   "required": ["id", "type"],
   "properties": {
-    "id": { "type": "string" },
-    "courseId": { "type": ["string", "null"] },
+    "id": {
+      "type": "string"
+    },
+    "courseId": {
+      "type": ["string", "null"]
+    },
     "type": {
       "enum": ["lecture", "practical", "examination"]
     },
@@ -20,12 +24,27 @@
         "Saturday"
       ]
     },
-    "date": { "type": ["string", "null"] },
-    "start": { "type": ["string", "null"] },
-    "end": { "type": ["string", "null"] },
+    "date": {
+      "type": ["string", "null"],
+      "format": "date"
+    },
+    "start": {
+      "type": ["string", "null"]
+    },
+    "end": {
+      "type": ["string", "null"]
+    },
     "groups": {
       "type": ["array", "null"],
-      "items": { "type": "integer" }
+      "items": {
+        "type": "integer"
+      }
+    },
+    "subdivisions": {
+      "type": ["array", "null"],
+      "items": {
+        "type": "string"
+      }
     },
     "sessions": {
       "type": "array",
@@ -33,32 +52,61 @@
         "type": "object",
         "required": ["group", "start", "end"],
         "properties": {
-          "group": { "type": "integer" },
-          "start": { "type": "string" },
-          "end": { "type": "string" }
+          "group": {
+            "type": "integer"
+          },
+          "subdivision": {
+            "type": ["string", "null"]
+          },
+          "start": {
+            "type": "string"
+          },
+          "end": {
+            "type": "string"
+          }
         }
       }
     },
     "location": {
       "type": ["object", "null"],
       "properties": {
-        "building": { "type": ["string", "null"] },
-        "floor": { "type": ["integer", "null"] },
-        "room": { "type": ["string", "null"] }
+        "building": {
+          "type": ["string", "null"]
+        },
+        "floor": {
+          "type": ["integer", "null"]
+        },
+        "room": {
+          "type": ["string", "null"]
+        }
       }
     },
-    "displayCode": { "type": ["string", "null"] },
-    "shorthand": { "type": ["string", "null"] },
-    "validFrom": { "type": ["string", "null"] },
-    "validUntil": { "type": ["string", "null"] },
+    "displayCode": {
+      "type": ["string", "null"]
+    },
+    "shorthand": {
+      "type": ["string", "null"]
+    },
+    "validFrom": {
+      "type": ["string", "null"],
+      "format": "date"
+    },
+    "validUntil": {
+      "type": ["string", "null"],
+      "format": "date"
+    },
     "sourceReview": {
       "type": "array",
       "items": {
         "type": "object",
         "required": ["code"],
         "properties": {
-          "code": { "type": "string" },
-          "detail": { "type": "string" }
+          "code": {
+            "type": "string"
+          },
+          "detail": {
+            "type": "string"
+          }
         }
       }
     }
