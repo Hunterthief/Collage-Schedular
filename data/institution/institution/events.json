@@ -1,0 +1,209 @@
+{
+  "events": [
+    {
+      "id": "fall-2026-registration-no-penalty",
+      "title": { "en": "Course registration & fee payment (no penalty)" },
+      "type": "college-event",
+      "description": { "en": "Start of course registration and payment of fees without penalty (Week 0)." },
+      "startDate": "2026-09-12",
+      "endDate": "2026-09-17",
+      "allDay": true,
+      "audience": { "scope": "all" },
+      "status": "published",
+      "sourceReview": [
+        { "code": "CALENDAR_DATES_APPROXIMATE", "detail": "Source calendar states event dates are approximate and exact dates will be announced." },
+        { "code": "SCOPE_ALL_TEMPORAL", "detail": "College-wide fall calendar transcribed with scope 'all'; re-target to fall term when spring datasets are added." }
+      ]
+    },
+    {
+      "id": "fall-2026-start-of-classes",
+      "title": { "en": "Start of classes" },
+      "type": "college-event",
+      "description": { "en": "Teaching begins (Week 1, 19/9/2026)." },
+      "startDate": "2026-09-19",
+      "allDay": true,
+      "audience": { "scope": "all" },
+      "status": "published",
+      "sourceReview": [ { "code": "CALENDAR_DATES_APPROXIMATE" }, { "code": "SCOPE_ALL_TEMPORAL" } ]
+    },
+    {
+      "id": "fall-2026-incomplete-exams-start",
+      "title": { "en": "Start of Incomplete Exams (Summer 2025/2026)" },
+      "type": "college-event",
+      "startDate": "2026-09-19",
+      "allDay": true,
+      "audience": { "scope": "all" },
+      "status": "published",
+      "sourceReview": [ { "code": "CALENDAR_DATES_APPROXIMATE" }, { "code": "SCOPE_ALL_TEMPORAL" } ]
+    },
+    {
+      "id": "fall-2026-incomplete-exams-end",
+      "title": { "en": "End of Incomplete Exams (Summer 2025/2026)" },
+      "type": "college-event",
+      "startDate": "2026-10-01",
+      "allDay": true,
+      "audience": { "scope": "all" },
+      "status": "published",
+      "sourceReview": [ { "code": "CALENDAR_DATES_APPROXIMATE" }, { "code": "SCOPE_ALL_TEMPORAL" } ]
+    },
+    {
+      "id": "fall-2026-registration-end-no-penalty",
+      "title": { "en": "End of course registration & fee payment (no penalty)" },
+      "type": "college-event",
+      "startDate": "2026-10-01",
+      "allDay": true,
+      "audience": { "scope": "all" },
+      "status": "published",
+      "sourceReview": [ { "code": "CALENDAR_DATES_APPROXIMATE" }, { "code": "SCOPE_ALL_TEMPORAL" } ]
+    },
+    {
+      "id": "fall-2026-late-registration-add-drop",
+      "title": { "en": "Late registration / Add & Drop / fee payment (no penalty)" },
+      "type": "college-event",
+      "description": { "en": "Late Course Registration; Payment of fees without penalty; Add & Drop period (Week 3)." },
+      "startDate": "2026-10-03",
+      "endDate": "2026-10-08",
+      "allDay": true,
+      "audience": { "scope": "all" },
+      "status": "published",
+      "sourceReview": [ { "code": "CALENDAR_DATES_APPROXIMATE" }, { "code": "SCOPE_ALL_TEMPORAL" } ]
+    },
+    {
+      "id": "fall-2026-holiday-6-october",
+      "title": { "en": "Holiday (6 October)" },
+      "type": "college-event",
+      "description": { "en": "Official holiday. Source marks the date with an asterisk: subject to change upon confirmation." },
+      "startDate": "2026-10-06",
+      "allDay": true,
+      "audience": { "scope": "all" },
+      "status": "published",
+      "sourceReview": [
+        { "code": "HOLIDAY_DATE_SUBJECT_TO_CHANGE", "detail": "Source footnote: 'Holiday date subject to change upon confirmation'." },
+        { "code": "SCOPE_ALL_TEMPORAL" }
+      ]
+    },
+    {
+      "id": "fall-2026-penalty-1-withdrawal-start",
+      "title": { "en": "Fee payment Penalty 1 / Start of withdrawal" },
+      "type": "college-event",
+      "description": { "en": "Payment of fees with Penalty 1; Start of withdrawal (Week 4)." },
+      "startDate": "2026-10-10",
+      "endDate": "2026-10-15",
+      "allDay": true,
+      "audience": { "scope": "all" },
+      "status": "published",
+      "sourceReview": [ { "code": "CALENDAR_DATES_APPROXIMATE" }, { "code": "SCOPE_ALL_TEMPORAL" } ]
+    },
+    {
+      "id": "fall-2026-penalty-2",
+      "title": { "en": "Fee payment Penalty 2" },
+      "type": "college-event",
+      "startDate": "2026-10-17",
+      "endDate": "2026-10-22",
+      "allDay": true,
+      "audience": { "scope": "all" },
+      "status": "published",
+      "sourceReview": [ { "code": "CALENDAR_DATES_APPROXIMATE" }, { "code": "SCOPE_ALL_TEMPORAL" } ]
+    },
+    {
+      "id": "fall-2026-penalty-3-cancellation",
+      "title": { "en": "Fee payment Penalty 3 / Cancellation for unpaid fees" },
+      "type": "college-event",
+      "description": { "en": "Payment of fees with Penalty 3; Cancellation of registration for students who have not paid fees (Week 6)." },
+      "startDate": "2026-10-24",
+      "endDate": "2026-10-29",
+      "allDay": true,
+      "audience": { "scope": "all" },
+      "status": "published",
+      "sourceReview": [ { "code": "CALENDAR_DATES_APPROXIMATE" }, { "code": "SCOPE_ALL_TEMPORAL" } ]
+    },
+    {
+      "id": "fall-2026-midterm-exam-window",
+      "title": { "en": "Mid-term Exams" },
+      "type": "college-event",
+      "description": { "en": "Mid-term examination week (Week 7, 31/10/2026 – 5/11/2026). Per‑semester mid‑term timetables are modeled as examination events in each semester dataset." },
+      "startDate": "2026-10-31",
+      "endDate": "2026-11-05",
+      "allDay": true,
+      "audience": { "scope": "all" },
+      "status": "published",
+      "sourceReview": [ { "code": "CALENDAR_DATES_APPROXIMATE" }, { "code": "SCOPE_ALL_TEMPORAL" } ]
+    },
+    {
+      "id": "fall-2026-end-of-classes",
+      "title": { "en": "End of classes" },
+      "type": "college-event",
+      "startDate": "2026-12-17",
+      "allDay": true,
+      "audience": { "scope": "all" },
+      "status": "published",
+      "sourceReview": [ { "code": "CALENDAR_DATES_APPROXIMATE" }, { "code": "SCOPE_ALL_TEMPORAL" } ]
+    },
+    {
+      "id": "fall-2026-last-day-withdrawal",
+      "title": { "en": "Last day for withdrawal of courses" },
+      "type": "college-event",
+      "startDate": "2026-12-17",
+      "allDay": true,
+      "audience": { "scope": "all" },
+      "status": "published",
+      "sourceReview": [ { "code": "CALENDAR_DATES_APPROXIMATE" }, { "code": "SCOPE_ALL_TEMPORAL" } ]
+    },
+    {
+      "id": "fall-2026-revision",
+      "title": { "en": "Revision" },
+      "type": "college-event",
+      "startDate": "2026-12-12",
+      "endDate": "2026-12-17",
+      "allDay": true,
+      "audience": { "scope": "all" },
+      "status": "published",
+      "sourceReview": [
+        { "code": "REVISION_PLACEMENT_AMBIGUOUS", "detail": "In the source table the 'Revision' bullet appears in the same week row as 'End of classes' (12/12–17/12) while the following week (19/12–24/12) is blank. Confirm whether revision is intended for 12/12–17/12 or 19/12–24/12." },
+        { "code": "CALENDAR_DATES_APPROXIMATE" }, { "code": "SCOPE_ALL_TEMPORAL" }
+      ]
+    },
+    {
+      "id": "fall-2026-final-exam-window",
+      "title": { "en": "Final Exams" },
+      "type": "college-event",
+      "description": { "en": "Final examination period (Weeks 15–18, 26/12/2026 – 21/1/2027)." },
+      "startDate": "2026-12-26",
+      "endDate": "2027-01-21",
+      "allDay": true,
+      "audience": { "scope": "all" },
+      "status": "published",
+      "sourceReview": [
+        { "code": "MERGED_CELL_SPAN", "detail": "The 'Final Exams' label is a vertically merged cell spanning weeks 15–18 in the source table; the start/end dates are inferred from those week boundaries. Confirm exact final‑exam dates when announced." },
+        { "code": "CALENDAR_DATES_APPROXIMATE" }, { "code": "SCOPE_ALL_TEMPORAL" }
+      ]
+    },
+    {
+      "id": "fall-2026-exam-results",
+      "title": { "en": "Exam Results" },
+      "type": "college-event",
+      "startDate": "2027-01-23",
+      "endDate": "2027-01-28",
+      "allDay": true,
+      "audience": { "scope": "all" },
+      "status": "published",
+      "sourceReview": [
+        { "code": "RESULTS_VACATION_TENSION", "detail": "Source shows 'Exam Results' in week 19 (23/1–28/1/2027) and a footnote 'Mid-year vacation starts at 23/1/2027'. The relationship between results announcement and vacation start is unclear in the document; confirm." },
+        { "code": "CALENDAR_DATES_APPROXIMATE" }, { "code": "SCOPE_ALL_TEMPORAL" }
+      ]
+    },
+    {
+      "id": "fall-2026-midyear-vacation-start",
+      "title": { "en": "Mid-year vacation starts" },
+      "type": "college-event",
+      "startDate": "2027-01-23",
+      "allDay": true,
+      "audience": { "scope": "all" },
+      "status": "published",
+      "sourceReview": [
+        { "code": "RESULTS_VACATION_TENSION", "detail": "Same date as the start of the 'Exam Results' week; confirm intended meaning." },
+        { "code": "SCOPE_ALL_TEMPORAL" }
+      ]
+    }
+  ]
+}
