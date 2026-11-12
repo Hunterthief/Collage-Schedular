@@ -1,0 +1,24 @@
+{
+  "entries": [
+    {
+      "id": "2026-11-11-fall-calendar-and-midterm-exams",
+      "publishedAt": "2026-11-11T00:00:00Z",
+      "summary": {
+        "en": "Added Fall 2026/2027 academic calendar as college-wide all-day events; filled Semester 5 date window from the calendar; added Semester 5 mid-term examination events; wired a generic per-semester exams dataset."
+      },
+      "affected": {
+        "programId": "pharmd",
+        "academicYearId": "2026-2027",
+        "semesterId": "pharmd-2026-2027-semester-5"
+      },
+      "calendarFeedAffected": true,
+      "notes": [
+        "Semester 5 validFrom/validUntil set to 2026-09-19 / 2026-12-17 from the official calendar; flagged provisional because the calendar states dates are approximate.",
+        "Drug Information lecture windows (until 2026-10-29 / from 2026-11-07) cross-check against calendar weeks 6/7/8; no data changed based on this.",
+        "Mid-term exams transcribed for Semester 5 only (7 events; Monday 2026-11-02 has two). Semesters 1/3/7/9 appear in the source image but are NOT transcribed: this repository has no course catalogue, assignments, or semester folder for them, and inventing those references is prohibited. Add them later purely through data when those datasets are created.",
+        "College-wide milestones use audience scope 'all' with explicit 2026/2027 dates; SCOPE_ALL_TEMPORAL review note records that spring feeds should re-target them once spring semesters exist.",
+        "Ambiguities flagged in sourceReview: holiday date subject to change; revision placement; final-exam merged-cell span; exam-results vs mid-year-vacation tension."
+      ]
+    }
+  ]
+}
