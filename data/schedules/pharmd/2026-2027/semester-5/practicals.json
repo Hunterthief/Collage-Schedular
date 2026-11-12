@@ -6,15 +6,36 @@
       "type": "practical",
       "day": "Saturday",
       "sessions": [
-        { "group": 1, "start": "17:00", "end": "18:50" },
-        { "group": 2, "start": "15:00", "end": "16:50" },
-        { "group": 3, "start": "13:00", "end": "14:50" }
+        {
+          "group": 3,
+          "start": "13:00",
+          "end": "14:50"
+        },
+        {
+          "group": 2,
+          "start": "15:00",
+          "end": "16:50"
+        },
+        {
+          "group": 1,
+          "start": "17:00",
+          "end": "18:50"
+        }
       ],
-      "location": { "building": "new", "floor": null, "room": "Sixth Floor Hall / First Floor Hall" },
-      "shorthand": "PN Scientific Writing and Communication skills",
-      "displayCode": "PN Scientific Writing and Communication skills",
+      "location": {
+        "building": "new",
+        "floor": 6,
+        "room": null
+      },
+      "shorthand": "PN 6 Scientific Writing and Communication skills",
+      "displayCode": "PN 6 Scientific Writing and Communication skills",
+      "validFrom": null,
+      "validUntil": null,
       "sourceReview": [
-        { "code": "LOCATION_MULTI_UNCONFIRMED", "detail": "The source place row lists two New Building halls: sixth floor and first floor. Confirm whether the rooms differ by group or whether both halls are used for the same practical." }
+        {
+          "code": "LOCATION_CLARIFIED_BY_DEPARTMENT_INPUT",
+          "detail": "Department input states PN 6 Scientific Writing and Communication skills is every week for every group."
+        }
       ]
     },
     {
@@ -23,15 +44,36 @@
       "type": "practical",
       "day": "Sunday",
       "sessions": [
-        { "group": 1, "start": "09:00", "end": "10:50" },
-        { "group": 2, "start": "13:00", "end": "14:50" },
-        { "group": 3, "start": "11:00", "end": "12:50" }
+        {
+          "group": 1,
+          "start": "09:00",
+          "end": "10:50"
+        },
+        {
+          "group": 3,
+          "start": "11:00",
+          "end": "12:50"
+        },
+        {
+          "group": 2,
+          "start": "13:00",
+          "end": "14:50"
+        }
       ],
-      "location": { "building": "new", "floor": null, "room": "Sixth Floor Hall / Seventh Floor" },
-      "shorthand": "PN Basic Pharmacology",
-      "displayCode": "PN Basic Pharmacology",
+      "location": {
+        "building": "new",
+        "floor": 7,
+        "room": null
+      },
+      "shorthand": "PN 7 Basic Pharmacology",
+      "displayCode": "PN 7 Basic Pharmacology",
+      "validFrom": null,
+      "validUntil": null,
       "sourceReview": [
-        { "code": "LOCATION_MULTI_UNCONFIRMED", "detail": "The source place row lists both a sixth-floor hall and seventh-floor New Building location. Confirm the exact room allocation per group." }
+        {
+          "code": "LOCATION_CLARIFIED_BY_DEPARTMENT_INPUT",
+          "detail": "Department input states PN 7 Basic Pharmacology is every week for every group."
+        }
       ]
     },
     {
@@ -39,14 +81,47 @@
       "courseId": "02-06-09305",
       "type": "practical",
       "day": "Sunday",
+      "rotation": {
+        "type": "alternating-subdivisions",
+        "sequence": [
+          "A",
+          "B"
+        ],
+        "startWeek": 1,
+        "excludeBlackouts": true
+      },
       "sessions": [
-        { "group": 1, "start": "11:00", "end": "12:50" },
-        { "group": 2, "start": "09:00", "end": "10:50" },
-        { "group": 3, "start": "13:00", "end": "14:50" }
+        {
+          "group": 2,
+          "start": "09:00",
+          "end": "10:50"
+        },
+        {
+          "group": 1,
+          "start": "11:00",
+          "end": "12:50"
+        },
+        {
+          "group": 3,
+          "start": "13:00",
+          "end": "14:50"
+        }
       ],
-      "location": { "building": "new", "floor": 0, "room": "Computer Hall" },
+      "location": {
+        "building": "new",
+        "floor": 0,
+        "room": "Computer Hall"
+      },
       "shorthand": "PN 0 Drug Information",
-      "displayCode": "PN 0 Drug Information"
+      "displayCode": "PN 0 Drug Information",
+      "validFrom": null,
+      "validUntil": null,
+      "sourceReview": [
+        {
+          "code": "ALTERNATING_A_B_PATTERN",
+          "detail": "Department input: PN 0 small lab Drug Information alternates weeks. First teaching week = A, second = B. Mid-term week is skipped and does not count in the pattern."
+        }
+      ]
     },
     {
       "id": "pharmd-s5-pharmaceutics-iii-practical",
@@ -54,13 +129,37 @@
       "type": "practical",
       "day": "Tuesday",
       "sessions": [
-        { "group": 1, "start": "11:00", "end": "12:50" },
-        { "group": 2, "start": "13:00", "end": "14:50" },
-        { "group": 3, "start": "09:00", "end": "10:50" }
+        {
+          "group": 3,
+          "start": "09:00",
+          "end": "10:50"
+        },
+        {
+          "group": 1,
+          "start": "11:00",
+          "end": "12:50"
+        },
+        {
+          "group": 2,
+          "start": "13:00",
+          "end": "14:50"
+        }
       ],
-      "location": { "building": "new", "floor": 3, "room": null },
+      "location": {
+        "building": "new",
+        "floor": 3,
+        "room": null
+      },
       "shorthand": "PN 3 Pharmaceutics III",
-      "displayCode": "PN 3 Pharmaceutics III"
+      "displayCode": "PN 3 Pharmaceutics III",
+      "validFrom": null,
+      "validUntil": null,
+      "sourceReview": [
+        {
+          "code": "EVERY_WEEK_ALL_GROUPS",
+          "detail": "Department input: PN 3 Pharmaceutics III is every week for every group."
+        }
+      ]
     },
     {
       "id": "pharmd-s5-pharmaceutical-microbiology-practical",
@@ -68,41 +167,491 @@
       "type": "practical",
       "day": "Wednesday",
       "sessions": [
-        { "group": 1, "start": "11:00", "end": "12:50" },
-        { "group": 2, "start": "09:00", "end": "10:50" },
-        { "group": 3, "start": "13:00", "end": "14:50" }
+        {
+          "group": 2,
+          "start": "09:00",
+          "end": "10:50"
+        },
+        {
+          "group": 1,
+          "start": "11:00",
+          "end": "12:50"
+        },
+        {
+          "group": 3,
+          "start": "13:00",
+          "end": "14:50"
+        }
       ],
-      "location": { "building": "new", "floor": 8, "room": null },
+      "location": {
+        "building": "new",
+        "floor": 8,
+        "room": null
+      },
       "shorthand": "PN 8 Pharmaceutical Microbiology",
-      "displayCode": "PN 8 Pharmaceutical Microbiology"
-    },
-    {
-      "id": "pharmd-s5-drug-design-practical",
-      "courseId": "02-06-05305",
-      "type": "practical",
-      "day": "Wednesday",
-      "sessions": [
-        { "group": 1, "start": "09:00", "end": "10:50" },
-        { "group": 2, "start": "13:00", "end": "14:50" },
-        { "group": 3, "start": "11:00", "end": "12:50" }
-      ],
-      "location": { "building": "new", "floor": 4, "room": "Simulation Labs" },
-      "shorthand": "PN 4 Drug Design",
-      "displayCode": "PN 4 Drug Design"
+      "displayCode": "PN 8 Pharmaceutical Microbiology",
+      "validFrom": null,
+      "validUntil": null,
+      "sourceReview": [
+        {
+          "code": "EVERY_WEEK_ALL_GROUPS",
+          "detail": "Department input: PN 8 Pharmaceutical Microbiology is every week for every group."
+        }
+      ]
     },
     {
       "id": "pharmd-s5-phytochemistry-i-practical",
       "courseId": "02-06-06304",
       "type": "practical",
       "day": "Wednesday",
+      "rotation": {
+        "type": "alternating-subdivisions",
+        "sequence": [
+          "A",
+          "B"
+        ],
+        "startWeek": 1,
+        "excludeBlackouts": true
+      },
       "sessions": [
-        { "group": 1, "start": "13:00", "end": "14:50" },
-        { "group": 2, "start": "11:00", "end": "12:50" },
-        { "group": 3, "start": "09:00", "end": "10:50" }
+        {
+          "group": 3,
+          "start": "09:00",
+          "end": "10:50"
+        },
+        {
+          "group": 2,
+          "start": "11:00",
+          "end": "12:50"
+        },
+        {
+          "group": 1,
+          "start": "13:00",
+          "end": "14:50"
+        }
       ],
-      "location": { "building": "new", "floor": 5, "room": null },
+      "location": {
+        "building": "new",
+        "floor": 5,
+        "room": null
+      },
       "shorthand": "PN 5 Phytochemistry I",
-      "displayCode": "PN 5 Phytochemistry I"
+      "displayCode": "PN 5 Phytochemistry I",
+      "validFrom": null,
+      "validUntil": null,
+      "sourceReview": [
+        {
+          "code": "ALTERNATING_A_B_PATTERN",
+          "detail": "Department input: PN 5 Phytochemistry I alternates weeks. First teaching week = A, second = B. Mid-term week is skipped and does not count in the pattern."
+        }
+      ]
+    },
+    {
+      "id": "pharmd-s5-drug-design-chemsketch-2026-09-30",
+      "courseId": "02-06-05305",
+      "type": "practical",
+      "title": {
+        "en": "Drug Design (ChemSketch)"
+      },
+      "day": "Wednesday",
+      "date": "2026-09-30",
+      "sessions": [
+        {
+          "group": 1,
+          "subdivision": "A",
+          "batch": "1A-1",
+          "from": "2415001",
+          "to": "2415010",
+          "start": "09:00",
+          "end": "10:00"
+        },
+        {
+          "group": 1,
+          "subdivision": "A",
+          "batch": "1A-2",
+          "from": "2415011",
+          "to": "2415020",
+          "start": "10:00",
+          "end": "11:00"
+        },
+        {
+          "group": 3,
+          "subdivision": "A",
+          "batch": "3A-1",
+          "from": "2415149",
+          "to": "2415158",
+          "start": "11:00",
+          "end": "12:00"
+        },
+        {
+          "group": 3,
+          "subdivision": "A",
+          "batch": "3A-2",
+          "from": "2415159",
+          "to": "2415166",
+          "start": "12:00",
+          "end": "13:00"
+        },
+        {
+          "group": 2,
+          "subdivision": "A",
+          "batch": "2A-1",
+          "from": "2415077",
+          "to": "2415086",
+          "start": "13:00",
+          "end": "14:00"
+        },
+        {
+          "group": 2,
+          "subdivision": "A",
+          "batch": "2A-2",
+          "from": "2415087",
+          "to": "2415095",
+          "start": "14:00",
+          "end": "15:00"
+        }
+      ],
+      "location": {
+        "building": "new",
+        "floor": 4,
+        "room": "Simulation Labs"
+      },
+      "shorthand": "PN 4 Drug Design (ChemSketch)",
+      "displayCode": "PN 4 Drug Design (ChemSketch)",
+      "validFrom": null,
+      "validUntil": null,
+      "sourceReview": [
+        {
+          "code": "SOURCE TYPO CORRECTED",
+          "detail": "Source image showed 2215095 for batch 2A-2. Corrected to 2415095 as an obvious digit typo."
+        }
+      ]
+    },
+    {
+      "id": "pharmd-s5-drug-design-chemsketch-2026-10-07",
+      "courseId": "02-06-05305",
+      "type": "practical",
+      "title": {
+        "en": "Drug Design (ChemSketch)"
+      },
+      "day": "Wednesday",
+      "date": "2026-10-07",
+      "sessions": [
+        {
+          "group": 1,
+          "subdivision": "B",
+          "batch": "1B-1",
+          "from": "2415039",
+          "to": "2415049",
+          "start": "09:00",
+          "end": "10:00"
+        },
+        {
+          "group": 1,
+          "subdivision": "B",
+          "batch": "1B-2",
+          "from": "2415050",
+          "to": "2415059",
+          "start": "10:00",
+          "end": "11:00"
+        },
+        {
+          "group": 3,
+          "subdivision": "B",
+          "batch": "3B-1",
+          "from": "2415185",
+          "to": "2415197",
+          "start": "11:00",
+          "end": "12:00"
+        },
+        {
+          "group": 3,
+          "subdivision": "B",
+          "batch": "3B-2",
+          "from": "2415198",
+          "to": "2415208",
+          "start": "12:00",
+          "end": "13:00"
+        },
+        {
+          "group": 2,
+          "subdivision": "B",
+          "batch": "2B-1",
+          "from": "2415114",
+          "to": "2415122",
+          "start": "13:00",
+          "end": "14:00"
+        },
+        {
+          "group": 2,
+          "subdivision": "B",
+          "batch": "2B-2",
+          "from": "2415123",
+          "to": "2415131",
+          "start": "14:00",
+          "end": "15:00"
+        }
+      ],
+      "location": {
+        "building": "new",
+        "floor": 4,
+        "room": "Simulation Labs"
+      },
+      "shorthand": "PN 4 Drug Design (ChemSketch)",
+      "displayCode": "PN 4 Drug Design (ChemSketch)",
+      "validFrom": null,
+      "validUntil": null
+    },
+    {
+      "id": "pharmd-s5-drug-design-chemsketch-2026-10-14",
+      "courseId": "02-06-05305",
+      "type": "practical",
+      "title": {
+        "en": "Drug Design (ChemSketch)"
+      },
+      "day": "Wednesday",
+      "date": "2026-10-14",
+      "sessions": [
+        {
+          "group": 1,
+          "subdivision": "A",
+          "batch": "1A-3",
+          "from": "2415021",
+          "to": "2415029",
+          "start": "09:00",
+          "end": "10:00"
+        },
+        {
+          "group": 1,
+          "subdivision": "A",
+          "batch": "1A-4",
+          "from": "2415030",
+          "to": "2415038",
+          "start": "10:00",
+          "end": "11:00"
+        },
+        {
+          "group": 3,
+          "subdivision": "A",
+          "batch": "3A-3",
+          "from": "2415167",
+          "to": "2415175",
+          "start": "11:00",
+          "end": "12:00"
+        },
+        {
+          "group": 3,
+          "subdivision": "A",
+          "batch": "3A-4",
+          "from": "2415176",
+          "to": "2415184",
+          "start": "12:00",
+          "end": "13:00"
+        },
+        {
+          "group": 2,
+          "subdivision": "A",
+          "batch": "2A-3",
+          "from": "2415096",
+          "to": "2415104",
+          "start": "13:00",
+          "end": "14:00"
+        },
+        {
+          "group": 2,
+          "subdivision": "A",
+          "batch": "2A-4",
+          "from": "2415105",
+          "to": "2415112",
+          "start": "14:00",
+          "end": "15:00"
+        }
+      ],
+      "location": {
+        "building": "new",
+        "floor": 4,
+        "room": "Simulation Labs"
+      },
+      "shorthand": "PN 4 Drug Design (ChemSketch)",
+      "displayCode": "PN 4 Drug Design (ChemSketch)",
+      "validFrom": null,
+      "validUntil": null
+    },
+    {
+      "id": "pharmd-s5-drug-design-chemsketch-2026-10-21",
+      "courseId": "02-06-05305",
+      "type": "practical",
+      "title": {
+        "en": "Drug Design (ChemSketch)"
+      },
+      "day": "Wednesday",
+      "date": "2026-10-21",
+      "sessions": [
+        {
+          "group": 1,
+          "subdivision": "B",
+          "batch": "1B-3",
+          "from": "2415060",
+          "to": "2415068",
+          "start": "09:00",
+          "end": "10:00"
+        },
+        {
+          "group": 1,
+          "subdivision": "B",
+          "batch": "1B-4",
+          "from": "2415069",
+          "to": "2415076",
+          "start": "10:00",
+          "end": "11:00"
+        },
+        {
+          "group": 3,
+          "subdivision": "B",
+          "batch": "3B-3",
+          "from": "2415209",
+          "to": "2415221",
+          "start": "11:00",
+          "end": "12:00"
+        },
+        {
+          "group": 3,
+          "subdivision": "B",
+          "batch": "3B-4",
+          "from": "2415222",
+          "to": "2415229",
+          "students": [
+            "2435001",
+            "2435002"
+          ],
+          "start": "12:00",
+          "end": "13:00"
+        },
+        {
+          "group": 2,
+          "subdivision": "B",
+          "batch": "2B-3",
+          "from": "2415132",
+          "to": "2415140",
+          "start": "13:00",
+          "end": "14:00"
+        },
+        {
+          "group": 2,
+          "subdivision": "B",
+          "batch": "2B-4",
+          "from": "2415141",
+          "to": "2415148",
+          "start": "14:00",
+          "end": "15:00"
+        }
+      ],
+      "location": {
+        "building": "new",
+        "floor": 4,
+        "room": "Simulation Labs"
+      },
+      "shorthand": "PN 4 Drug Design (ChemSketch)",
+      "displayCode": "PN 4 Drug Design (ChemSketch)",
+      "validFrom": null,
+      "validUntil": null,
+      "sourceReview": [
+        {
+          "code": "SOURCE TYPO CORRECTED",
+          "detail": "Source image showed 2215148 for batch 2B-4. Corrected to 2415148 as an obvious digit typo."
+        },
+        {
+          "code": "EXTERNAL_IDS_PRESENT",
+          "detail": "Batch 3B-4 includes IDs 2435001 and 2435002 in addition to 2415222-2415229. These IDs are outside the current PharmD assignment ranges and should be verified."
+        }
+      ]
+    },
+    {
+      "id": "pharmd-s5-drug-design-wet-lab",
+      "courseId": "02-06-05305",
+      "type": "practical",
+      "title": {
+        "en": "Drug Design (Wet Lab)"
+      },
+      "day": null,
+      "date": null,
+      "rotation": {
+        "type": "alternating-subdivisions",
+        "sequence": [
+          "A",
+          "B"
+        ],
+        "startWeek": 1,
+        "excludeBlackouts": true
+      },
+      "sessions": [
+        {
+          "group": 1,
+          "subdivision": "A",
+          "from": "2415001",
+          "to": "2415038",
+          "start": "09:00",
+          "end": "11:00"
+        },
+        {
+          "group": 3,
+          "subdivision": "A",
+          "from": "2415149",
+          "to": "2415184",
+          "start": "11:00",
+          "end": "13:00"
+        },
+        {
+          "group": 2,
+          "subdivision": "A",
+          "from": "2415077",
+          "to": "2415112",
+          "start": "13:00",
+          "end": "15:00"
+        },
+        {
+          "group": 1,
+          "subdivision": "B",
+          "from": "2415039",
+          "to": "2415076",
+          "start": "09:00",
+          "end": "11:00"
+        },
+        {
+          "group": 3,
+          "subdivision": "B",
+          "from": "2415185",
+          "to": null,
+          "start": "11:00",
+          "end": "13:00"
+        },
+        {
+          "group": 2,
+          "subdivision": "B",
+          "from": "2415114",
+          "to": "2415148",
+          "start": "13:00",
+          "end": "15:00"
+        }
+      ],
+      "location": {
+        "building": null,
+        "floor": null,
+        "room": "Pharmaceutical Chemistry Lab (Old Building 2nd floor) / Organic Chemistry Lab (New Building 4th floor)"
+      },
+      "displayCode": "Drug Design (Wet Lab)",
+      "validFrom": null,
+      "validUntil": null,
+      "sourceReview": [
+        {
+          "code": "DATE_UNCONFIRMED",
+          "detail": "The wet lab PDF defines Week 1 = Group A and Week 2 = Group B, but does not provide concrete calendar dates. This event is intentionally not materialized until official dates are confirmed."
+        },
+        {
+          "code": "LOCATION_MULTI_UNCONFIRMED",
+          "detail": "Source states both Pharmaceutical Chemistry Lab, Old Building 2nd floor, and Organic Chemistry Lab, New Building 4th floor. Exact room allocation per section is not confirmed."
+        }
+      ]
     }
   ]
 }
