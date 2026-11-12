@@ -127,15 +127,17 @@ async function ensureOptions() {
 
   return lookupOptions;
 }
-
 function applyBranding(settings) {
   const locale = settings.defaultLocale ?? CONFIG.ui.defaultLocale ?? "en";
 
   const title = localize(settings.calendarName, locale) || "College Schedule";
   const privacy = localize(settings.privacy?.notice, locale);
 
-  if (els.siteTitle) els.siteTitle.textContent = title;
-  if (document.title) document.title = title;
+  if (els.siteTitle) {
+    els.siteTitle.textContent = title;
+  }
+
+  document.title = title;
 
   if (privacy && els.privacyNotice) {
     els.privacyNotice.textContent = privacy;
