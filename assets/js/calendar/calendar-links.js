@@ -25,13 +25,15 @@ export function buildFeedUrl(assignment, manifest) {
   const feeds = manifest?.calendarFeeds ?? {};
   const baseUrl = String(feeds.baseUrl ?? "calendar/feeds").replace(/\/$/, "");
 
-  const template =
-    feeds.pathTemplate ??
-    "{programId}/{academicYearId}/group-{group}.ics";
-
   const subdivision = assignment.subdivision
     ? String(assignment.subdivision).toUpperCase()
     : "";
+
+  // Prefer the subgroup feed when the student's subdivision is known.
+  const template =
+    subdivision && feeds.subdivisionPathTemplate
+      ? feeds.subdivisionPathTemplate
+      : feeds.pathTemplate ?? "{programId}/{academicYearId}/group-{group}.ics";
 
   const path = template
     .replace("{programId}", assignment.programId)
@@ -43,9 +45,6 @@ export function buildFeedUrl(assignment, manifest) {
   return absoluteUrl(`${baseUrl}/${path}`, getCurrentBase());
 }
 
-// Google's official "Add by URL" page. This is the reliable subscription
-// route: the user pastes the feed URL here and clicks "Add calendar".
-// It does NOT support pre-filling via ?url= or ?cid= parameters.
 export function googleCalendarAddByUrlUrl() {
   return "https://calendar.google.com/calendar/u/0/r/settings/addbyurl";
 }
@@ -55,8 +54,6 @@ export function webcalUrl(feedUrl, _ignoredBase) {
   return absoluteFeedUrl.replace(/^https?:\/\//, "webcal://");
 }
 
-// Legacy one-click attempt. Google's render?cid= endpoint is unreliable for
-// external ICS feeds; kept only as a labelled fallback in the UI.
 export function googleCalendarSubscribeUrl(feedUrl, _ignoredBase) {
   const webcal = webcalUrl(feedUrl);
   return `https://www.google.com/calendar/render?cid=${encodeURIComponent(webcal)}`;
