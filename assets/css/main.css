@@ -50,12 +50,17 @@
 }
 
 html {
-  -webkit-text-size-adjust: 100%;
-  text-size-adjust: 100%;
   overflow-x: hidden;
   overflow-x: clip;
   scrollbar-width: thin;
   scrollbar-color: var(--line-strong) var(--surface-2);
+}
+
+/* Guarded so browsers without this property skip it silently (no console warning). */
+@supports (-webkit-text-size-adjust: 100%) {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
 }
 
 body {
