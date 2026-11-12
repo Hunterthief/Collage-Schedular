@@ -3,10 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="color-scheme" content="light" />
+    <meta name="color-scheme" content="light dark" />
     <meta
       name="description"
-      content="College timetable lookup for PharmD students. View lectures, practicals, examinations, and college-wide events."
+      content="College timetable lookup. Find your PharmD lectures, practicals, examinations and college-wide events by student ID or by year and group, then subscribe in Google Calendar."
     />
     <title>College Schedule</title>
 
@@ -15,131 +15,122 @@
     <link rel="stylesheet" href="assets/css/schedule.css" />
   </head>
   <body>
+    <div class="page-bg" aria-hidden="true"></div>
+
     <main class="shell">
       <header class="site-header">
         <div class="brand">
-          <h1 id="site-title">College Schedule</h1>
-          <p id="site-subtitle">
-            Look up your timetable by university ID, or select your academic year and practical group.
-          </p>
+          <span class="brand-dot" aria-hidden="true"></span>
+          <div>
+            <h1 id="site-title">College Schedule</h1>
+            <p id="site-subtitle">Faculty of Pharmacy · timetable &amp; calendar subscription</p>
+          </div>
         </div>
 
         <p class="privacy-note" id="privacy-notice">
-          Your student ID is only a lookup key. It is not a password. Schedules are public.
+          Your student ID is only a lookup key — not a password. Schedules are public.
         </p>
       </header>
 
-      <section class="lookup-card" aria-labelledby="lookup-heading">
-        <h2 id="lookup-heading" class="sr-only">Schedule lookup</h2>
+      <section class="hero">
+        <h2 class="hero-title">Find your timetable</h2>
+        <p class="hero-sub">
+          Search by university ID, or pick your academic year and practical group.
+        </p>
 
-        <div class="segmented" role="group" aria-label="Lookup method">
-          <button
-            type="button"
-            class="segment active"
-            data-mode="id"
-            aria-pressed="true"
-          >
-            Student ID
-          </button>
-          <button
-            type="button"
-            class="segment"
-            data-mode="manual"
-            aria-pressed="false"
-          >
-            Year and group
-          </button>
+        <div class="search-console" id="lookup-card">
+          <div class="console-tabs" role="group" aria-label="Lookup method">
+            <button
+              type="button"
+              class="segment active"
+              data-mode="id"
+              aria-pressed="true"
+            >
+              Student ID
+            </button>
+            <button
+              type="button"
+              class="segment"
+              data-mode="manual"
+              aria-pressed="false"
+            >
+              Year &amp; group
+            </button>
+            <span class="tab-ink" aria-hidden="true"></span>
+          </div>
+
+          <div class="console-body">
+            <form id="id-form" class="lookup-form">
+              <label class="sr-only" for="student-id">University student ID</label>
+              <div class="search-field">
+                <span class="search-glyph" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none"
+                       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                       stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="7"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                  </svg>
+                </span>
+                <input
+                  id="student-id"
+                  name="student-id"
+                  type="text"
+                  inputmode="numeric"
+                  autocomplete="off"
+                  spellcheck="false"
+                  placeholder="Enter your university ID, e.g. 2415001"
+                  required
+                />
+                <button class="btn primary go" type="submit">Search</button>
+              </div>
+              <p class="hint">Leading zeroes are preserved. No login required.</p>
+            </form>
+
+            <form id="manual-form" class="lookup-form" hidden>
+              <div class="field-grid">
+                <div class="field">
+                  <label for="program-select">Program</label>
+                  <select id="program-select" required></select>
+                </div>
+                <div class="field">
+                  <label for="year-select">Academic year</label>
+                  <select id="year-select" required></select>
+                </div>
+                <div class="field">
+                  <label for="group-select">Practical group</label>
+                  <select id="group-select" required></select>
+                </div>
+              </div>
+              <div class="form-actions">
+                <button class="btn primary go" type="submit">View timetable</button>
+                <p class="hint">Choose the group printed on your official schedule.</p>
+              </div>
+            </form>
+          </div>
         </div>
-
-        <form id="id-form" class="lookup-form">
-          <label for="student-id">University student ID</label>
-
-          <div class="input-row">
-            <input
-              id="student-id"
-              name="student-id"
-              type="text"
-              inputmode="numeric"
-              autocomplete="off"
-              spellcheck="false"
-              placeholder="e.g. 2415001"
-              required
-            />
-            <button class="btn primary" type="submit">Find schedule</button>
-          </div>
-
-          <p class="hint">
-            Leading zeroes are preserved. No login is required.
-          </p>
-        </form>
-
-        <form id="manual-form" class="lookup-form" hidden>
-          <div class="field-grid">
-            <div class="field">
-              <label for="program-select">Program</label>
-              <select id="program-select" required></select>
-            </div>
-
-            <div class="field">
-              <label for="year-select">Academic year</label>
-              <select id="year-select" required></select>
-            </div>
-
-            <div class="field">
-              <label for="group-select">Practical group</label>
-              <select id="group-select" required></select>
-            </div>
-          </div>
-
-          <div class="form-actions">
-            <button class="btn primary" type="submit">View timetable</button>
-            <p class="hint">
-              Select the group shown on your official schedule.
-            </p>
-          </div>
-        </form>
 
         <div id="status" class="status info" role="status" aria-live="polite"></div>
       </section>
 
-      <section id="result" hidden>
+      <section id="result" class="results" hidden>
         <div id="assignment-summary" class="summary-card"></div>
 
         <nav class="tabs" aria-label="Schedule views">
-          <button
-            type="button"
-            class="tab active"
-            data-view="weekly"
-            aria-current="true"
-          >
-            Weekly
-          </button>
-          <button
-            type="button"
-            class="tab"
-            data-view="daily"
-          >
-            Daily
-          </button>
-          <button
-            type="button"
-            class="tab"
-            data-view="upcoming"
-          >
-            Upcoming
-          </button>
+          <button type="button" class="tab active" data-view="weekly" aria-current="true">Weekly</button>
+          <button type="button" class="tab" data-view="daily">Daily</button>
+          <button type="button" class="tab" data-view="upcoming">Upcoming</button>
         </nav>
 
         <div id="timetable" class="timetable"></div>
 
         <section class="calendar-card" aria-labelledby="calendar-heading">
-          <h2 id="calendar-heading">Calendar subscription</h2>
+          <h2 id="calendar-heading">Subscribe in Google Calendar</h2>
           <div id="calendar-links"></div>
         </section>
       </section>
 
       <footer class="footer">
-        Static site. Schedule data is published from repository JSON files.
+        Static site · schedule data is published from repository JSON files.
       </footer>
     </main>
 
