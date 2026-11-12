@@ -11,6 +11,7 @@
             {
               "id": "pharmd-2026-2027-semester-5",
               "name": { "en": "Semester 5", "ar": "الفصل الدراسي الخامس" },
+              "yearLevel": 3,
               "validFrom": "2026-09-19",
               "validUntil": "2026-12-17",
               "status": "published",
@@ -35,7 +36,7 @@
               "sourceReview": [
                 {
                   "code": "SEMESTER_WINDOW_FROM_PROVISIONAL_CALENDAR",
-                  "detail": "validFrom = Start of classes (2026-09-19) and validUntil = End of classes (2026-12-17) taken from the Fall 2026/2027 academic calendar, which states dates are approximate."
+                  "detail": "Semester window taken from the Fall 2026/2027 academic calendar, which states dates are approximate."
                 }
               ]
             }
@@ -54,6 +55,7 @@
             {
               "id": "clinical-pharmacy-2026-2027-semester-3",
               "name": { "en": "Semester 3 (Year 2)", "ar": "الفصل الدراسي الثالث (الفرقة الثانية)" },
+              "yearLevel": 2,
               "validFrom": "2026-09-19",
               "validUntil": "2026-12-17",
               "status": "published",
@@ -82,7 +84,7 @@
                 },
                 {
                   "code": "EXAM_TIMETABLE_NOT_YET_PUBLISHED",
-                  "detail": "No Clinical Pharmacy mid-term/final exam timetable was supplied. exams.json is empty until the department publishes one; the college-wide mid-term blackout still applies."
+                  "detail": "No Clinical Pharmacy exam timetable was supplied; exams.json is empty until published. The college-wide mid-term blackout still applies."
                 }
               ]
             }
