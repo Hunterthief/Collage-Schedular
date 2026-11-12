@@ -6,13 +6,10 @@ export function normalizeStudentId(raw) {
   if (typeof raw !== "string") {
     throw new TypeError("Student ID must be a string.");
   }
-
   const normalized = raw.trim().replace(/\s+/g, "");
-
   if (!normalized) {
     throw new TypeError("Student ID cannot be empty.");
   }
-
   return normalized;
 }
 
@@ -28,7 +25,6 @@ function compareIds(a, b) {
     if (ba > bb) return 1;
     return 0;
   }
-
   return a.localeCompare(b);
 }
 
@@ -42,11 +38,9 @@ function ruleMatches(rule, id) {
   if (Array.isArray(rule.students) && rule.students.map(normalizeStudentId).includes(id)) {
     return true;
   }
-
   if (rule.from != null || rule.to != null) {
     return inRange(id, rule.from, rule.to);
   }
-
   return false;
 }
 
@@ -54,11 +48,9 @@ function subdivisionMatches(sub, id) {
   if (Array.isArray(sub.students) && sub.students.map(normalizeStudentId).includes(id)) {
     return true;
   }
-
   if (sub.from != null || sub.to != null) {
     return inRange(id, sub.from, sub.to);
   }
-
   return false;
 }
 
@@ -70,11 +62,7 @@ function findSubdivision(rule, id) {
   const matches = rule.subdivisions.filter((sub) => subdivisionMatches(sub, id));
 
   if (matches.length === 0) {
-    return {
-      subdivision: null,
-      status: "unresolved",
-      warning: "SUBDIVISION_UNRESOLVED"
-    };
+    return { subdivision: null, status: "unresolved", warning: "SUBDIVISION_UNRESOLVED" };
   }
 
   if (matches.length > 1) {
@@ -83,11 +71,7 @@ function findSubdivision(rule, id) {
     );
   }
 
-  return {
-    subdivision: matches[0].name,
-    status: "resolved",
-    warning: null
-  };
+  return { subdivision: matches[0].name, status: "resolved", warning: null };
 }
 
 export function resolveStudentId(rawId, assignmentDocs) {
@@ -95,10 +79,8 @@ export function resolveStudentId(rawId, assignmentDocs) {
   const warnings = [];
 
   const overrideCandidates = [];
-
   for (const wrapper of assignmentDocs) {
-    const overrides = wrapper.doc.overrides ?? [];
-    for (const override of overrides) {
+    for (const override of wrapper.doc.overrides ?? []) {
       if (normalizeStudentId(override.studentId) === studentId) {
         overrideCandidates.push({ wrapper, override });
       }
@@ -106,49 +88,39 @@ export function resolveStudentId(rawId, assignmentDocs) {
   }
 
   if (overrideCandidates.length > 1) {
-    throw new AmbiguousAssignmentError(
-      `Student ${studentId} has multiple individual overrides.`
-    );
+    throw new AmbiguousAssignmentError(`Student ${studentId} has multiple individual overrides.`);
   }
 
   if (overrideCandidates.length === 1) {
     const { wrapper, override } = overrideCandidates[0];
-
     return {
       studentId,
       programId: wrapper.programId,
       academicYearId: wrapper.academicYearId,
+      yearLevel: override.yearLevel ?? wrapper.doc.yearLevel ?? null,
       practicalGroup: override.practicalGroup ?? null,
       subdivision: override.subdivision ?? null,
       subdivisionStatus: override.subdivision ? "resolved" : "not-applicable",
       source: "override",
-      warnings: override.practicalGroup == null
-        ? ["PRACTICAL_GROUP_UNRESOLVED"]
-        : []
+      warnings: override.practicalGroup == null ? ["PRACTICAL_GROUP_UNRESOLVED"] : []
     };
   }
 
   const ruleCandidates = [];
-
   for (const wrapper of assignmentDocs) {
-    const rules = wrapper.doc.rules ?? [];
-    const matched = rules.filter((rule) => ruleMatches(rule, studentId));
-
+    const matched = (wrapper.doc.rules ?? []).filter((rule) => ruleMatches(rule, studentId));
     if (matched.length > 1) {
       throw new AmbiguousAssignmentError(
         `Student ${studentId} matches multiple assignment rules in ${wrapper.programId}/${wrapper.academicYearId}.`
       );
     }
-
     if (matched.length === 1) {
       ruleCandidates.push({ wrapper, rule: matched[0] });
     }
   }
 
   if (ruleCandidates.length === 0) {
-    throw new StudentNotFoundError(
-      `No assignment found for student ID ${studentId}.`
-    );
+    throw new StudentNotFoundError(`No assignment found for student ID ${studentId}.`);
   }
 
   if (ruleCandidates.length > 1) {
@@ -159,13 +131,13 @@ export function resolveStudentId(rawId, assignmentDocs) {
 
   const { wrapper, rule } = ruleCandidates[0];
   const sub = findSubdivision(rule, studentId);
-
   if (sub.warning) warnings.push(sub.warning);
 
   return {
     studentId,
     programId: wrapper.programId,
     academicYearId: wrapper.academicYearId,
+    yearLevel: wrapper.doc.yearLevel ?? null,
     practicalGroup: rule.practicalGroup,
     subdivision: sub.subdivision,
     subdivisionStatus: sub.status,
