@@ -1,12 +1,40 @@
-export function buildFeedUrl(assignment, manifest) {
-  if (assignment.practicalGroup == null) return null;
+function getCurrentBase() {
+  if (typeof document !== "undefined" && document.baseURI) {
+    return document.baseURI;
+  }
 
-  const baseUrl = manifest.calendarFeeds.baseUrl.replace(/\/$/, "");
+  if (typeof window !== "undefined" && window.location?.href) {
+    return window.location.href;
+  }
+
+  return "/";
+}
+
+export function absoluteUrl(path, base = getCurrentBase()) {
+  if (!path) return "";
+
+  try {
+    return new URL(path, base).href;
+  } catch {
+    return path;
+  }
+}
+
+export function buildFeedUrl(assignment, manifest) {
+  if (!assignment || assignment.practicalGroup == null) {
+    return null;
+  }
+
+  const feeds = manifest?.calendarFeeds ?? {};
+  const baseUrl = String(feeds.baseUrl ?? "calendar/feeds").replace(/\/$/, "");
+
   const template =
-    manifest.calendarFeeds.pathTemplate ??
+    feeds.pathTemplate ??
     "{programId}/{academicYearId}/group-{group}.ics";
 
-  const subdivision = assignment.subdivision ? String(assignment.subdivision).toUpperCase() : "";
+  const subdivision = assignment.subdivision
+    ? String(assignment.subdivision).toUpperCase()
+    : "";
 
   const path = template
     .replace("{programId}", assignment.programId)
@@ -15,19 +43,21 @@ export function buildFeedUrl(assignment, manifest) {
     .replace("{subdivision}", subdivision)
     .replace("{subdivisionLower}", subdivision.toLowerCase());
 
-  return `${baseUrl}/${path}`;
+  const relativeUrl = `${baseUrl}/${path}`;
+
+  return absoluteUrl(relativeUrl, getCurrentBase());
 }
 
-export function absoluteUrl(path, origin) {
-  return new URL(path, origin).href;
+export function googleCalendarSubscribeUrl(feedUrl, _ignoredBase) {
+  const absoluteFeedUrl = absoluteUrl(feedUrl, getCurrentBase());
+
+  return `https://calendar.google.com/calendar?cid=${encodeURIComponent(
+    absoluteFeedUrl
+  )}`;
 }
 
-export function googleCalendarSubscribeUrl(feedUrl, origin) {
-  const abs = absoluteUrl(feedUrl, origin);
-  return `https://calendar.google.com/calendar/render?cid=${encodeURIComponent(abs)}`;
-}
+export function webcalUrl(feedUrl, _ignoredBase) {
+  const absoluteFeedUrl = absoluteUrl(feedUrl, getCurrentBase());
 
-export function webcalUrl(feedUrl, origin) {
-  const abs = absoluteUrl(feedUrl, origin);
-  return abs.replace(/^https?:\/\//, "webcal://");
+  return absoluteFeedUrl.replace(/^https?:\/\//, "webcal://");
 }
