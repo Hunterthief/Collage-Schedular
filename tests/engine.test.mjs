@@ -20,12 +20,7 @@ const semester = {
   validUntil: "2026-12-12"
 };
 
-const courses = [
-  {
-    id: "C1",
-    title: { en: "Microbiology" }
-  }
-];
+const courses = [{ id: "C1", title: { en: "Microbiology" } }];
 
 const lectures = [
   {
@@ -79,6 +74,7 @@ test("shared lecture appears for every group", () => {
       courses,
       lectures,
       practicals,
+      exams: [],
       exceptions: [],
       institutionEvents: [],
       context: {
@@ -88,7 +84,6 @@ test("shared lecture appears for every group", () => {
         practicalGroup: group
       }
     });
-
     const lecture = result.events.find((e) => e.eventId === "L1");
     assert.ok(lecture, `lecture missing for group ${group}`);
   }
@@ -104,6 +99,7 @@ test("practical session is selected by group", () => {
     courses,
     lectures: [],
     practicals,
+    exams: [],
     exceptions: [],
     institutionEvents: [],
     context: {
@@ -113,7 +109,6 @@ test("practical session is selected by group", () => {
       practicalGroup: 1
     }
   });
-
   const g2 = composeSchedule({
     institutionId: settings.institutionId,
     timezone: "Africa/Cairo",
@@ -123,6 +118,7 @@ test("practical session is selected by group", () => {
     courses,
     lectures: [],
     practicals,
+    exams: [],
     exceptions: [],
     institutionEvents: [],
     context: {
@@ -132,7 +128,6 @@ test("practical session is selected by group", () => {
       practicalGroup: 2
     }
   });
-
   assert.equal(g1.events[0].start, "11:00");
   assert.equal(g2.events[0].start, "09:00");
 });
@@ -147,6 +142,7 @@ test("college-wide event appears even without academic classes", () => {
     courses,
     lectures: [],
     practicals: [],
+    exams: [],
     exceptions: [],
     institutionEvents,
     context: {
@@ -156,21 +152,14 @@ test("college-wide event appears even without academic classes", () => {
       practicalGroup: 1
     }
   });
-
   assert.equal(result.events.length, 1);
   assert.equal(result.events[0].eventId, "I1");
 });
 
 test("cancel exception marks occurrence cancelled", () => {
   const exceptions = [
-    {
-      id: "EX1",
-      eventId: "L1",
-      date: "2026-12-09",
-      action: "cancel"
-    }
+    { id: "EX1", eventId: "L1", date: "2026-12-09", action: "cancel" }
   ];
-
   const result = composeSchedule({
     institutionId: settings.institutionId,
     timezone: "Africa/Cairo",
@@ -180,6 +169,7 @@ test("cancel exception marks occurrence cancelled", () => {
     courses,
     lectures,
     practicals: [],
+    exams: [],
     exceptions,
     institutionEvents: [],
     context: {
@@ -189,7 +179,6 @@ test("cancel exception marks occurrence cancelled", () => {
       practicalGroup: 1
     }
   });
-
   const cancelled = result.events.find((e) => e.eventId === "L1");
   assert.equal(cancelled.status, "cancelled");
 });
@@ -201,13 +190,10 @@ test("detects overlap between lecture and practical", () => {
       courseId: "C1",
       type: "practical",
       day: "Wednesday",
-      sessions: [
-        { group: 1, start: "15:30", end: "16:30" }
-      ],
+      sessions: [{ group: 1, start: "15:30", end: "16:30" }],
       location: { building: "new", floor: 8 }
     }
   ];
-
   const result = composeSchedule({
     institutionId: settings.institutionId,
     timezone: "Africa/Cairo",
@@ -217,6 +203,7 @@ test("detects overlap between lecture and practical", () => {
     courses,
     lectures,
     practicals: overlappingPractical,
+    exams: [],
     exceptions: [],
     institutionEvents: [],
     context: {
@@ -226,6 +213,56 @@ test("detects overlap between lecture and practical", () => {
       practicalGroup: 1
     }
   });
-
   assert.ok(result.conflicts.length > 0);
+});
+
+test("mid-term blackout removes lectures and practicals but keeps exams", () => {
+  const blackedSemester = {
+    id: "s5",
+    validFrom: "2026-10-31",
+    validUntil: "2026-11-05",
+    blackouts: [
+      {
+        id: "midterm",
+        from: "2026-10-31",
+        to: "2026-11-05",
+        blocksAcademicEvents: true,
+        blockTypes: ["lecture", "practical"]
+      }
+    ]
+  };
+  const exam = [
+    {
+      id: "E1",
+      courseId: "C1",
+      type: "examination",
+      date: "2026-11-02",
+      start: "12:00",
+      end: "12:30",
+      groups: [1],
+      location: { building: "new", floor: null, room: null }
+    }
+  ];
+  const result = composeSchedule({
+    institutionId: settings.institutionId,
+    timezone: "Africa/Cairo",
+    settings,
+    locations,
+    semester: blackedSemester,
+    courses,
+    lectures,
+    practicals,
+    exams: exam,
+    exceptions: [],
+    institutionEvents: [],
+    context: {
+      programId: "pharmd",
+      academicYearId: "2026-2027",
+      semesterId: "s5",
+      practicalGroup: 1
+    }
+  });
+  assert.ok(!result.events.some((e) => e.eventId === "L1"));
+  assert.ok(!result.events.some((e) => e.eventId === "P1"));
+  assert.ok(result.events.some((e) => e.eventId === "E1"));
 });
