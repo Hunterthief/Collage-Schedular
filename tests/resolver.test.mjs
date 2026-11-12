@@ -42,7 +42,6 @@ const docs = [
 
 test("resolves range and subdivision", () => {
   const result = resolveStudentId("2415010", docs);
-
   assert.equal(result.programId, "pharmd");
   assert.equal(result.academicYearId, "2026-2027");
   assert.equal(result.practicalGroup, 1);
@@ -52,7 +51,6 @@ test("resolves range and subdivision", () => {
 
 test("preserves group when subdivision unresolved", () => {
   const result = resolveStudentId("2415040", docs);
-
   assert.equal(result.practicalGroup, 1);
   assert.equal(result.subdivision, null);
   assert.equal(result.subdivisionStatus, "unresolved");
@@ -82,6 +80,5 @@ test("multiple matches throw integrity error", () => {
       }
     }
   ];
-
   assert.throws(() => resolveStudentId("2415060", badDocs), AmbiguousAssignmentError);
 });
