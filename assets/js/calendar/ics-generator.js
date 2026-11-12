@@ -9,6 +9,8 @@ function escapeText(value) {
     .replace(/\r?\n/g, "\\n");
 }
 
+// RFC 5545: content lines MUST NOT exceed 75 octets; longer lines are folded
+// with CRLF followed by a single space. Applied to EVERY line at the end.
 function foldLine(line) {
   const encoder = new TextEncoder();
   const bytes = encoder.encode(line);
@@ -162,7 +164,7 @@ export function eventsToIcs(events, options) {
     "PRODID:-//" + institutionId + "//College Schedule//EN",
     "CALSCALE:GREGORIAN",
     "METHOD:PUBLISH",
-    foldLine("X-WR-CALNAME:" + escapeText(localize(calendarName, locale))),
+    "X-WR-CALNAME:" + escapeText(localize(calendarName, locale)),
     "X-WR-TIMEZONE:" + timezone,
     "X-WR-CALDESC:" + escapeText("Static college schedule feed.")
   ];
@@ -176,13 +178,11 @@ export function eventsToIcs(events, options) {
 
     if (event.allDay) {
       dtstartLine = "DTSTART;VALUE=DATE:" + event.date.replace(/-/g, "");
-
       const endStr = event.endDate ?? event.date;
       const exclusive = formatDate(addDays(parseDate(endStr), 1));
       dtendLine = "DTEND;VALUE=DATE:" + exclusive.replace(/-/g, "");
     } else {
       if (!event.start || !event.end) continue;
-
       dtstartLine = "DTSTART:" + localToUtcIso(event.date, event.start, timezone);
       dtendLine = "DTEND:" + localToUtcIso(event.date, event.end, timezone);
     }
@@ -194,6 +194,8 @@ export function eventsToIcs(events, options) {
       `Type: ${event.type}`,
       event.courseId ? `Course: ${event.courseId}` : null,
       event.group != null ? `Group: ${event.group}` : null,
+      event.subdivision ? `Subdivision: ${event.subdivision}` : null,
+      event.batch ? `Batch: ${event.batch}` : null,
       event.allDay ? "All-day" : null,
       ...(event.sourceReview ?? []).map(
         (r) => `Review: ${r.code}${r.detail ? " - " + r.detail : ""}`
@@ -201,7 +203,6 @@ export function eventsToIcs(events, options) {
     ].filter(Boolean);
 
     const description = escapeText(descriptionParts.join("\n"));
-
     const status = event.status === "cancelled" ? "CANCELLED" : "CONFIRMED";
 
     lines.push(
@@ -213,14 +214,15 @@ export function eventsToIcs(events, options) {
       "STATUS:" + status,
       dtstartLine,
       dtendLine,
-      foldLine("SUMMARY:" + summary),
-      location ? foldLine("LOCATION:" + location) : null,
-      description ? foldLine("DESCRIPTION:" + description) : null,
+      "SUMMARY:" + summary,
+      location ? "LOCATION:" + location : null,
+      description ? "DESCRIPTION:" + description : null,
       "END:VEVENT"
     );
   }
 
   lines.push("END:VCALENDAR");
 
-  return lines.filter(Boolean).join("\r\n") + "\r\n";
+  // Fold every line once, at the end, so UID and all other properties comply.
+  return lines.filter(Boolean).map(foldLine).join("\r\n") + "\r\n";
 }
