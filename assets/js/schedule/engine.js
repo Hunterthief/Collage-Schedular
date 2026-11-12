@@ -1,5 +1,11 @@
 import { createShorthandParser } from "./shorthand.js";
-import { expandWeekly, parseDate, weekdayName } from "./recurrence.js";
+import {
+  expandWeekly,
+  parseDate,
+  weekdayName,
+  isAcademicBlackoutDate,
+  getRotationSubdivision
+} from "./recurrence.js";
 import { applyExceptions } from "./exceptions.js";
 import { institutionEventMatches } from "./targeting.js";
 import { sortOccurrences, detectConflicts } from "./sorting.js";
@@ -18,23 +24,100 @@ function normalizeSubdivision(value) {
   return text || null;
 }
 
+function normalizeStudentId(value) {
+  if (value == null) return "";
+  return String(value).trim().replace(/\s+/g, "");
+}
+
+function isNumericId(id) {
+  return /^\d+$/.test(id);
+}
+
+function compareIds(a, b) {
+  if (isNumericId(a) && isNumericId(b)) {
+    const ba = BigInt(a);
+    const bb = BigInt(b);
+    if (ba < bb) return -1;
+    if (ba > bb) return 1;
+    return 0;
+  }
+
+  return String(a).localeCompare(String(b));
+}
+
+function idInRange(id, from, to) {
+  if (from != null && compareIds(id, String(from)) < 0) return false;
+  if (to != null && compareIds(id, String(to)) > 0) return false;
+  return true;
+}
+
+function sessionMatchesStudent(session, studentId) {
+  const sid = normalizeStudentId(studentId);
+
+  if (!sid) return true;
+
+  if (Array.isArray(session.students)) {
+    const matched = session.students
+      .map(normalizeStudentId)
+      .includes(sid);
+    if (matched) return true;
+  }
+
+  if (session.from == null && session.to == null) {
+    return true;
+  }
+
+  return idInRange(sid, session.from, session.to);
+}
+
+function sessionMatchesTarget(
+  session,
+  targetGroup,
+  targetSubdivision,
+  activeSubdivision,
+  studentId
+) {
+  if (session.group != null && targetGroup != null && session.group !== targetGroup) {
+    return false;
+  }
+
+  const sessionSub = normalizeSubdivision(session.subdivision);
+  const effectiveSub = activeSubdivision ?? targetSubdivision;
+
+  if (sessionSub && effectiveSub && sessionSub !== effectiveSub) {
+    return false;
+  }
+
+  return sessionMatchesStudent(session, studentId);
+}
+
 export function buildCourseMap(courses, diagnostics) {
   const map = new Map();
+
   for (const course of toArray(courses)) {
     if (!course.id) {
       diagnostics.errors.push("Course missing id.");
       continue;
     }
+
     if (map.has(course.id)) {
       diagnostics.errors.push(`Duplicate course id: ${course.id}`);
       continue;
     }
+
     map.set(course.id, course);
   }
+
   return map;
 }
 
-export function normalizeEvents(rawList, fallbackType, parser, courseMap, diagnostics) {
+export function normalizeEvents(
+  rawList,
+  fallbackType,
+  parser,
+  courseMap,
+  diagnostics
+) {
   const out = [];
   const seen = new Set();
 
@@ -43,13 +126,16 @@ export function normalizeEvents(rawList, fallbackType, parser, courseMap, diagno
       diagnostics.errors.push("Event missing id.");
       continue;
     }
+
     if (seen.has(raw.id)) {
       diagnostics.errors.push(`Duplicate event id: ${raw.id}`);
       continue;
     }
+
     seen.add(raw.id);
 
     const parsed = raw.shorthand ? parser.parse(raw.shorthand) : null;
+
     const type = raw.type ?? parsed?.type ?? fallbackType;
 
     if (!["lecture", "practical", "examination"].includes(type)) {
@@ -61,20 +147,29 @@ export function normalizeEvents(rawList, fallbackType, parser, courseMap, diagno
 
     if (parsed && raw.location) {
       if (parsed.location.building !== raw.location.building) {
-        diagnostics.errors.push(`Event ${raw.id} shorthand building conflicts with structured location.`);
+        diagnostics.errors.push(
+          `Event ${raw.id} shorthand building conflicts with structured location.`
+        );
       }
+
       if (parsed.location.floor !== raw.location.floor) {
-        diagnostics.errors.push(`Event ${raw.id} shorthand floor conflicts with structured location.`);
+        diagnostics.errors.push(
+          `Event ${raw.id} shorthand floor conflicts with structured location.`
+        );
       }
     }
 
     const course = raw.courseId ? courseMap.get(raw.courseId) : null;
+
     if (raw.courseId && !course) {
-      diagnostics.errors.push(`Event ${raw.id} references unknown course ${raw.courseId}.`);
+      diagnostics.errors.push(
+        `Event ${raw.id} references unknown course ${raw.courseId}.`
+      );
       continue;
     }
 
     const title = raw.title ?? course?.title ?? parsed?.title;
+
     if (!title) {
       diagnostics.errors.push(`Event ${raw.id} has no resolvable title.`);
       continue;
@@ -106,14 +201,36 @@ function appliesToGroup(def, targetGroup) {
 
 function appliesToSubdivision(def, targetSubdivision) {
   const allowed = def.subdivisions;
-  if (!Array.isArray(allowed) || allowed.length === 0) return true;
-  if (targetSubdivision == null) return false;
-  return allowed.map(normalizeSubdivision).filter(Boolean).includes(targetSubdivision);
+
+  if (!Array.isArray(allowed) || allowed.length === 0) {
+    return true;
+  }
+
+  if (targetSubdivision == null) {
+    return false;
+  }
+
+  return allowed
+    .map(normalizeSubdivision)
+    .filter(Boolean)
+    .includes(targetSubdivision);
 }
 
-function makeOccurrence({ def, date, start, end, group, subdivision, institutionId }) {
+function makeOccurrence({
+  def,
+  date,
+  start,
+  end,
+  group,
+  subdivision,
+  batch,
+  institutionId
+}) {
   const sub = normalizeSubdivision(subdivision);
-  const uid = `${institutionId}:${def.id}:${date}:${group ?? "all"}${sub ? `:${sub}` : ""}`;
+
+  const uid =
+    `${institutionId}:${def.id}:${date}:` +
+    `${group ?? "all"}:${sub ?? "none"}:${start ?? "allday"}`;
 
   return {
     uid,
@@ -130,6 +247,7 @@ function makeOccurrence({ def, date, start, end, group, subdivision, institution
     location: def.location ?? null,
     group: group ?? null,
     subdivision: sub,
+    batch: batch ?? null,
     status: "published",
     source: "academic",
     sourceReview: def.sourceReview ?? [],
@@ -139,41 +257,107 @@ function makeOccurrence({ def, date, start, end, group, subdivision, institution
 }
 
 export function materializeAcademicOccurrences(
-  defs, semester, targetGroup, settings, institutionId, diagnostics, targetSubdivision = null
+  defs,
+  semester,
+  targetGroup,
+  settings,
+  institutionId,
+  diagnostics,
+  targetSubdivision = null,
+  studentId = null
 ) {
   const out = [];
   const targetSub = normalizeSubdivision(targetSubdivision);
 
   if (!semester.validFrom || !semester.validUntil) {
-    diagnostics.warnings.push(`Semester ${semester.id} has missing date window.`);
+    diagnostics.warnings.push(
+      `Semester ${semester.id} has missing date window.`
+    );
     return out;
   }
 
+  const blackouts = semester.blackouts ?? [];
+  const weekStartDay = settings?.weekStartDay ?? "Saturday";
+  const anchorDate = semester.validFrom;
+
   for (const def of defs) {
-    if (def.type === "practical") {
-      if (!Array.isArray(def.sessions) || def.sessions.length === 0) {
-        diagnostics.errors.push(`Practical ${def.id} has no sessions.`);
-        continue;
-      }
+    const hasSessions =
+      Array.isArray(def.sessions) && def.sessions.length > 0;
+
+    if (hasSessions) {
       if (targetGroup == null) continue;
-      if (!appliesToSubdivision(def, targetSub)) continue;
 
-      for (const session of def.sessions) {
-        if (session.group !== targetGroup) continue;
-        const sessionSub = normalizeSubdivision(session.subdivision ?? null);
-        if (sessionSub && sessionSub !== targetSub) continue;
+      const dates = def.date
+        ? [def.date]
+        : expandWeekly(
+            semester.validFrom,
+            semester.validUntil,
+            def.day,
+            def.validFrom,
+            def.validUntil
+          );
 
-        const dates = def.date
-          ? [def.date]
-          : expandWeekly(semester.validFrom, semester.validUntil, def.day, def.validFrom, def.validUntil);
+      for (const date of dates) {
+        if (isAcademicBlackoutDate(date, blackouts, def.type)) {
+          continue;
+        }
 
-        for (const date of dates) {
-          out.push(makeOccurrence({
-            def, date, start: session.start, end: session.end,
-            group: session.group, subdivision: sessionSub, institutionId
-          }));
+        let activeSubdivision = null;
+
+        if (def.rotation) {
+          activeSubdivision = normalizeSubdivision(
+            getRotationSubdivision(
+              date,
+              def.rotation,
+              anchorDate,
+              blackouts,
+              weekStartDay
+            )
+          );
+
+          if (!activeSubdivision) {
+            continue;
+          }
+
+          if (targetSub && targetSub !== activeSubdivision) {
+            continue;
+          }
+        }
+
+        for (const session of def.sessions) {
+          if (
+            !sessionMatchesTarget(
+              session,
+              targetGroup,
+              targetSub,
+              activeSubdivision,
+              studentId
+            )
+          ) {
+            continue;
+          }
+
+          const group = session.group ?? targetGroup;
+          const subdivision =
+            activeSubdivision ??
+            normalizeSubdivision(session.subdivision) ??
+            targetSub;
+
+          out.push(
+            makeOccurrence({
+              def,
+              date,
+              start: session.start,
+              end: session.end,
+              group,
+              subdivision,
+              batch: session.batch ?? null,
+              institutionId
+            })
+          );
         }
       }
+
       continue;
     }
 
@@ -187,45 +371,109 @@ export function materializeAcademicOccurrences(
 
     const dates = def.date
       ? [def.date]
-      : expandWeekly(semester.validFrom, semester.validUntil, def.day, def.validFrom, def.validUntil);
+      : expandWeekly(
+          semester.validFrom,
+          semester.validUntil,
+          def.day,
+          def.validFrom,
+          def.validUntil
+        );
 
     for (const date of dates) {
-      out.push(makeOccurrence({
-        def, date, start: def.start, end: def.end,
-        group: targetGroup, subdivision: null, institutionId
-      }));
+      if (isAcademicBlackoutDate(date, blackouts, def.type)) {
+        continue;
+      }
+
+      let activeSubdivision = null;
+
+      if (def.rotation) {
+        activeSubdivision = normalizeSubdivision(
+          getRotationSubdivision(
+            date,
+            def.rotation,
+            anchorDate,
+            blackouts,
+            weekStartDay
+          )
+        );
+
+        if (!activeSubdivision) {
+          continue;
+        }
+
+        if (targetSub && targetSub !== activeSubdivision) {
+          continue;
+        }
+      }
+
+      out.push(
+        makeOccurrence({
+          def,
+          date,
+          start: def.start,
+          end: def.end,
+          group: targetGroup,
+          subdivision: activeSubdivision ?? targetSub,
+          batch: null,
+          institutionId
+        })
+      );
     }
   }
 
   return out;
 }
 
-export function buildInstitutionOccurrences(institutionEvents, context, settings, institutionId, parser, diagnostics) {
+export function buildInstitutionOccurrences(
+  institutionEvents,
+  context,
+  settings,
+  institutionId,
+  parser,
+  diagnostics
+) {
   const out = [];
 
   for (const event of toArray(institutionEvents)) {
     if (!["published", "cancelled"].includes(event.status)) continue;
+
     if (!institutionEventMatches(event, context)) continue;
 
     const parsed = event.shorthand ? parser.parse(event.shorthand) : null;
     const location = event.location ?? parsed?.location ?? null;
 
     const metas = [];
+
     if (event.date) {
-      metas.push({ date: event.date, endDate: event.endDate ?? null, allDay: !!event.allDay });
+      metas.push({
+        date: event.date,
+        endDate: event.endDate ?? null,
+        allDay: !!event.allDay
+      });
     } else if (event.startDate) {
-      metas.push({ date: event.startDate, endDate: event.endDate ?? event.startDate, allDay: event.allDay !== false });
+      metas.push({
+        date: event.startDate,
+        endDate: event.endDate ?? event.startDate,
+        allDay: event.allDay !== false
+      });
     } else if (event.day && event.validFrom && event.validUntil) {
       for (const d of expandWeekly(event.validFrom, event.validUntil, event.day)) {
-        metas.push({ date: d, endDate: null, allDay: false });
+        metas.push({
+          date: d,
+          endDate: null,
+          allDay: false
+        });
       }
     } else {
-      diagnostics.warnings.push(`Institution event ${event.id} has no materializable date window.`);
+      diagnostics.warnings.push(
+        `Institution event ${event.id} has no materializable date window.`
+      );
       continue;
     }
 
     for (const meta of metas) {
       const uid = `${institutionId}:${event.id}:${meta.date}`;
+
       out.push({
         uid,
         uidBase: uid,
@@ -244,6 +492,7 @@ export function buildInstitutionOccurrences(institutionEvents, context, settings
         location,
         group: null,
         subdivision: null,
+        batch: null,
         status: event.status,
         source: "institution",
         audience: event.audience ?? { scope: "all" },
@@ -257,29 +506,48 @@ export function buildInstitutionOccurrences(institutionEvents, context, settings
 
 export function mergeOccurrences(events, diagnostics) {
   const map = new Map();
+
   for (const event of events) {
     const existing = map.get(event.uid);
+
     if (!existing) {
       map.set(event.uid, event);
       continue;
     }
+
     if (existing.eventId !== event.eventId) {
-      diagnostics.errors.push(`UID collision between ${existing.eventId} and ${event.eventId}: ${event.uid}`);
+      diagnostics.errors.push(
+        `UID collision between ${existing.eventId} and ${event.eventId}: ${event.uid}`
+      );
       continue;
     }
+
     if (existing.status === "cancelled" && event.status === "published") {
       map.set(event.uid, event);
+      continue;
     }
   }
+
   return Array.from(map.values());
 }
 
 export function composeSchedule({
-  institutionId, timezone, settings, locations, semester,
-  courses = [], lectures = [], practicals = [], exams = [],
-  exceptions = [], institutionEvents = [], context, locale = "en"
+  institutionId,
+  timezone,
+  settings,
+  locations,
+  semester,
+  courses = [],
+  lectures = [],
+  practicals = [],
+  exams = [],
+  exceptions = [],
+  institutionEvents = [],
+  context,
+  locale = "en"
 }) {
   const diagnostics = { errors: [], warnings: [] };
+
   const parser = createShorthandParser(locations.buildings);
   const courseMap = buildCourseMap(courses, diagnostics);
 
@@ -290,30 +558,66 @@ export function composeSchedule({
   ];
 
   const academic = materializeAcademicOccurrences(
-    defs, semester, context.practicalGroup ?? null, settings, institutionId, diagnostics,
-    context.subdivision ?? null
+    defs,
+    semester,
+    context.practicalGroup ?? null,
+    settings,
+    institutionId,
+    diagnostics,
+    context.subdivision ?? null,
+    context.studentId ?? null
   );
 
   const exceptionResult = applyExceptions(academic, toArray(exceptions), {
-    settings, institutionId, eventById: new Map(defs.map((d) => [d.id, d]))
+    settings,
+    institutionId,
+    eventById: new Map(defs.map((d) => [d.id, d]))
   });
+
   diagnostics.errors.push(...exceptionResult.diagnostics.errors);
   diagnostics.warnings.push(...exceptionResult.diagnostics.warnings);
 
-  const institution = buildInstitutionOccurrences(institutionEvents, context, settings, institutionId, parser, diagnostics);
-  const merged = mergeOccurrences([...exceptionResult.occurrences, ...institution], diagnostics);
+  const institution = buildInstitutionOccurrences(
+    institutionEvents,
+    context,
+    settings,
+    institutionId,
+    parser,
+    diagnostics
+  );
+
+  const merged = mergeOccurrences(
+    [...exceptionResult.occurrences, ...institution],
+    diagnostics
+  );
+
   const events = sortOccurrences(merged, locale);
   const conflicts = detectConflicts(events);
 
-  return { events, conflicts, diagnostics, locale };
+  return {
+    events,
+    conflicts,
+    diagnostics,
+    locale
+  };
 }
 
 export function selectActiveSemester(academicYear, today, timezone) {
   const semesters = academicYear.semesters.filter((s) => s.status !== "draft");
-  const active = semesters.find((s) => s.validFrom && s.validUntil && today >= s.validFrom && today <= s.validUntil);
+
+  const active = semesters.find(
+    (s) =>
+      s.validFrom &&
+      s.validUntil &&
+      today >= s.validFrom &&
+      today <= s.validUntil
+  );
+
   if (active) return active;
+
   const upcoming = semesters
     .filter((s) => s.validFrom && today < s.validFrom)
     .sort((a, b) => a.validFrom.localeCompare(b.validFrom))[0];
+
   return upcoming ?? null;
 }
