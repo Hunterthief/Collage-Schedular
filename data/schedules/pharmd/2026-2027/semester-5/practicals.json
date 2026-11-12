@@ -33,8 +33,8 @@
       "validUntil": null,
       "sourceReview": [
         {
-          "code": "LOCATION_CLARIFIED_BY_DEPARTMENT_INPUT",
-          "detail": "Department input states PN 6 Scientific Writing and Communication skills is every week for every group."
+          "code": "EVERY_WEEK_ALL_GROUPS",
+          "detail": "Department input: PN 6 Scientific Writing and Communication skills is every week for every group."
         }
       ]
     },
@@ -71,25 +71,416 @@
       "validUntil": null,
       "sourceReview": [
         {
-          "code": "LOCATION_CLARIFIED_BY_DEPARTMENT_INPUT",
-          "detail": "Department input states PN 7 Basic Pharmacology is every week for every group."
+          "code": "EVERY_WEEK_ALL_GROUPS",
+          "detail": "Department input: PN 7 Basic Pharmacology is every week for every group."
         }
       ]
     },
     {
-      "id": "pharmd-s5-drug-information-practical",
+      "id": "pharmd-s5-drug-information-tutorial-w02-a-2026-09-27",
       "courseId": "02-06-09305",
       "type": "practical",
-      "day": "Sunday",
-      "rotation": {
-        "type": "alternating-subdivisions",
-        "sequence": [
-          "A",
-          "B"
-        ],
-        "startWeek": 1,
-        "excludeBlackouts": true
+      "title": {
+        "en": "Drug Information Tutorial (A) - Intro & Request Form"
       },
+      "description": {
+        "en": "Introduction to drug info, drug info center, and services. Drug information request form overview. Group A."
+      },
+      "week": 2,
+      "day": "Sunday",
+      "date": "2026-09-27",
+      "sessions": [
+        {
+          "group": 2,
+          "subdivision": "A",
+          "start": "09:00",
+          "end": "10:50"
+        },
+        {
+          "group": 1,
+          "subdivision": "A",
+          "start": "11:00",
+          "end": "12:50"
+        },
+        {
+          "group": 3,
+          "subdivision": "A",
+          "start": "13:00",
+          "end": "14:50"
+        }
+      ],
+      "location": {
+        "building": "new",
+        "floor": 0,
+        "room": "Computer Hall"
+      },
+      "shorthand": "PN 0 Drug Information",
+      "displayCode": "PN 0 Drug Information (A)",
+      "validFrom": null,
+      "validUntil": null,
+      "sourceReview": [
+        {
+          "code": "EXPLICIT_DATE_FROM_DEPARTMENT_PDF",
+          "detail": "Date and Group A assignment taken from the provisional Drug Information tutorials schedule."
+        }
+      ]
+    },
+    {
+      "id": "pharmd-s5-drug-information-tutorial-w03-b-2026-10-04",
+      "courseId": "02-06-09305",
+      "type": "practical",
+      "title": {
+        "en": "Drug Information Tutorial (B) - Intro & Request Form"
+      },
+      "description": {
+        "en": "Introduction to drug info, drug info center, and services. Drug information request form overview. Group B."
+      },
+      "week": 3,
+      "day": "Sunday",
+      "date": "2026-10-04",
+      "sessions": [
+        {
+          "group": 2,
+          "subdivision": "B",
+          "start": "09:00",
+          "end": "10:50"
+        },
+        {
+          "group": 1,
+          "subdivision": "B",
+          "start": "11:00",
+          "end": "12:50"
+        },
+        {
+          "group": 3,
+          "subdivision": "B",
+          "start": "13:00",
+          "end": "14:50"
+        }
+      ],
+      "location": {
+        "building": "new",
+        "floor": 0,
+        "room": "Computer Hall"
+      },
+      "shorthand": "PN 0 Drug Information",
+      "displayCode": "PN 0 Drug Information (B)",
+      "validFrom": null,
+      "validUntil": null,
+      "sourceReview": [
+        {
+          "code": "EXPLICIT_DATE_FROM_DEPARTMENT_PDF",
+          "detail": "Date and Group B assignment taken from the provisional Drug Information tutorials schedule."
+        }
+      ]
+    },
+    {
+      "id": "pharmd-s5-drug-information-tutorial-w04-a-2026-10-11",
+      "courseId": "02-06-09305",
+      "type": "practical",
+      "title": {
+        "en": "Drug Information Tutorial (A) - Structure Approach"
+      },
+      "description": {
+        "en": "Structure approach in answering drug information questions. Categorization of different resources based on question type. Group A."
+      },
+      "week": 4,
+      "day": "Sunday",
+      "date": "2026-10-11",
+      "sessions": [
+        {
+          "group": 2,
+          "subdivision": "A",
+          "start": "09:00",
+          "end": "10:50"
+        },
+        {
+          "group": 1,
+          "subdivision": "A",
+          "start": "11:00",
+          "end": "12:50"
+        },
+        {
+          "group": 3,
+          "subdivision": "A",
+          "start": "13:00",
+          "end": "14:50"
+        }
+      ],
+      "location": {
+        "building": "new",
+        "floor": 0,
+        "room": "Computer Hall"
+      },
+      "shorthand": "PN 0 Drug Information",
+      "displayCode": "PN 0 Drug Information (A)",
+      "validFrom": null,
+      "validUntil": null,
+      "sourceReview": [
+        {
+          "code": "EXPLICIT_DATE_FROM_DEPARTMENT_PDF",
+          "detail": "Date and Group A assignment taken from the provisional Drug Information tutorials schedule."
+        }
+      ]
+    },
+    {
+      "id": "pharmd-s5-drug-information-tutorial-w05-b-2026-10-18",
+      "courseId": "02-06-09305",
+      "type": "practical",
+      "title": {
+        "en": "Drug Information Tutorial (B) - Structure Approach"
+      },
+      "description": {
+        "en": "Structure approach in answering drug information questions. Categorization of different resources based on question type. Group B."
+      },
+      "week": 5,
+      "day": "Sunday",
+      "date": "2026-10-18",
+      "sessions": [
+        {
+          "group": 2,
+          "subdivision": "B",
+          "start": "09:00",
+          "end": "10:50"
+        },
+        {
+          "group": 1,
+          "subdivision": "B",
+          "start": "11:00",
+          "end": "12:50"
+        },
+        {
+          "group": 3,
+          "subdivision": "B",
+          "start": "13:00",
+          "end": "14:50"
+        }
+      ],
+      "location": {
+        "building": "new",
+        "floor": 0,
+        "room": "Computer Hall"
+      },
+      "shorthand": "PN 0 Drug Information",
+      "displayCode": "PN 0 Drug Information (B)",
+      "validFrom": null,
+      "validUntil": null,
+      "sourceReview": [
+        {
+          "code": "EXPLICIT_DATE_FROM_DEPARTMENT_PDF",
+          "detail": "Date and Group B assignment taken from the provisional Drug Information tutorials schedule."
+        }
+      ]
+    },
+    {
+      "id": "pharmd-s5-drug-information-tutorial-w06-a-2026-10-25",
+      "courseId": "02-06-09305",
+      "type": "practical",
+      "title": {
+        "en": "Drug Information Tutorial (A) - Tertiary Search & Cases"
+      },
+      "description": {
+        "en": "Drug information resources: how to search in tertiary literature with a focus on websites: Medscape, drugs.com, pdr.net. Practicing Drug Information - real cases question and answer. Group A."
+      },
+      "week": 6,
+      "day": "Sunday",
+      "date": "2026-10-25",
+      "sessions": [
+        {
+          "group": 2,
+          "subdivision": "A",
+          "start": "09:00",
+          "end": "10:50"
+        },
+        {
+          "group": 1,
+          "subdivision": "A",
+          "start": "11:00",
+          "end": "12:50"
+        },
+        {
+          "group": 3,
+          "subdivision": "A",
+          "start": "13:00",
+          "end": "14:50"
+        }
+      ],
+      "location": {
+        "building": "new",
+        "floor": 0,
+        "room": "Computer Hall"
+      },
+      "shorthand": "PN 0 Drug Information",
+      "displayCode": "PN 0 Drug Information (A)",
+      "validFrom": null,
+      "validUntil": null,
+      "sourceReview": [
+        {
+          "code": "EXPLICIT_DATE_FROM_DEPARTMENT_PDF",
+          "detail": "Date and Group A assignment taken from the provisional Drug Information tutorials schedule."
+        }
+      ]
+    },
+    {
+      "id": "pharmd-s5-drug-information-tutorial-w08-b-2026-11-08",
+      "courseId": "02-06-09305",
+      "type": "practical",
+      "title": {
+        "en": "Drug Information Tutorial (B) - Tertiary Search, EKB & Cases"
+      },
+      "description": {
+        "en": "Drug information resources: how to search in tertiary literature with a focus on websites: Medscape, drugs.com, pdr.net and EKB (Gold Standard). Practicing Drug Information - real cases question and answer. Group B."
+      },
+      "week": 8,
+      "day": "Sunday",
+      "date": "2026-11-08",
+      "sessions": [
+        {
+          "group": 2,
+          "subdivision": "B",
+          "start": "09:00",
+          "end": "10:50"
+        },
+        {
+          "group": 1,
+          "subdivision": "B",
+          "start": "11:00",
+          "end": "12:50"
+        },
+        {
+          "group": 3,
+          "subdivision": "B",
+          "start": "13:00",
+          "end": "14:50"
+        }
+      ],
+      "location": {
+        "building": "new",
+        "floor": 0,
+        "room": "Computer Hall"
+      },
+      "shorthand": "PN 0 Drug Information",
+      "displayCode": "PN 0 Drug Information (B)",
+      "validFrom": null,
+      "validUntil": null,
+      "sourceReview": [
+        {
+          "code": "EXPLICIT_DATE_FROM_DEPARTMENT_PDF",
+          "detail": "Date and Group B assignment taken from the provisional Drug Information tutorials schedule. Week 7 is mid-term exam week and is skipped."
+        }
+      ]
+    },
+    {
+      "id": "pharmd-s5-drug-information-tutorial-w09-a-2026-11-15",
+      "courseId": "02-06-09305",
+      "type": "practical",
+      "title": {
+        "en": "Drug Information Tutorial (A) - Lexicomp & PubMed"
+      },
+      "description": {
+        "en": "Drug information resources: how to search in tertiary literature: Lexicomp. How to search in secondary and primary literature with a focus on Mesh and PubMed. Group A."
+      },
+      "week": 9,
+      "day": "Sunday",
+      "date": "2026-11-15",
+      "sessions": [
+        {
+          "group": 2,
+          "subdivision": "A",
+          "start": "09:00",
+          "end": "10:50"
+        },
+        {
+          "group": 1,
+          "subdivision": "A",
+          "start": "11:00",
+          "end": "12:50"
+        },
+        {
+          "group": 3,
+          "subdivision": "A",
+          "start": "13:00",
+          "end": "14:50"
+        }
+      ],
+      "location": {
+        "building": "new",
+        "floor": 0,
+        "room": "Computer Hall"
+      },
+      "shorthand": "PN 0 Drug Information",
+      "displayCode": "PN 0 Drug Information (A)",
+      "validFrom": null,
+      "validUntil": null,
+      "sourceReview": [
+        {
+          "code": "EXPLICIT_DATE_FROM_DEPARTMENT_PDF",
+          "detail": "Date and Group A assignment taken from the provisional Drug Information tutorials schedule."
+        }
+      ]
+    },
+    {
+      "id": "pharmd-s5-drug-information-tutorial-w10-b-2026-11-22",
+      "courseId": "02-06-09305",
+      "type": "practical",
+      "title": {
+        "en": "Drug Information Tutorial (B) - Lexicomp & PubMed"
+      },
+      "description": {
+        "en": "Drug information resources: how to search in tertiary literature: Lexicomp. How to search in secondary and primary literature with a focus on Mesh and PubMed. Group B."
+      },
+      "week": 10,
+      "day": "Sunday",
+      "date": "2026-11-22",
+      "sessions": [
+        {
+          "group": 2,
+          "subdivision": "B",
+          "start": "09:00",
+          "end": "10:50"
+        },
+        {
+          "group": 1,
+          "subdivision": "B",
+          "start": "11:00",
+          "end": "12:50"
+        },
+        {
+          "group": 3,
+          "subdivision": "B",
+          "start": "13:00",
+          "end": "14:50"
+        }
+      ],
+      "location": {
+        "building": "new",
+        "floor": 0,
+        "room": "Computer Hall"
+      },
+      "shorthand": "PN 0 Drug Information",
+      "displayCode": "PN 0 Drug Information (B)",
+      "validFrom": null,
+      "validUntil": null,
+      "sourceReview": [
+        {
+          "code": "EXPLICIT_DATE_FROM_DEPARTMENT_PDF",
+          "detail": "Date and Group B assignment taken from the provisional Drug Information tutorials schedule."
+        }
+      ]
+    },
+    {
+      "id": "pharmd-s5-drug-information-tutorial-w11-ab-2026-11-29",
+      "courseId": "02-06-09305",
+      "type": "practical",
+      "title": {
+        "en": "Drug Information Tutorial (A & B) - Request Form Training + PubMed"
+      },
+      "description": {
+        "en": "Drug information request form training on cases plus PubMed revision. Group A and Group B."
+      },
+      "week": 11,
+      "day": "Sunday",
+      "date": "2026-11-29",
       "sessions": [
         {
           "group": 2,
@@ -113,13 +504,13 @@
         "room": "Computer Hall"
       },
       "shorthand": "PN 0 Drug Information",
-      "displayCode": "PN 0 Drug Information",
+      "displayCode": "PN 0 Drug Information (A & B)",
       "validFrom": null,
       "validUntil": null,
       "sourceReview": [
         {
-          "code": "ALTERNATING_A_B_PATTERN",
-          "detail": "Department input: PN 0 small lab Drug Information alternates weeks. First teaching week = A, second = B. Mid-term week is skipped and does not count in the pattern."
+          "code": "EXPLICIT_DATE_FROM_DEPARTMENT_PDF",
+          "detail": "Week 11 is listed for both Group A and Group B in the provisional Drug Information tutorials schedule."
         }
       ]
     },
@@ -322,7 +713,7 @@
       "validUntil": null,
       "sourceReview": [
         {
-          "code": "SOURCE TYPO CORRECTED",
+          "code": "SOURCE_TYPO_CORRECTED",
           "detail": "Source image showed 2215095 for batch 2A-2. Corrected to 2415095 as an obvious digit typo."
         }
       ]
@@ -557,7 +948,7 @@
       "validUntil": null,
       "sourceReview": [
         {
-          "code": "SOURCE TYPO CORRECTED",
+          "code": "SOURCE_TYPO_CORRECTED",
           "detail": "Source image showed 2215148 for batch 2B-4. Corrected to 2415148 as an obvious digit typo."
         },
         {
