@@ -1,16 +1,39 @@
 .calendar-container {
   min-height: 300px;
+  min-width: 0;
 }
 
 .gc-calendar {
   border-top: 1px solid var(--line);
   overflow: auto;
+  overscroll-behavior-x: contain;
   background: var(--surface);
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-strong) var(--surface-2);
+}
+
+.gc-calendar::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+.gc-calendar::-webkit-scrollbar-track {
+  background: var(--surface-2);
+}
+.gc-calendar::-webkit-scrollbar-thumb {
+  background: var(--line-strong);
+  border-radius: 999px;
+  border: 2px solid var(--surface-2);
+}
+.gc-calendar::-webkit-scrollbar-thumb:hover {
+  background: var(--muted);
+}
+.gc-calendar::-webkit-scrollbar-corner {
+  background: var(--surface-2);
 }
 
 .gc-row {
   display: grid;
-  grid-template-columns: 64px 1fr;
+  grid-template-columns: 64px minmax(0, 1fr);
   min-width: calc(64px + var(--day-count) * 112px);
 }
 
@@ -24,6 +47,10 @@
 
 .gc-corner {
   border-right: 1px solid var(--line);
+  position: sticky;
+  left: 0;
+  z-index: 22;
+  background: var(--surface);
 }
 
 .gc-day-heads,
@@ -91,6 +118,10 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
+  position: sticky;
+  left: 0;
+  z-index: 12;
+  background: #fff;
 }
 
 .gc-allday-cell {
@@ -131,7 +162,9 @@
 }
 
 .gc-time-gutter {
-  position: relative;
+  position: sticky;
+  left: 0;
+  z-index: 10;
   border-right: 1px solid var(--line);
   background: var(--surface);
   height: calc((var(--range-end) - var(--range-start)) / 60 * var(--hour-height));
@@ -273,6 +306,7 @@
   padding: 14px 16px 18px;
   display: grid;
   gap: 12px;
+  min-width: 0;
 }
 
 .agenda-day {
@@ -280,6 +314,7 @@
   border-radius: 10px;
   overflow: hidden;
   background: var(--surface);
+  min-width: 0;
 }
 
 .agenda-day-header {
@@ -296,12 +331,14 @@
   margin: 0;
   font-size: 0.92rem;
   font-weight: 650;
+  overflow-wrap: anywhere;
 }
 
 .agenda-count {
   color: var(--muted);
   font-size: 0.75rem;
   font-weight: 650;
+  flex: 0 0 auto;
 }
 
 .agenda-event {
@@ -341,6 +378,14 @@
   display: flex;
   flex-wrap: wrap;
   gap: 4px 10px;
+  overflow-wrap: anywhere;
+}
+
+.agenda-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  justify-content: flex-end;
 }
 
 .tag {
@@ -402,12 +447,28 @@
 }
 
 @media (max-width: 700px) {
+  .agenda {
+    padding: 12px;
+  }
+
   .agenda-event {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 6px;
+  }
+
+  .agenda-tags {
+    justify-content: flex-start;
   }
 
   .gc-row {
+    grid-template-columns: 54px minmax(0, 1fr);
     min-width: calc(54px + var(--day-count) * 96px);
+  }
+
+  .gc-day-heads,
+  .gc-allday-cells,
+  .gc-columns {
+    grid-template-columns: repeat(var(--day-count), minmax(96px, 1fr));
   }
 
   .gc-time-gutter {
