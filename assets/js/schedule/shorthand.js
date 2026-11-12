@@ -1,11 +1,13 @@
 // Shorthand is a convenience parser only. Structured JSON fields remain the
 // source of truth. Supported leading letters:
 //   L = lecture, P = practical, E = examination
-// Supported building codes (matched case-insensitively against the locations
-// data you pass in): the code letter, e.g. N -> new, O -> old.
-// Optional floor number may follow the building letter, with or without a space.
-// A non-empty title is required. Malformed input throws so data mistakes are
-// loud rather than silent.
+// The building code is matched case-insensitively against the locations data
+// (code or id, longest first). An optional floor number may follow, with or
+// without a space. A non-empty title is required.
+//
+// Parsing is done step by step (type -> building -> floor -> title), NOT with
+// one regex, so "LN 5" is correctly rejected as missing a title instead of
+// treating "5" as the course name.
 
 const TYPE_BY_LETTER = {
   L: "lecture",
@@ -13,14 +15,24 @@ const TYPE_BY_LETTER = {
   E: "examination"
 };
 
-const SHORTHAND_RE = /^([lpe])([a-z])\s*(\d+)?\s*(\S.*)$/i;
-
 export function createShorthandParser(buildings = []) {
-  // Map every building code (lowercased) to its canonical id.
-  const codeToId = new Map();
+  const codes = [];
   for (const b of buildings) {
-    if (b?.code) codeToId.set(String(b.code).toLowerCase(), b.id);
-    if (b?.id) codeToId.set(String(b.id).toLowerCase(), b.id);
+    if (b?.code) codes.push({ code: String(b.code).toLowerCase(), id: b.id });
+    if (b?.id) codes.push({ code: String(b.id).toLowerCase(), id: b.id });
+  }
+  codes.sort((a, b) => b.code.length - a.code.length);
+
+  function matchBuilding(rest) {
+    const lower = rest.toLowerCase();
+    for (const { code, id } of codes) {
+      if (!lower.startsWith(code)) continue;
+      const next = rest[code.length];
+      if (next === undefined || /\s/.test(next) || /\d/.test(next)) {
+        return { id, consumed: code.length };
+      }
+    }
+    return null;
   }
 
   function parse(raw) {
@@ -33,38 +45,44 @@ export function createShorthandParser(buildings = []) {
       throw new Error("Shorthand cannot be empty.");
     }
 
-    const m = SHORTHAND_RE.exec(input);
-    if (!m) {
-      throw new Error(`Unrecognized shorthand: "${input}".`);
-    }
-
-    const typeLetter = m[1].toUpperCase();
-    const buildingLetter = m[2].toLowerCase();
-    const floorRaw = m[3];
-    const title = m[4].trim();
-
+    const typeLetter = input[0].toUpperCase();
     const type = TYPE_BY_LETTER[typeLetter];
     if (!type) {
-      throw new Error(`Unknown shorthand type "${typeLetter}" in "${input}".`);
+      throw new Error(`Unknown shorthand type "${input[0]}" in "${input}".`);
     }
 
-    const buildingId = codeToId.get(buildingLetter);
-    if (!buildingId) {
+    let rest = input.slice(1).trimStart();
+    if (!rest) {
+      throw new Error(`Shorthand "${input}" is missing a building code.`);
+    }
+
+    const match = matchBuilding(rest);
+    if (!match) {
       throw new Error(
-        `Unknown shorthand building "${m[2]}" in "${input}". Not present in locations data.`
+        `Unknown shorthand building "${rest[0]}" in "${input}". Not present in locations data.`
       );
     }
+    rest = rest.slice(match.consumed).trimStart();
 
+    let floor = null;
+    if (/^\d/.test(rest)) {
+      const m = /^(\d+)(?=\s|$)/.exec(rest);
+      if (!m) {
+        throw new Error(`Invalid floor token in shorthand "${input}".`);
+      }
+      floor = Number(m[1]);
+      rest = rest.slice(m[0].length).trimStart();
+    }
+
+    const title = rest.trim();
     if (!title) {
       throw new Error(`Shorthand "${input}" is missing a title.`);
     }
 
-    const floor = floorRaw != null ? Number(floorRaw) : null;
-
     return {
       type,
       location: {
-        building: buildingId,
+        building: match.id,
         floor,
         room: null
       },
