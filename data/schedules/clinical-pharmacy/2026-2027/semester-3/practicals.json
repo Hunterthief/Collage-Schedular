@@ -41,6 +41,12 @@
       "courseId": "08-PB-302",
       "type": "practical",
       "day": "Tuesday",
+      "rotation": {
+        "type": "alternating-subdivisions",
+        "sequence": ["A", "B"],
+        "startWeek": 1,
+        "excludeBlackouts": true
+      },
       "sessions": [
         { "group": 1, "start": "15:00", "end": "16:50" },
         { "group": 2, "start": "17:00", "end": "18:50" }
@@ -49,7 +55,13 @@
       "shorthand": "PN 7 Biochemistry-I",
       "displayCode": "PN 7 Biochemistry-I",
       "validFrom": null,
-      "validUntil": null
+      "validUntil": null,
+      "sourceReview": [
+        {
+          "code": "ALTERNATING_A_B_PATTERN",
+          "detail": "Department input: Biochemistry-I practical alternates weeks. The week of 2026-11-07 (Tue 10 Nov) was Group A and the week of 2026-11-14 (Tue 17 Nov) is Group B. With startWeek 1 and the mid-term week excluded from the rotation, this anchors to A on odd teaching weeks and backdates to A on 2026-09-22. Mid-term week (2026-10-31 to 2026-11-05) is skipped and does not count in the pattern."
+        }
+      ]
     },
     {
       "id": "clinical-s3-organic-chemistry-practical",
