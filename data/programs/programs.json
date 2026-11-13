@@ -120,7 +120,7 @@
                 },
                 {
                   "code": "ALL_SECTIONS_WEEKLY_NO_ROTATION",
-                  "detail": "Department instruction: every lecture and practical section in this semester runs every week for both groups; there are no alternating A/B weeks. The only deviations are the two Phytochemistry-I examination Thursdays (2026-11-26 Group A, 2026-12-03 Group B), represented by dated examination events; the weekly practical's validity windows simply skip those two dates, so no cancel exceptions exist."
+                  "detail": "Department instruction: every lecture and practical section in this semester runs every week for both groups; there are no alternating A/B weeks. The only deviations are the two Phytochemistry-I examination Thursdays (2026-11-19 Group A, 2026-11-26 Group B), represented by dated examination events; the weekly practical's validity windows simply skip those two dates, so no cancel exceptions exist."
                 },
                 {
                   "code": "MICROBIOLOGY_PRACTICAL_GROUPS_SWAPPED",
@@ -128,7 +128,7 @@
                 },
                 {
                   "code": "PHYTOCHEMISTRY_WINDOWED_AROUND_EXAMS",
-                  "detail": "Phytochemistry-I is a weekly Thursday practical for both groups, expressed as two validity windows that exclude the two examination Thursdays (ends 2026-11-25, resumes 2026-12-04). The mid-term blackout separately suppresses 2026-10-29 and 2026-11-05. No cancel exceptions are used, so nothing is left as a cancelled remnant."
+                  "detail": "Phytochemistry-I is a weekly Thursday practical for both groups, expressed as two validity windows that exclude the two examination Thursdays (ends 2026-11-18, resumes 2026-11-27). The mid-term blackout separately suppresses 2026-10-29 and 2026-11-05. No cancel exceptions are used, so nothing is left as a cancelled remnant."
                 },
                 {
                   "code": "EXAM_TIMETABLE_PARTIAL",
