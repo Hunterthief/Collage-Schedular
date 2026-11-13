@@ -6,7 +6,7 @@
       "type": "examination",
       "title": { "en": "Phytochemistry-I Examination (Group A)" },
       "day": "Thursday",
-      "date": "2026-11-26",
+      "date": "2026-11-19",
       "sessions": [
         { "group": 1, "subdivision": "A", "start": "13:00", "end": "14:50" },
         { "group": 2, "subdivision": "A", "start": "15:00", "end": "16:50" }
@@ -17,7 +17,7 @@
       "sourceReview": [
         {
           "code": "PHYTOCHEMISTRY_WINDOWED_AROUND_EXAMS",
-          "detail": "Date from department instruction 'next week phyto is an exam for group A', anchored to 2026-11-13 -> Thursday of the week of 21 Nov = 2026-11-26. Times reuse the printed practical slots (Group-1 slot 13:00-14:50, Group-2 slot 15:00-16:50) restricted to subdivision A. The weekly practical does not materialize on this date (its validity window ends 2026-11-25), so there is no cancelled remnant and no exception row."
+          "detail": "Date from department instruction 'next week phyto is an exam for group A', anchored to 2026-11-13 -> next week (14-20 Nov) Thursday = 2026-11-19. Times reuse the printed practical slots (Group-1 slot 13:00-14:50, Group-2 slot 15:00-16:50) restricted to subdivision A. The weekly practical does not materialize on this date (its validity window ends 2026-11-18), so there is no cancelled remnant and no exception row."
         }
       ]
     },
@@ -27,7 +27,7 @@
       "type": "examination",
       "title": { "en": "Phytochemistry-I Examination (Group B)" },
       "day": "Thursday",
-      "date": "2026-12-03",
+      "date": "2026-11-26",
       "sessions": [
         { "group": 1, "subdivision": "B", "start": "13:00", "end": "14:50" },
         { "group": 2, "subdivision": "B", "start": "15:00", "end": "16:50" }
@@ -38,7 +38,7 @@
       "sourceReview": [
         {
           "code": "PHYTOCHEMISTRY_WINDOWED_AROUND_EXAMS",
-          "detail": "Date from department instruction 'the week after that is an exam for group B', anchored to 2026-11-13 -> Thursday of the week of 28 Nov = 2026-12-03. Times reuse the printed practical slots restricted to subdivision B. The weekly practical does not materialize on this date (its window resumes 2026-12-04), so there is no cancelled remnant and no exception row."
+          "detail": "Date from department instruction 'the week after that is an exam for group B', anchored to 2026-11-13 -> the week after (21-27 Nov) Thursday = 2026-11-26. Times reuse the printed practical slots restricted to subdivision B. The weekly practical does not materialize on this date (its window resumes 2026-11-27), so there is no cancelled remnant and no exception row."
         }
       ]
     }
