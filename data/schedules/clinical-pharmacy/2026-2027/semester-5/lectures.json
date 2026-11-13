@@ -1,0 +1,102 @@
+{
+  "events": [
+    {
+      "id": "clinical-s5-parasitology-lecture",
+      "courseId": "04-PM-503",
+      "type": "lecture",
+      "day": "Sunday",
+      "start": "11:00",
+      "end": "12:50",
+      "groups": [1, 2],
+      "location": { "building": "old", "floor": 5, "room": "Upper Lecture Hall" },
+      "shorthand": "LO 5 Parasitology & Virology",
+      "displayCode": "LO 5 Parasitology & Virology",
+      "validFrom": null,
+      "validUntil": null
+    },
+    {
+      "id": "clinical-s5-microbiology-lecture",
+      "courseId": "04-PM-502",
+      "type": "lecture",
+      "day": "Sunday",
+      "start": "13:00",
+      "end": "14:50",
+      "groups": [1, 2],
+      "location": { "building": "old", "floor": 5, "room": "Upper Lecture Hall" },
+      "shorthand": "LO 5 Pharmaceutical Microbiology and Antimicrobials",
+      "displayCode": "LO 5 Pharmaceutical Microbiology and Antimicrobials",
+      "validFrom": null,
+      "validUntil": null
+    },
+    {
+      "id": "clinical-s5-community-pharmacy-lecture",
+      "courseId": "09-PP-506",
+      "type": "lecture",
+      "day": "Monday",
+      "start": "13:00",
+      "end": "14:50",
+      "groups": [1, 2],
+      "location": { "building": "old", "floor": 0, "room": "Ground Lecture Hall" },
+      "shorthand": "LO 0 Community Pharmacy Practice",
+      "displayCode": "LO 0 Community Pharmacy Practice",
+      "validFrom": null,
+      "validUntil": null
+    },
+    {
+      "id": "clinical-s5-pharmacology-ii-lecture",
+      "courseId": "02-PO-507",
+      "type": "lecture",
+      "day": "Monday",
+      "start": "15:00",
+      "end": "16:50",
+      "groups": [1, 2],
+      "location": { "building": "old", "floor": 0, "room": "Ground Lecture Hall" },
+      "shorthand": "LO 0 Pharmacology-II",
+      "displayCode": "LO 0 Pharmacology-II",
+      "validFrom": null,
+      "validUntil": null
+    },
+    {
+      "id": "clinical-s5-dosage-forms-iii-lecture",
+      "courseId": "01-PT-504",
+      "type": "lecture",
+      "day": "Wednesday",
+      "start": "13:00",
+      "end": "14:50",
+      "groups": [1, 2],
+      "location": { "building": "new", "floor": 3, "room": "Lecture Hall A" },
+      "shorthand": "LN 3 Pharmaceutical Dosage Forms-III",
+      "displayCode": "LN 3 Pharmaceutical Dosage Forms-III",
+      "validFrom": null,
+      "validUntil": null
+    },
+    {
+      "id": "clinical-s5-pharmacy-legislation-lecture",
+      "courseId": "09-PP-405",
+      "type": "lecture",
+      "day": "Thursday",
+      "start": "10:00",
+      "end": "10:55",
+      "groups": [1, 2],
+      "location": { "building": "new", "floor": 6, "room": "Sixth Floor Hall" },
+      "shorthand": "LN 6 Pharmacy Legislation and professional ethics",
+      "displayCode": "LN 6 Pharmacy Legislation and professional ethics",
+      "validFrom": null,
+      "validUntil": null
+    },
+    {
+      "id": "clinical-s5-phytochemistry-lecture",
+      "courseId": "06-PG-504",
+      "type": "lecture",
+      "day": "Thursday",
+      "start": "11:00",
+      "end": "12:50",
+      "groups": [1, 2],
+      "location": { "building": "new", "floor": 3, "room": "Lecture Hall A" },
+      "shorthand": "LN 3 Phytochemistry-I",
+      "displayCode": "LN 3 Phytochemistry-I",
+      "validFrom": null,
+      "validUntil": null
+    }
+  ]
+}
