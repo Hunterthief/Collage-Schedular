@@ -1,0 +1,46 @@
+{
+  "events": [
+    {
+      "id": "clinical-s5-phytochemistry-exam-group-a",
+      "courseId": "06-PG-504",
+      "type": "examination",
+      "title": { "en": "Phytochemistry-I Examination (Group A)" },
+      "day": "Thursday",
+      "date": "2026-11-26",
+      "sessions": [
+        { "group": 1, "subdivision": "A", "start": "13:00", "end": "14:50" },
+        { "group": 2, "subdivision": "A", "start": "15:00", "end": "16:50" }
+      ],
+      "location": { "building": "new", "floor": 5, "room": null },
+      "shorthand": "EN 5 Phytochemistry-I (Group A)",
+      "displayCode": "EN 5 Phytochemistry-I (Group A)",
+      "sourceReview": [
+        {
+          "code": "PHYTOCHEMISTRY_DELIVERED_AS_EXAMS",
+          "detail": "Date derived from department instruction 'next week phyto is an exam for group A', anchored to 2026-11-13 -> Thursday of the week of 21 Nov = 2026-11-26. Times reuse the printed practical slots (Group-1 slot 13:00-14:50, Group-2 slot 15:00-16:50) restricted to subdivision A. Phytochemistry has no weekly practical section."
+        }
+      ]
+    },
+    {
+      "id": "clinical-s5-phytochemistry-exam-group-b",
+      "courseId": "06-PG-504",
+      "type": "examination",
+      "title": { "en": "Phytochemistry-I Examination (Group B)" },
+      "day": "Thursday",
+      "date": "2026-12-03",
+      "sessions": [
+        { "group": 1, "subdivision": "B", "start": "13:00", "end": "14:50" },
+        { "group": 2, "subdivision": "B", "start": "15:00", "end": "16:50" }
+      ],
+      "location": { "building": "new", "floor": 5, "room": null },
+      "shorthand": "EN 5 Phytochemistry-I (Group B)",
+      "displayCode": "EN 5 Phytochemistry-I (Group B)",
+      "sourceReview": [
+        {
+          "code": "PHYTOCHEMISTRY_DELIVERED_AS_EXAMS",
+          "detail": "Date derived from department instruction 'the week after that is an exam for group B', anchored to 2026-11-13 -> Thursday of the week of 28 Nov = 2026-12-03. Times reuse the printed practical slots restricted to subdivision B. Phytochemistry has no weekly practical section."
+        }
+      ]
+    }
+  ]
+}
