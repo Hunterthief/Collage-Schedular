@@ -79,11 +79,32 @@
       "shorthand": "PN 5 Phytochemistry-I",
       "displayCode": "PN 5 Phytochemistry-I",
       "validFrom": null,
+      "validUntil": "2026-11-25",
+      "sourceReview": [
+        {
+          "code": "PHYTOCHEMISTRY_WINDOWED_AROUND_EXAMS",
+          "detail": "Weekly Thursday practical for both groups. This window ends 2026-11-25 so the practical does not materialize on the two examination Thursdays (2026-11-26 Group A, 2026-12-03 Group B); the mid-term blackout separately suppresses 2026-10-29 and 2026-11-05. No cancel exceptions are used."
+        }
+      ]
+    },
+    {
+      "id": "clinical-s5-phytochemistry-practical-after-exams",
+      "courseId": "06-PG-504",
+      "type": "practical",
+      "day": "Thursday",
+      "sessions": [
+        { "group": 1, "start": "13:00", "end": "14:50" },
+        { "group": 2, "start": "15:00", "end": "16:50" }
+      ],
+      "location": { "building": "new", "floor": 5, "room": null },
+      "shorthand": "PN 5 Phytochemistry-I",
+      "displayCode": "PN 5 Phytochemistry-I",
+      "validFrom": "2026-12-04",
       "validUntil": null,
       "sourceReview": [
         {
-          "code": "PHYTOCHEMISTRY_WEEKLY_WITH_EXAM_WEEKS",
-          "detail": "Weekly Thursday practical, suspended on 2026-11-26 and 2026-12-03 by per-group cancel exceptions in exceptions.json (the multi-session rule requires an explicit group per row). Those two days are replaced by the subdivision Group A / Group B Phytochemistry-I examinations in exams.json."
+          "code": "PHYTOCHEMISTRY_WINDOWED_AROUND_EXAMS",
+          "detail": "Continuation of the weekly Thursday practical after the two examination Thursdays; this window starts 2026-12-04 so 2026-11-26 and 2026-12-03 carry only the subdivision examinations in exams.json."
         }
       ]
     },
