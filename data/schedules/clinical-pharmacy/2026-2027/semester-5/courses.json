@@ -1,0 +1,11 @@
+{
+  "courses": [
+    { "id": "04-PM-503", "code": "04-PM 503", "title": { "en": "Parasitology & Virology" }, "color": "#e8710a" },
+    { "id": "04-PM-502", "code": "04-PM 502", "title": { "en": "Pharmaceutical Microbiology and Antimicrobials" }, "color": "#1a73e8" },
+    { "id": "09-PP-506", "code": "09-PP 506", "title": { "en": "Community Pharmacy Practice" }, "color": "#188038" },
+    { "id": "02-PO-507", "code": "02-PO 507", "title": { "en": "Pharmacology-II" }, "color": "#7b1fa2" },
+    { "id": "01-PT-504", "code": "01-PT 504", "title": { "en": "Pharmaceutical Dosage Forms-III" }, "color": "#009688" },
+    { "id": "09-PP-405", "code": "09-PP 405", "title": { "en": "Pharmacy Legislation and professional ethics" }, "color": "#c2185b" },
+    { "id": "06-PG-504", "code": "06-PG 504", "title": { "en": "Phytochemistry-I" }, "color": "#795548" }
+  ]
+}
