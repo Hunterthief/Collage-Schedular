@@ -33,15 +33,19 @@
       "id": "pharmd-2026-2027-group-3",
       "practicalGroup": 3,
       "from": "2415149",
-      "to": null,
+      "to": "2415999",
       "subdivisions": [
         { "id": "pharmd-2026-2027-group-3-a", "name": "A", "from": "2415149", "to": "2415184" },
-        { "id": "pharmd-2026-2027-group-3-b", "name": "B", "from": "2415185", "to": null }
+        { "id": "pharmd-2026-2027-group-3-b", "name": "B", "from": "2415185", "to": "2415999" }
       ],
       "sourceReview": [
         {
-          "code": "SUBDIVISION_TRANSCRIPTION_AMBIGUOUS",
-          "detail": "Group 3 appears to define A 2415149-2415184 and B 2415185-end. Verify the B boundary against the official printed list."
+          "code": "OPEN_ENDED_BOUND_TO_PREFIX",
+          "detail": "Source prints group 3 and 3B as '2415149 – الأخر' / '2415185 – الأخر' (to the end). The upper bound is set to the ceiling of this cohort's 4-digit seat prefix (2415xxx -> 2415999) so the range cannot bleed into another cohort's namespace (e.g. Clinical 2510xxx), which previously made every clinical ID match both cohorts and raised AmbiguousAssignmentError on ID lookup."
+        },
+        {
+          "code": "EXTERNAL_IDS_NOW_UNMATCHED",
+          "detail": "IDs 2435001 and 2435002 (listed in the ChemSketch 3B-4 batch) sit in the 2435xxx prefix, outside 2415xxx, so they no longer auto-resolve to group 3 B and will report 'not found'. If the college confirms they belong to PharmD Year 3 group 3 B, add them as explicit overrides rather than widening this range."
         }
       ]
     }
