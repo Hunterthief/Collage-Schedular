@@ -16,8 +16,8 @@
       "displayCode": "EN 5 Phytochemistry-I (Group A)",
       "sourceReview": [
         {
-          "code": "PHYTOCHEMISTRY_DELIVERED_AS_EXAMS",
-          "detail": "Date derived from department instruction 'next week phyto is an exam for group A', anchored to 2026-11-13 -> Thursday of the week of 21 Nov = 2026-11-26. Times reuse the printed practical slots (Group-1 slot 13:00-14:50, Group-2 slot 15:00-16:50) restricted to subdivision A. Phytochemistry has no weekly practical section."
+          "code": "PHYTOCHEMISTRY_WEEKLY_WITH_EXAM_WEEKS",
+          "detail": "Date from department instruction 'next week phyto is an exam for group A', anchored to 2026-11-13 -> Thursday of the week of 21 Nov = 2026-11-26. Times reuse the printed practical slots (Group-1 slot 13:00-14:50, Group-2 slot 15:00-16:50) restricted to subdivision A. The weekly practical is cancelled for both groups on this date."
         }
       ]
     },
@@ -37,8 +37,8 @@
       "displayCode": "EN 5 Phytochemistry-I (Group B)",
       "sourceReview": [
         {
-          "code": "PHYTOCHEMISTRY_DELIVERED_AS_EXAMS",
-          "detail": "Date derived from department instruction 'the week after that is an exam for group B', anchored to 2026-11-13 -> Thursday of the week of 28 Nov = 2026-12-03. Times reuse the printed practical slots restricted to subdivision B. Phytochemistry has no weekly practical section."
+          "code": "PHYTOCHEMISTRY_WEEKLY_WITH_EXAM_WEEKS",
+          "detail": "Date from department instruction 'the week after that is an exam for group B', anchored to 2026-11-13 -> Thursday of the week of 28 Nov = 2026-12-03. Times reuse the printed practical slots restricted to subdivision B. The weekly practical is cancelled for both groups on this date."
         }
       ]
     }
