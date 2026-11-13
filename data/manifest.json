@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "dataVersion": "2026-11-13T23:55:00Z",
+  "dataVersion": "2026-11-13T23:59:00Z",
   "timezone": "Africa/Cairo",
   "paths": {
     "programs": "data/programs/programs.json",
