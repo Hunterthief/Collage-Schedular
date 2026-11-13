@@ -860,32 +860,39 @@ function renderCalendar(state) {
     return;
   }
 
-  const addByUrlPage = googleCalendarAddByUrlUrl();
   const oneClickUrl = googleCalendarSubscribeUrl(feedUrl);
+  const addByUrlPage = googleCalendarAddByUrlUrl();
   const subNote = state.assignment.subdivision
     ? `This feed contains only subgroup ${state.assignment.groupLabel} sessions (alternating weeks and batch times included).`
     : `This feed contains the whole group ${state.assignment.practicalGroup} schedule.`;
 
   els.calendarLinks.innerHTML = `
     <ol class="steps">
-      <li>Click <strong>Open Google Calendar</strong>. The feed URL is copied to your clipboard automatically.</li>
-      <li>In the page that opens, paste it into the <strong>URL of calendar</strong> box.</li>
-      <li>Click <strong>Add calendar</strong>. The subscription stays live and updates itself.</li>
+      <li>Click <strong>Subscribe in Google Calendar</strong> and confirm the prompt.</li>
+      <li>No prompt? Use <strong>Add manually</strong> — the feed URL is copied for you.</li>
+      <li>Paste it into the <strong>URL of calendar</strong> box, then click <strong>Add calendar</strong>.</li>
     </ol>
     <div class="feed-box">
       <div><span class="feed-label">Stable feed URL</span><code>${escapeHtml(feedUrl)}</code></div>
       <div class="feed-actions">
-        <a class="btn primary" id="open-gcal" href="${escapeHtml(addByUrlPage)}" target="_blank" rel="noopener noreferrer">Open Google Calendar</a>
+        <a class="btn primary" id="one-click-subscribe" href="${escapeHtml(oneClickUrl)}" target="_blank" rel="noopener noreferrer">Subscribe in Google Calendar</a>
+        <a class="btn quiet" id="open-gcal" href="${escapeHtml(addByUrlPage)}" target="_blank" rel="noopener noreferrer">Add manually (backup)</a>
         <button class="btn quiet" type="button" id="copy-feed">Copy feed URL</button>
         <button class="btn quiet" type="button" id="download-ics">Download .ics preview</button>
       </div>
-      <p class="hint" id="copy-hint">${escapeHtml(subNote)} Google's one-click endpoint is unreliable, so this button opens Google's official "Add by URL" page.</p>
-      <p class="hint">Prefer to try anyway? <a href="${escapeHtml(oneClickUrl)}" target="_blank" rel="noopener noreferrer">One-click subscribe (may fail)</a>. If Google says the calendar already exists, remove the old entry first.</p>
+      <p class="hint" id="copy-hint">${escapeHtml(subNote)} The subscription stays live and updates itself.</p>
+      <p class="hint">If Google says the calendar already exists, remove the old entry from your calendar list first.</p>
     </div>
     <p class="hint">Subject colors appear on this website. Google assigns one color per subscribed calendar, so in Google the subject is identified by its shorthand name (e.g. PN 7 Basic Pharmacology). Reminders in the feed follow the 1h / 15m rule; Google subscription ignores them, so use the Reminders panel above for Google-equivalent alerts.</p>
   `;
 
   const hint = document.getElementById("copy-hint");
+
+  document.getElementById("one-click-subscribe").addEventListener("click", () => {
+    if (hint) {
+      hint.textContent = "Google should ask you to confirm the subscription. If no prompt appears, use Add manually (backup) — it copies the feed URL for you.";
+    }
+  });
 
   document.getElementById("open-gcal").addEventListener("click", () => {
     copyToClipboard(feedUrl).then((ok) => {
