@@ -1,32 +1,3 @@
 {
-  "exceptions": [
-    {
-      "id": "clinical-s5-phyto-cancel-2026-11-26-g1",
-      "eventId": "clinical-s5-phytochemistry-practical",
-      "date": "2026-11-26",
-      "action": "cancel",
-      "group": 1
-    },
-    {
-      "id": "clinical-s5-phyto-cancel-2026-11-26-g2",
-      "eventId": "clinical-s5-phytochemistry-practical",
-      "date": "2026-11-26",
-      "action": "cancel",
-      "group": 2
-    },
-    {
-      "id": "clinical-s5-phyto-cancel-2026-12-03-g1",
-      "eventId": "clinical-s5-phytochemistry-practical",
-      "date": "2026-12-03",
-      "action": "cancel",
-      "group": 1
-    },
-    {
-      "id": "clinical-s5-phyto-cancel-2026-12-03-g2",
-      "eventId": "clinical-s5-phytochemistry-practical",
-      "date": "2026-12-03",
-      "action": "cancel",
-      "group": 2
-    }
-  ]
+  "exceptions": []
 }
