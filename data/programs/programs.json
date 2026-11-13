@@ -120,15 +120,15 @@
                 },
                 {
                   "code": "ALL_SECTIONS_WEEKLY_NO_ROTATION",
-                  "detail": "Department instruction: every lecture and practical section in this semester runs every week for both groups; there are no alternating A/B weeks. The only suspensions are the two Phytochemistry-I examination Thursdays, handled by cancel exceptions."
+                  "detail": "Department instruction: every lecture and practical section in this semester runs every week for both groups; there are no alternating A/B weeks. The only deviations are the two Phytochemistry-I examination Thursdays (2026-11-26 Group A, 2026-12-03 Group B), represented by dated examination events; the weekly practical's validity windows simply skip those two dates, so no cancel exceptions exist."
                 },
                 {
                   "code": "MICROBIOLOGY_PRACTICAL_GROUPS_SWAPPED",
                   "detail": "The printed practical sheet lists Wednesday Pharmaceutical Microbiology as 3:00-4:50 Group 2 / 5:00-6:50 Group 1. The department switched the two groups without reprinting the schedule, so the dataset stores the corrected order (Group 1 3:00-4:50, Group 2 5:00-6:50)."
                 },
                 {
-                  "code": "PHYTOCHEMISTRY_WEEKLY_WITH_EXAM_WEEKS",
-                  "detail": "Phytochemistry-I runs as a weekly Thursday practical for both groups (Group 1 13:00-14:50, Group 2 15:00-16:50, fifth floor New Building). It is suspended on the two examination Thursdays via per-group cancel exceptions: 2026-11-26 (subdivision Group A sits EN 5 Phytochemistry-I (Group A)) and 2026-12-03 (subdivision Group B sits EN 5 Phytochemistry-I (Group B)). On each exam day the non-tested subdivision has no phyto session, consistent with 'all sections every week except for exams'."
+                  "code": "PHYTOCHEMISTRY_WINDOWED_AROUND_EXAMS",
+                  "detail": "Phytochemistry-I is a weekly Thursday practical for both groups, expressed as two validity windows that exclude the two examination Thursdays (ends 2026-11-25, resumes 2026-12-04). The mid-term blackout separately suppresses 2026-10-29 and 2026-11-05. No cancel exceptions are used, so nothing is left as a cancelled remnant."
                 },
                 {
                   "code": "EXAM_TIMETABLE_PARTIAL",
