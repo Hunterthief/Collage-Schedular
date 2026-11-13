@@ -9,11 +9,17 @@ A **fully static, data-driven college scheduling platform** for the Faculty of P
 **Live site:** <https://hunterthief.github.io/Collage-Scheduler/>
 **Repository:** <https://github.com/Hunterthief/Collage-Scheduler>
 
-> **Deployment status — year-scoped feeds.** Canonical feed paths now include the year level
-> (`…/year-3/group-1-a.ics`). This takes effect once the updated `data/manifest.json`,
-> `assets/js/calendar/calendar-links.js` and `tools/generate-calendars.mjs` are committed and CI
-> regenerates the feeds. Until then only the flat alias paths listed in §9.2 resolve. The alias
-> paths work both before and after the update, so no existing subscription breaks.
+> **Deployment status.** This README documents two changes that take effect once their files are
+> committed and CI regenerates the feeds:
+>
+> 1. **Year-scoped feed paths** (`…/year-3/group-1-a.ics`), from the updated `data/manifest.json`,
+>    `assets/js/calendar/calendar-links.js` and `tools/generate-calendars.mjs`.
+> 2. **One-click subscribe as the primary action**, from the updated `assets/js/app.js`.
+>
+> At the last verification the repository still had flat feed paths, no `yearLevel`/`legacyAlias`
+> in the manifest, and the stray `institution/group-null.ics`. The flat alias paths in §9.2 resolve
+> both before and after the update, so no existing subscription breaks. Remove this callout once
+> both changes are live.
 
 ---
 
@@ -89,6 +95,7 @@ Adding a program, a year level, a semester, a course, a rotation or a college-wi
 
 **Calendars**
 - Static feeds per **year level**, per group and per subgroup, plus a college-wide feed.
+- **One-click subscribe** as the primary action, with manual Add-by-URL as a labelled backup.
 - Stable URLs across updates; stable UIDs; content-hashed `SEQUENCE`; `STATUS:CANCELLED`.
 - **Reminders**: first timed event of each day → 1 hour before; every later timed event → 15 minutes before (`VALARM`).
 - In-page reminder engine (browser notifications + toasts) using the same rule, for clients that ignore feed alarms.
@@ -513,13 +520,33 @@ Add the semester with its `yearLevel`, add the assignment document, add the mani
 
 `VALARM` / `ACTION:DISPLAY` with `TRIGGER:-PT1H` for the **first timed event of each day** and `TRIGGER:-PT15M` for every later timed event. All-day and cancelled events get no alarm.
 
-### 9.6 Google Calendar realities
+### 9.6 Subscribing
 
-- **Subscribe via Settings → Add calendar → From URL.** The site's button copies the feed URL and opens that page.
-- The one-click `…/render?cid=` endpoint is unreliable for external feeds ("Unable to add calendar. Check the URL."); it is offered only as a labelled fallback.
-- Never paste a feed URL into an *email address* field.
-- Google **ignores `VALARM` and per-event colours on subscribed calendars** — hence the in-page reminder engine and the shorthand titles. Apple Calendar, Outlook and Thunderbird honour feed alarms.
-- Google refreshes subscribed feeds on its own schedule (hours to days). The website and the `.ics` files update immediately after publication.
+**Primary — one click.** The site's **Subscribe in Google Calendar** button opens
+`https://www.google.com/calendar/render?cid=<webcal feed URL>`, which drops the student straight
+into Google's subscription confirmation. One click, confirm, done. The subscription then stays
+live and updates itself whenever CI republishes the feed.
+
+**Backup — manual Add by URL.** If no confirmation prompt appears, the **Add manually (backup)**
+button copies the feed URL to the clipboard and opens Google's official
+`calendar.google.com/calendar/u/0/r/settings/addbyurl` page. Paste into **URL of calendar** and
+click **Add calendar**. This route is always available and never depends on the `cid` endpoint.
+
+**Other clients.** Apple Calendar, Outlook and Thunderbird accept the same `https://` or
+`webcal://` URL directly, and they honour the feed's `VALARM` reminders.
+
+**Known behaviours**
+- Google has historically been intermittent with the `render?cid=` endpoint. It is the default
+  because it works for the common case; the manual route exists precisely so a failure is never
+  a dead end.
+- If Google reports that the calendar already exists, remove the old entry from the calendar list
+  before re-adding.
+- Never paste a feed URL into an *email address* field — that produces "is not a valid email
+  address".
+- Google **ignores `VALARM` and per-event colours on subscribed calendars**, which is why the site
+  carries its own reminder engine and why subjects are identified by shorthand name.
+- Google refreshes subscribed feeds on its own schedule (hours to days). The website and the
+  `.ics` files update immediately after publication.
 
 ---
 
@@ -530,7 +557,7 @@ Add the semester with its `yearLevel`, add the assignment document, add the mani
 - **Week / Day** grids: sticky day headers and time gutter, all-day row, overlap columns, current-time line, AM/PM gutter labels, 🔔 reminder badges, subject colours, tooltips with full title + room + reminder.
 - **List** agenda grouped by day with type/reminder/cancelled/review tags.
 - **Reminders panel**: opt-in toggle (persisted), permission status, test button, toast fallback; schedules a rolling 36-hour window and re-rolls on tab focus.
-- **Subscription panel**: stable feed URL, copy button, Add-by-URL button, `.ics` preview download named after group/subgroup/year.
+- **Subscription panel**: one-click subscribe as the primary action; manual Add-by-URL backup that auto-copies the feed URL; copy button; `.ics` preview download named after group/subgroup/year.
 - Privacy notice from `settings.json`; mobile-first layout with no sideways scrolling.
 
 ---
@@ -648,7 +675,7 @@ Deployment: **Settings → Pages → Deploy from a branch → `main` / root**. `
 
 - **7 courses**, **8 lecture definitions**, **19 practical definitions**, **10 examinations**.
 - Practicals: 5 weekly (Scientific Writing, Basic Pharmacology, Pharmaceutics III, Pharmaceutical Microbiology, Phytochemistry I) + 9 dated Drug Information tutorials + 4 ChemSketch cycles + 1 Wet Lab cycle.
-- **ChemSketch** (Simulation Lab, New Building floor 4): Wednesdays 30 Sep (A), 7 Oct (B), 14 Oct (A), 21 Oct (B). Six hourly slots 09–10, 10–11, 11–12, 12–13, 13–14, 14–15, ordered `1A, 1A, 3A, 3A, 2A, 2A`, each restricted to a seat-number batch.
+- **ChemSketch** (Simulation lab, New Building floor 4): Wednesdays 30 Sep (A), 7 Oct (B), 14 Oct (A), 21 Oct (B). Six hourly slots 09–10, 10–11, 11–12, 12–13, 13–14, 14–15, ordered `1A, 1A, 3A, 3A, 2A, 2A`, each restricted to a seat-number batch.
 - **Wet Lab**: Wednesdays, 09–11 (section 1), 11–13 (section 3), 13–15 (section 2); Week 1 = Group A, Week 2 = Group B. Held in the Pharmaceutical Chemistry Lab (Old Building, floor 2) and Organic Chemistry Lab (New Building, floor 4). Structure stored but **not materialized** until dates are confirmed.
 - **Drug Information tutorials** (Computer Hall, New Building ground floor): 27 Sep A, 4 Oct B, 11 Oct A, 18 Oct B, 25 Oct A, 8 Nov B, 15 Nov A, 22 Nov B, 29 Nov A+B — topics carried in each event's description.
 - **Examinations**: 7 mid-terms (31 Oct–5 Nov, New Building); **Drug Design Quiz 1** on 18 Nov in the Pharmaceutical Chemistry Lab (Old Building, floor 2), six 30-minute slots `1A 09:00, 1B 10:00, 3A 11:00, 3B 12:00, 2A 13:00, 2B 14:00` — all students attend the same week, and students from higher levels attend at their fixed time starting from the first section; **Drug Information final practical** A on 6 Dec, B on 13 Dec (times/rooms not yet announced, stored all-day).
@@ -710,6 +737,7 @@ Unverified information is **never silently presented as confirmed**. Records car
 
 | Symptom | Cause | Fix |
 |---|---|---|
+| One-click subscribe opens Google but no confirmation appears | Intermittent `render?cid=` behaviour, or the calendar is already subscribed | Use **Add manually (backup)** — it copies the URL and opens Add by URL. Remove any existing entry first |
 | Feed URL has no year segment | Older build gated the year behind "more than one cohort" | Year-scoped templates are now used whenever the level is known; manifest cohorts carry `yearLevel` |
 | Existing feed URL stopped working after adding a year | Flat path ownership was implicit | Mark the original cohort `legacyAlias: true`; it keeps publishing the flat copies |
 | `'fetch' called on an object that does not implement interface Window` | Native `fetch` invoked with the wrong receiver | `loader.js` calls `Reflect.apply(fn, globalThis, [url, init])`; never store a bare `fetch` reference |
@@ -717,8 +745,7 @@ Unverified information is **never silently presented as confirmed**. Records car
 | `Loading module … was blocked because of a disallowed MIME type ("text/html")` | A JS module is missing, so Pages returns its 404 HTML page; the whole `app.js` graph fails and **every** button stops working | Create the missing file (this happened with `schedule/reminders.js`) |
 | `Cannot find module '…/tests'` | `tests/` not committed | Commit `tests/*.test.mjs`; CI discovers test files and fails with a readable message |
 | Validator: `duplicate session group N` | Older validator assumed one session per group | Batch-aware validator: duplicates are `group+subdivision+batch` or `group+subdivision+time` |
-| Google: *"…is not a valid email address"* | Feed URL pasted into an email field | Use **Add calendar → From URL** |
-| Google: *"Unable to add calendar. Check the URL."* | Known `render?cid=` endpoint bug, or the URL is already subscribed | Use Add by URL; remove any existing entry first |
+| Google: *"…is not a valid email address"* | Feed URL pasted into an email field | Use the subscribe button, or **Add calendar → From URL** |
 | Feed URL returns 404 | Feeds only existed as an Actions artifact | Ensure the CI publish step committed `calendar/feeds/` |
 | Search bar overflows on mobile | Auto-sized grid track + sub-16px input focus zoom | `grid-template-columns: minmax(0,1fr)`, `min-width: 0`, 16px inputs, stacked button under 480px |
 | Changes don't appear | Cached ES modules / JSON | Hard reload with cache disabled; bump `manifest.dataVersion` |
@@ -730,6 +757,7 @@ Unverified information is **never silently presented as confirmed**. Records car
 
 **Limitations**
 - Google ignores feed alarms and per-event colours on subscribed calendars; the in-page engine covers reminders while the tab is open.
+- Google's one-click endpoint can be intermittent; the manual Add-by-URL backup is always available.
 - Whole-group feeds are a fallback: rotating sections appear every week there, labelled with the active subdivision. Subgroup feeds are the accurate ones.
 - Drug Design Wet Lab is stored but not materialized (no confirmed dates).
 - Clinical examinations are empty pending publication.
