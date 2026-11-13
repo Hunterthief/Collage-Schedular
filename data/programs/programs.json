@@ -36,7 +36,7 @@
               "sourceReview": [
                 {
                   "code": "SEMESTER_WINDOW_FROM_PROVISIONAL_CALENDAR",
-                  "detail": "Semester window taken from the Fall 2026/2027 academic calendar, which states dates are approximate."
+                  "detail": "Semester window taken from the Fall 2026/2027 academic calendar, which states its dates are approximate."
                 }
               ]
             }
@@ -84,7 +84,55 @@
                 },
                 {
                   "code": "EXAM_TIMETABLE_NOT_YET_PUBLISHED",
-                  "detail": "No Clinical Pharmacy exam timetable was supplied; exams.json is empty until published. The college-wide mid-term blackout still applies."
+                  "detail": "No Clinical Pharmacy Semester 3 exam timetable was supplied; exams.json is empty until published. The college-wide mid-term blackout still applies."
+                }
+              ]
+            },
+            {
+              "id": "clinical-pharmacy-2026-2027-semester-5",
+              "name": { "en": "Semester 5 (Year 3)", "ar": "الفصل الدراسي الخامس (الفرقة الثالثة)" },
+              "yearLevel": 3,
+              "validFrom": "2026-09-19",
+              "validUntil": "2026-12-17",
+              "status": "published",
+              "datasets": {
+                "courses": "data/schedules/clinical-pharmacy/2026-2027/semester-5/courses.json",
+                "lectures": "data/schedules/clinical-pharmacy/2026-2027/semester-5/lectures.json",
+                "practicals": "data/schedules/clinical-pharmacy/2026-2027/semester-5/practicals.json",
+                "exams": "data/schedules/clinical-pharmacy/2026-2027/semester-5/exams.json",
+                "exceptions": "data/schedules/clinical-pharmacy/2026-2027/semester-5/exceptions.json"
+              },
+              "blackouts": [
+                {
+                  "id": "fall-2026-midterm-week",
+                  "label": { "en": "Mid-term Exams Week", "ar": "أسبوع امتحانات منتصف الفصل" },
+                  "from": "2026-10-31",
+                  "to": "2026-11-05",
+                  "blocksAcademicEvents": true,
+                  "blockTypes": ["lecture", "practical"],
+                  "excludedFromRotation": true
+                }
+              ],
+              "sourceReview": [
+                {
+                  "code": "SEMESTER_WINDOW_FROM_PROVISIONAL_CALENDAR",
+                  "detail": "Semester window taken from the college-wide Fall 2026/2027 academic calendar (approximate dates)."
+                },
+                {
+                  "code": "ALL_SECTIONS_WEEKLY_NO_ROTATION",
+                  "detail": "Department instruction: every lecture and practical section in this semester runs every week for both groups; there are no alternating A/B weeks. The only dated exceptions are the two Phytochemistry-I examinations."
+                },
+                {
+                  "code": "MICROBIOLOGY_PRACTICAL_GROUPS_SWAPPED",
+                  "detail": "The printed practical sheet lists Wednesday Pharmaceutical Microbiology as 3:00-4:50 Group 2 / 5:00-6:50 Group 1. The department switched the two groups without reprinting the schedule, so the dataset stores the corrected order (Group 1 3:00-4:50, Group 2 5:00-6:50)."
+                },
+                {
+                  "code": "PHYTOCHEMISTRY_DELIVERED_AS_EXAMS",
+                  "detail": "Phytochemistry-I is not held as a weekly practical section. It is delivered as two examinations: subdivision Group A on Thursday 2026-11-26 and subdivision Group B on Thursday 2026-12-03 ('next week' / 'the week after', anchored to 2026-11-13). Clock times reuse the printed practical slots (Group-1 slot then Group-2 slot), restricted to the relevant subdivision."
+                },
+                {
+                  "code": "EXAM_TIMETABLE_PARTIAL",
+                  "detail": "Only the two Phytochemistry-I examinations were supplied for this semester. Other mid-term/final examinations are pending publication; the college-wide mid-term blackout still suppresses lectures and practicals 2026-10-31 to 2026-11-05."
                 }
               ]
             }
