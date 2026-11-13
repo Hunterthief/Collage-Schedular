@@ -1,0 +1,34 @@
+{
+  "programId": "clinical-pharmacy",
+  "academicYearId": "2026-2027",
+  "yearLevel": 3,
+  "rules": [
+    {
+      "id": "clinical-y3-2026-2027-group-1",
+      "practicalGroup": 1,
+      "from": "2410001",
+      "to": "2410037",
+      "subdivisions": [
+        { "id": "clinical-y3-2026-2027-group-1-a", "name": "A", "from": "2410001", "to": "2410018" },
+        { "id": "clinical-y3-2026-2027-group-1-b", "name": "B", "from": "2410019", "to": "2410037" }
+      ]
+    },
+    {
+      "id": "clinical-y3-2026-2027-group-2",
+      "practicalGroup": 2,
+      "from": "2410038",
+      "to": "2410999",
+      "subdivisions": [
+        { "id": "clinical-y3-2026-2027-group-2-a", "name": "A", "from": "2410038", "to": "2410056" },
+        { "id": "clinical-y3-2026-2027-group-2-b", "name": "B", "from": "2410057", "to": "2410999" }
+      ],
+      "sourceReview": [
+        {
+          "code": "OPEN_ENDED_BOUND_TO_PREFIX",
+          "detail": "Source prints group 2 and 2B as '2410038 – الأخر' / '2410057 – الأخر' (to the end). The upper bound is set to the ceiling of this cohort's 4-digit seat prefix (2410xxx -> 2410999) so the range cannot bleed into another cohort's namespace (PharmD 2415xxx, Clinical Year 2 2510xxx), which previously caused cross-cohort ambiguity on ID lookup."
+        }
+      ]
+    }
+  ],
+  "overrides": []
+}
