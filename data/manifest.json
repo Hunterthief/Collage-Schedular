@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "dataVersion": "2026-11-13T21:00:00Z",
+  "dataVersion": "2026-11-13T23:55:00Z",
   "timezone": "Africa/Cairo",
   "paths": {
     "programs": "data/programs/programs.json",
@@ -23,6 +23,12 @@
       "yearLevel": 2,
       "legacyAlias": true,
       "path": "data/students/assignments/clinical-pharmacy/2026-2027.json"
+    },
+    {
+      "programId": "clinical-pharmacy",
+      "academicYearId": "2026-2027",
+      "yearLevel": 3,
+      "path": "data/students/assignments/clinical-pharmacy/2026-2027-year-3.json"
     }
   ],
   "calendarFeeds": {
