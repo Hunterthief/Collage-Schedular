@@ -67,6 +67,27 @@
       ]
     },
     {
+      "id": "clinical-s5-phytochemistry-practical",
+      "courseId": "06-PG-504",
+      "type": "practical",
+      "day": "Thursday",
+      "sessions": [
+        { "group": 1, "start": "13:00", "end": "14:50" },
+        { "group": 2, "start": "15:00", "end": "16:50" }
+      ],
+      "location": { "building": "new", "floor": 5, "room": null },
+      "shorthand": "PN 5 Phytochemistry-I",
+      "displayCode": "PN 5 Phytochemistry-I",
+      "validFrom": null,
+      "validUntil": null,
+      "sourceReview": [
+        {
+          "code": "PHYTOCHEMISTRY_WEEKLY_WITH_EXAM_WEEKS",
+          "detail": "Weekly Thursday practical, suspended on 2026-11-26 and 2026-12-03 by per-group cancel exceptions in exceptions.json (the multi-session rule requires an explicit group per row). Those two days are replaced by the subdivision Group A / Group B Phytochemistry-I examinations in exams.json."
+        }
+      ]
+    },
+    {
       "id": "clinical-s5-parasitology-practical",
       "courseId": "04-PM-503",
       "type": "practical",
