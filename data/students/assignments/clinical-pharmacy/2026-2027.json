@@ -17,15 +17,15 @@
       "id": "clinical-2026-2027-group-2",
       "practicalGroup": 2,
       "from": "2510048",
-      "to": null,
+      "to": "2510999",
       "subdivisions": [
         { "id": "clinical-2026-2027-group-2-a", "name": "A", "from": "2510048", "to": "2510072" },
-        { "id": "clinical-2026-2027-group-2-b", "name": "B", "from": "2510073", "to": null }
+        { "id": "clinical-2026-2027-group-2-b", "name": "B", "from": "2510073", "to": "2510999" }
       ],
       "sourceReview": [
         {
-          "code": "OPEN_ENDED_RANGE",
-          "detail": "Source prints group 2 and subdivision 2B as 'to the end'. Verify the official upper bound when the final seat list is published."
+          "code": "OPEN_ENDED_BOUND_TO_PREFIX",
+          "detail": "Source prints group 2 and 2B as '2510048 – الأخر' / '2510073 – الأخر' (to the end). The upper bound is set to the ceiling of this cohort's 4-digit seat prefix (2510xxx -> 2510999) so it cannot overlap another cohort's namespace. Previously the unbounded tail combined with PharmD group 3's unbounded tail caused cross-cohort ambiguity on ID lookup."
         }
       ]
     }
